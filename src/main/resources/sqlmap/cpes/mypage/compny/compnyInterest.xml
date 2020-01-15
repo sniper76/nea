@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="compnyInterest">
+
+	<!-- 관심채용공고 조건 -->
+	<sql id="whereVacancyCond">
+		WHERE A.CATE_CD = 'BCT0000000003'	/* 채용공고 북마크 */
+		AND C.USER_SEQ = #{condUserSeq}
+		AND C.USE_YN = 'Y'	/* 기업 사용여부  */
+		AND C.DEL_YN = 'N'  /* 기업 삭제여부  */
+		AND B.USE_YN = 'Y'  /* 채용공고 사용여부  */
+		AND B.DEL_YN = 'N'  /* 채용공고 삭제여부  */
+		AND D.DEL_YN = 'N' /* 사용자 삭제여부 */
+		AND D.USE_YN = 'Y' /* 사용자 사용여부 */
+		AND E.USE_YN = 'Y' /* 이력서 사용여부 */
+	    AND E.PRI_RESUME_YN = 'Y' /* 대표이력서 조회 */
+
+	</sql>
+
+	<!-- 관심기업 조건 -->
+	<sql id="whereCompnyCond">
+		WHERE A.CATE_CD = 'BCT0000000001'	/* 기업 북마크 */
+		AND B.USER_SEQ = #{condUserSeq}
+		AND B.USE_YN = 'Y'	/* 기업 사용여부  */
+		AND C.DEL_YN = 'N' /* 사용자 삭제여부 */
+		AND C.USE_YN = 'Y' /* 사용자 사용여부 */
+		AND D.USE_YN = 'Y' /* 이력서 사용여부 */
+	    AND D.PRI_RESUME_YN = 'Y' /* 대표이력서 조회 */
+
+	</sql>
+
+	<!-- 관심인재 조건 -->
+	<sql id="whereResumeCond">
+		WHERE A.CATE_CD = 'BCT0000000006'	/* 이력서 북마크 */
+		AND A.USER_SEQ = #{condUserSeq}
+		AND C.DEL_YN = 'N' /* 사용자 삭제여부 */
+		AND C.USE_YN = 'Y' /* 사용자 사용여부 */
+	</sql>
+
+	<!-- 관심채용행사 조건 -->
+	<sql id="whereFairCond">
+		WHERE A.USER_SEQ = #{condUserSeq}
+		AND A.CATE_CD = 'BCT0000000002'	/* 행사 북마크 */
+		AND B.USE_YN = 'Y'
+		AND B.FAIR_VIEW_YN = 'Y'
+		AND B.DEL_YN = 'N'
+	</sql>
+
+	<!-- 정렬 조건 -->
+	<sql id="sortCond">
+		ORDER BY
+		<choose>
+			<when test="condSort != null and condSort.equals('LIKE')">
+				B.BKMK_CNT DESC
+			</when>
+			<when test="condSort != null and condSort.equals('VIEW')">
+				B.VIEW_CNT DESC
+			</when>
+			<otherwise>
+	  			B.REG_DT DESC
+			</otherwise>
+		</choose>
+	</sql>
+
+
+ 	<!-- 관심채용공고 목록 count,interest vacancy list count -->
+	<select id="selectVacancyListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondInterestBean">
+        <![CDATA[
+        	/*compnyInterest.selectVacancyListCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+            FROM CPES_BKMK A
+            INNER JOIN CPES_VACANCY B
+            ON A.TABLE_KEY_SEQ = B.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY C
+            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+            INNER JOIN CPES_USER D
+            ON D.USER_SEQ = D.USER_SEQ
+            INNER JOIN CPES_RESUME E
+            ON E.USER_SEQ = D.USER_SEQ
+
+       ]]>
+            <include refid="whereVacancyCond"/>
+
+    </select>
+
+  	<!-- 관심채용공고 목록 ,interest vacancy list  -->
+	<select id="selectVacancyList" resultType="ony.cpes.external.mypage.compny.bean.InterestBean" parameterType="ony.cpes.external.mypage.compny.bean.CondInterestBean">
+        <![CDATA[
+        	/*compnyInterest.selectVacancyList*/
+            SELECT
+            	 A.BKMK_SEQ,
+                 B.VACANCY_SEQ,
+                 B.COMPNY_SEQ,
+                 B.VACANCY_TITLE,
+                 B.VACANCY_STS_CD,
+				 (
+				 	SELECT COUNT(1)
+				 	FROM CPES_APPLIC F
+				 	WHERE F.VACANCY_SEQ = B.VACANCY_SEQ
+				 	AND F.RESUME_SEQ = E.RESUME_SEQ
+				 ) AS APPLIC_CNT,
+				 FN_GET_USER_NM_BY_USER_SEQ(D.USER_SEQ, #{langCd}) AS USER_NM,
+				 FLOOR((CAST(REPLACE(CURRENT_DATE,'-','') AS UNSIGNED) -  CAST(D.BIRTH AS UNSIGNED)) / 10000 ) AS AGE,
+				 E.RESUME_TITLE,
+				 (
+				 	SELECT FN_GET_COMMON_NM('EDU_DEGREE_CD', G.EDU_DEGREE_CD, #{langCd})
+				 	FROM CPES_RESUME_GENRL_EDU G
+				 	WHERE G.RESUME_SEQ = E.RESUME_SEQ
+				 	LIMIT 1
+				 ) AS EDU_DEGREE_NM,
+				 (
+				 	SELECT FN_GET_ISCO_NM(G.ISCO_CD, #{langCd})
+				 	FROM CPES_RESUME_ISCO G
+				 	WHERE G.RESUME_SEQ = E.RESUME_SEQ
+				 	LIMIT 1
+				 ) AS ISCO_NM,
+				 E.RESUME_SEQ,
+				 E.CAREER_YN,
+				 E.TOT_CAREER_TERM_YEAR_CNT,
+				 E.TOT_CAREER_TERM_MONTH_CNT,
+				 D.GENDER_CD,
+				 FN_GET_FILE_PATH(E.FILE_GRP_SEQ) AS IMAGE_PATH,
+				 FN_GET_COMMON_NM('GENDER_CD', D.GENDER_CD, #{langCd}) AS GENDER_NM,
+				 FN_GET_BKMK_SEQ(C.USER_SEQ, 'BCT0000000006', E.RESUME_SEQ) AS USER_BKMK_SEQ,
+				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN,
+				 FN_GET_FILE_PATH(E.FILE_GRP_SEQ) AS FILE_PATH
+            FROM CPES_BKMK A
+            INNER JOIN CPES_VACANCY B
+            ON A.TABLE_KEY_SEQ = B.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY C
+            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+            INNER JOIN CPES_USER D
+            ON D.USER_SEQ = D.USER_SEQ
+            INNER JOIN CPES_RESUME E
+            ON E.USER_SEQ = D.USER_SEQ
+       ]]>
+            <include refid="whereVacancyCond"/>
+            ORDER BY A.REG_DT DESC
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+
+ 	<!-- 관심회사로 등록한 인재 목록 count,interest company list count -->
+	<select id="selectCompnyListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondInterestBean">
+        <![CDATA[
+        	/*compnyInterest.selectCompnyListCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+            FROM CPES_BKMK A
+            INNER JOIN CPES_COMPNY B
+            ON A.TABLE_KEY_SEQ = B.COMPNY_SEQ
+            INNER JOIN CPES_USER C
+            ON A.USER_SEQ = C.USER_SEQ
+            INNER JOIN CPES_RESUME D
+            ON D.USER_SEQ = C.USER_SEQ
+
+       ]]>
+            <include refid="whereCompnyCond"/>
+
+    </select>
+
+  	<!-- 관심회사로 등록한 인재 목록 ,interest company list  -->
+	<select id="selectCompnyList" resultType="ony.cpes.external.mypage.compny.bean.InterestBean" parameterType="ony.cpes.external.mypage.compny.bean.CondInterestBean">
+        <![CDATA[
+        	/*compnyInterest.selectCompnyList*/
+            SELECT
+            	 A.BKMK_SEQ,
+            	 FN_GET_BASE_DATE_CHAR(A.REG_DT,#{langCd}) AS REG_DT,
+                 B.COMPNY_SEQ,
+				 FN_GET_USER_NM_BY_USER_SEQ(C.USER_SEQ, #{langCd}) AS USER_NM,
+				 FLOOR((CAST(REPLACE(CURRENT_DATE,'-','') AS UNSIGNED) -  CAST(C.BIRTH AS UNSIGNED)) / 10000 ) AS AGE,
+				 D.RESUME_TITLE,
+				 (
+				 	SELECT FN_GET_COMMON_NM('EDU_DEGREE_CD', G.EDU_DEGREE_CD, #{langCd})
+				 	FROM CPES_RESUME_GENRL_EDU G
+				 	WHERE G.RESUME_SEQ = D.RESUME_SEQ
+				 	LIMIT 1
+				 ) AS EDU_DEGREE_NM,
+				 (
+				 	SELECT FN_GET_ISCO_NM(G.ISCO_CD, #{langCd})
+				 	FROM CPES_RESUME_ISCO G
+				 	WHERE G.RESUME_SEQ = D.RESUME_SEQ
+				 	LIMIT 1
+				 ) AS ISCO_NM,
+				 D.RESUME_SEQ,
+				 D.CAREER_YN,
+				 D.TOT_CAREER_TERM_YEAR_CNT,
+				 D.TOT_CAREER_TERM_MONTH_CNT,
+				 C.GENDER_CD,
+				 FN_GET_FILE_PATH(D.FILE_GRP_SEQ) AS IMAGE_PATH,
+				 FN_GET_COMMON_NM('GENDER_CD', C.GENDER_CD, #{langCd}) AS GENDER_NM,
+				 FN_GET_ADDR_NM(SUBSTR(C.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM,
+				 FN_GET_BKMK_SEQ(B.USER_SEQ, 'BCT0000000006', D.RESUME_SEQ) AS USER_BKMK_SEQ,
+				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN,
+				 FN_GET_FILE_PATH(D.FILE_GRP_SEQ) AS FILE_PATH
+            FROM CPES_BKMK A
+            INNER JOIN CPES_COMPNY B
+            ON A.TABLE_KEY_SEQ = B.COMPNY_SEQ
+            INNER JOIN CPES_USER C
+            ON A.USER_SEQ = C.USER_SEQ
+            INNER JOIN CPES_RESUME D
+            ON D.USER_SEQ = C.USER_SEQ
+
+       ]]>
+            <include refid="whereCompnyCond"/>
+            ORDER BY A.REG_DT DESC
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+ 	<!-- 관심인재 목록 count,interest resume list count -->
+	<select id="selectResumeListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondInterestBean">
+        <![CDATA[
+        	/*compnyInterest.selectResumeListCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+            FROM CPES_BKMK A
+            INNER JOIN CPES_RESUME B
+            ON A.TABLE_KEY_SEQ = B.RESUME_SEQ
+            INNER JOIN CPES_USER C
+            ON B.USER_SEQ = C.USER_SEQ
+
+       ]]>
+            <include refid="whereResumeCond"/>
+
+    </select>
+
+  	<!-- 관심인재 목록 ,interest resume list -->
+	<select id="selectResumeList" resultType="ony.cpes.external.mypage.compny.bean.InterestBean" parameterType="ony.cpes.external.mypage.compny.bean.CondInterestBean">
+        <![CDATA[
+        	/*compnyInterest.selectResumeList*/
+            SELECT
+            	 A.BKMK_SEQ,
+            	 FN_GET_BASE_DATE_CHAR(A.REG_DT,#{langCd}) AS REG_DT,
+				 FN_GET_USER_NM_BY_USER_SEQ(C.USER_SEQ, #{langCd}) AS USER_NM,
+				 FLOOR((CAST(REPLACE(CURRENT_DATE,'-','') AS UNSIGNED) -  CAST(C.BIRTH AS UNSIGNED)) / 10000 ) AS AGE,
+				 B.RESUME_TITLE,
+				 (
+				 	SELECT FN_GET_COMMON_NM('EDU_DEGREE_CD', G.EDU_DEGREE_CD, #{langCd})
+				 	FROM CPES_RESUME_GENRL_EDU G
+				 	WHERE G.RESUME_SEQ = B.RESUME_SEQ
+				 	LIMIT 1
+				 ) AS EDU_DEGREE_NM,
+				 (
+				 	SELECT FN_GET_ISCO_NM(G.ISCO_CD, #{langCd})
+				 	FROM CPES_RESUME_ISCO G
+				 	WHERE G.RESUME_SEQ = B.RESUME_SEQ
+				 	LIMIT 1
+				 ) AS ISCO_NM,
+				 B.RESUME_SEQ,
+				 B.CAREER_YN,
+				 B.TOT_CAREER_TERM_YEAR_CNT,
+				 B.TOT_CAREER_TERM_MONTH_CNT,
+				 B.USE_YN,
+				 C.GENDER_CD,
+				 FN_GET_FILE_PATH(B.FILE_GRP_SEQ) AS IMAGE_PATH,
+				 FN_GET_COMMON_NM('GENDER_CD', C.GENDER_CD, #{langCd}) AS GENDER_NM,
+				 FN_GET_ADDR_NM(SUBSTR(C.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM,
+				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN,
+				 FN_GET_FILE_PATH(B.FILE_GRP_SEQ) AS FILE_PATH
+            FROM CPES_BKMK A
+            INNER JOIN CPES_RESUME B
+            ON A.TABLE_KEY_SEQ = B.RESUME_SEQ
+            INNER JOIN CPES_USER C
+            ON B.USER_SEQ = C.USER_SEQ
+
+       ]]>
+            <include refid="whereResumeCond"/>
+            ORDER BY A.REG_DT DESC
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+ 	<!-- 관심채용행사 목록 count,interest fair list count -->
+	<select id="selectFairListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondInterestBean">
+        <![CDATA[
+        	/*compnyInterest.selectFairListCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+            FROM CPES_BKMK A
+            INNER JOIN CPES_FAIR_MST B
+			ON A.TABLE_KEY_SEQ = B.FAIR_SEQ
+
+       ]]>
+            <include refid="whereFairCond"/>
+
+    </select>
+
+  	<!-- 관심행사 목록 ,interest fair list  -->
+	<select id="selectFairList" resultType="ony.cpes.external.mypage.privt.bean.InterestBean" parameterType="ony.cpes.external.mypage.privt.bean.CondInterestBean">
+        <![CDATA[
+        	/*compnyInterest.selectFairList*/
+            SELECT
+            	 A.BKMK_SEQ,
+ 				 FN_GET_ADDR_NM(SUBSTR(B.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM,
+				 FN_GET_FAIR_NM(B.FAIR_SEQ, #{langCd}) AS FAIR_NM,
+				 FN_GET_COMMON_NM('FAIR_DIV_CD', B.FAIR_DIV_CD, #{langCd}) AS FAIR_DIV_NM,
+				 CONCAT(FN_GET_BASE_DATE_CHAR(B.FAIR_BGN_DT, #{langCd}), ' ', B.FAIR_BGN_HOUR, ':', B.FAIR_BGN_MINUTE, ' ', B.FAIR_BGN_AMPM) AS FAIR_BGN_DT,
+				 CONCAT(FN_GET_BASE_DATE_CHAR(B.FAIR_END_DT, #{langCd}), ' ', B.FAIR_END_HOUR, ':', B.FAIR_END_MINUTE, ' ', B.FAIR_END_AMPM) AS FAIR_END_DT,
+				 B.FAIR_SEQ,
+				 B.FAIR_STS_CD,
+				 FN_GET_COMMON_NM('FAIR_STS_CD', B.FAIR_STS_CD, #{langCd}) AS FAIR_STS_NM,
+				 B.TEL1,
+				 B.TEL2,
+				 B.EMAIL,
+				 B.FAIR_DIV_CD,
+				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+            FROM CPES_BKMK A
+            INNER JOIN CPES_FAIR_MST B
+			ON A.TABLE_KEY_SEQ = B.FAIR_SEQ
+       ]]>
+            <include refid="whereFairCond"/>
+            <include refid="sortCond"/>
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+</mapper>

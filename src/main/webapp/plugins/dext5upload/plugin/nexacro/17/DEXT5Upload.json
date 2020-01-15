@@ -1,0 +1,18 @@
+﻿{
+	"name": "DEXT5Upload",
+	"version": "2018.2018.11.19",
+	"description": "DEXT5Upload Plugin for nexacro platform 17",
+	"license": "Commercial license",
+	"scripts": [
+		"dext5upload/js/dext5upload.js",
+		"dext5upload/plugin/nexacro/17/dext5upload.nexacro17.js"
+	],
+	"objInfo": [
+		"dext5upload/plugin/nexacro/17/metainfo/dext5upload.nexacro.enum.info",
+		"dext5upload/plugin/nexacro/17/metainfo/dext5upload.nexacro.meta.info",
+		"dext5upload/plugin/nexacro/17/metainfo/dext5upload.nexacro.event.info"
+	],
+	"designscripts": [
+		"dext5upload/plugin/nexacro/17/design/dext5upload.nexacro.design.js"
+	]
+}

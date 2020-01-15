@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="matching">
+
+	<select id="selectMatchingCnt" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean" resultType="int">
+		/* matching.selectMatchingCnt */
+		SELECT COUNT(1)
+		FROM CPES_JOBSK_MATCH_SET
+		WHERE USER_SEQ = #{userSeq}
+	</select>
+
+	<select id="selectMatchingResumeByUser" resultType="ony.cpes.external.mypage.privt.bean.MatchingBean" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+	/* matching.selectMatchingResumeByUser */
+	<![CDATA[
+		SELECT B.EXPCT_MIN_SALARY_AMT AS HOPE_SALARY
+			, CASE WHEN B.PREFER_EMPLOY_TYPE_CD = 'PET0000000001' THEN B.PREFER_EMPLOY_TYPE_CD ELSE 'X' END WORK_TIME_FULL_CD
+			, CASE WHEN B.PREFER_EMPLOY_TYPE_CD = 'PET0000000002' THEN B.PREFER_EMPLOY_TYPE_CD ELSE 'X' END WORK_TIME_PART_CD
+			, CASE WHEN B.PREFER_CRTCT_TYPE = 'CRT0000000001' THEN B.PREFER_CRTCT_TYPE ELSE 'X' END EMPLOY_CTRCT_DECID_CD
+			, CASE WHEN B.PREFER_CRTCT_TYPE = 'CRT0000000002' THEN B.PREFER_CRTCT_TYPE ELSE 'X' END EMPLOY_CTRCT_UNDECID_CD
+			, CASE WHEN B.TOT_CAREER_TERM_YEAR_CNT <= 1 AND B.TOT_CAREER_TERM_YEAR_CNT > 0 THEN '-1'
+					WHEN B.TOT_CAREER_TERM_YEAR_CNT > 1 AND B.TOT_CAREER_TERM_YEAR_CNT <= 2 THEN '-2'
+					WHEN B.TOT_CAREER_TERM_YEAR_CNT > 2 AND B.TOT_CAREER_TERM_YEAR_CNT <= 5 THEN '-5'
+					WHEN B.TOT_CAREER_TERM_YEAR_CNT > 5 THEN '+5' ELSE '0' END MIN_WORK_EXP
+			, C.ISCO_CD AS ISCO_CD_STR
+			, D.ADDR_CD AS LOC_CD_STR
+			, E.EDU_DEGREE_CD AS EDU_DEGREE_CD_STR
+			, F.LANG_CD AS LANG_CD_STR
+			, CONCAT(CASE WHEN B.DISABL_YN = 'Y' THEN 'PCC0000000001' ELSE 'X' END, ',',
+					CASE WHEN B.RET_MIGRAT_YN = 'Y' THEN 'PCC0000000002' ELSE 'X' END, ',',
+					CASE WHEN FN_GET_USER_AGE(A.BIRTH) > 14 AND FN_GET_USER_AGE(A.BIRTH) < 36 THEN 'PCC0000000003' ELSE 'X' END) AS PRIVILEGE_CD_STR
+			, NULL AS JOBSK_MATCH_SET_SEQ
+		FROM CPES_USER A
+		INNER JOIN CPES_RESUME B
+		ON A.USER_SEQ = B.USER_SEQ
+		LEFT OUTER JOIN (SELECT LI.RESUME_SEQ, GROUP_CONCAT(LI.ISCO_CD ORDER BY LI.ISCO_CD ASC SEPARATOR ',') AS ISCO_CD
+			FROM CPES_RESUME_ISCO LI
+			GROUP BY LI.RESUME_SEQ) C
+		ON B.RESUME_SEQ = C.RESUME_SEQ
+		LEFT OUTER JOIN (SELECT LI.RESUME_SEQ, GROUP_CONCAT(LI.ADDR_CD ORDER BY LI.ADDR_CD ASC SEPARATOR ',') AS ADDR_CD
+			FROM CPES_RESUME_HOPE_WORK_LOC LI
+			GROUP BY LI.RESUME_SEQ) D
+		ON B.RESUME_SEQ = D.RESUME_SEQ
+		LEFT OUTER JOIN (SELECT LI.RESUME_SEQ, GROUP_CONCAT(LI.EDU_DEGREE_CD ORDER BY LI.EDU_DEGREE_CD ASC SEPARATOR ',') AS EDU_DEGREE_CD
+			FROM CPES_RESUME_GENRL_EDU LI
+			GROUP BY LI.RESUME_SEQ) E
+		ON B.RESUME_SEQ = E.RESUME_SEQ
+		LEFT OUTER JOIN (SELECT LI.RESUME_SEQ, GROUP_CONCAT(LI.LANG_CD ORDER BY LI.LANG_CD ASC SEPARATOR ',') AS LANG_CD
+			FROM CPES_RESUME_LANG LI
+			GROUP BY LI.RESUME_SEQ) F
+		ON B.RESUME_SEQ = F.RESUME_SEQ
+		WHERE A.USER_SEQ = #{userSeq}
+		AND B.PRI_RESUME_YN = 'Y'
+		AND B.USE_YN = 'Y'
+       ]]>
+       <if test="jcAgreeStsCd != null">
+       AND B.JC_AGREE_STS_CD = #{jcAgreeStsCd}
+       </if>
+	</select>
+
+	<select id="selectMatchingMst" resultType="ony.cpes.external.mypage.privt.bean.MatchingBean" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+	/* matching.selectMatchingMst */
+	<![CDATA[
+		SELECT CASE WHEN A.EMPLOY_CTRCT_DECID_CD = NULL OR LENGTH(A.EMPLOY_CTRCT_DECID_CD) = 0 THEN 'X' ELSE A.EMPLOY_CTRCT_DECID_CD END AS EMPLOY_CTRCT_DECID_CD
+			, CASE WHEN A.EMPLOY_CTRCT_UNDECID_CD = NULL OR LENGTH(A.EMPLOY_CTRCT_UNDECID_CD) = 0 THEN 'X' ELSE A.EMPLOY_CTRCT_UNDECID_CD END AS EMPLOY_CTRCT_UNDECID_CD
+			, A.HOPE_SALARY
+			, CASE WHEN A.WORK_TIME_FULL_CD = NULL OR LENGTH(A.WORK_TIME_FULL_CD) = 0 THEN 'X' ELSE A.WORK_TIME_FULL_CD END AS WORK_TIME_FULL_CD
+			, CASE WHEN A.WORK_TIME_PART_CD = NULL OR LENGTH(A.WORK_TIME_PART_CD) = 0 THEN 'X' ELSE A.WORK_TIME_PART_CD END AS WORK_TIME_PART_CD
+			, A.MIN_WORK_EXP
+			, B.ISCO_CD AS ISCO_CD_STR
+			, C.ADDR_CD AS LOC_CD_STR
+			, D.EDU_DEGREE_CD AS EDU_DEGREE_CD_STR
+			, E.LANG_CD AS LANG_CD_STR
+			, F.PREFERNT_COND_CD AS PRIVILEGE_CD_STR
+			, A.JOBSK_MATCH_SET_SEQ
+		FROM CPES_JOBSK_MATCH_SET A
+		LEFT OUTER JOIN (SELECT LI.JOBSK_MATCH_SET_SEQ, GROUP_CONCAT(LI.ISCO_CD ORDER BY LI.ISCO_CD ASC SEPARATOR ',') AS ISCO_CD
+			FROM CPES_JOBSK_MATCH_SET_ISCO LI
+			GROUP BY LI.JOBSK_MATCH_SET_SEQ) B
+		ON A.JOBSK_MATCH_SET_SEQ = B.JOBSK_MATCH_SET_SEQ
+		LEFT OUTER JOIN (SELECT LI.JOBSK_MATCH_SET_SEQ, GROUP_CONCAT(LI.JOBSK_MATCH_SET_LOC_CD ORDER BY LI.JOBSK_MATCH_SET_LOC_CD ASC SEPARATOR ',') AS ADDR_CD
+			FROM CPES_JOBSK_MATCH_SET_LOC LI
+			GROUP BY LI.JOBSK_MATCH_SET_SEQ) C
+		ON A.JOBSK_MATCH_SET_SEQ = C.JOBSK_MATCH_SET_SEQ
+		LEFT OUTER JOIN (SELECT LI.JOBSK_MATCH_SET_SEQ, GROUP_CONCAT(LI.MIN_EDU_DEGREE_CD ORDER BY LI.MIN_EDU_DEGREE_CD ASC SEPARATOR ',') AS EDU_DEGREE_CD
+			FROM CPES_JOBSK_MATCH_SET_MIN_EDU_DEGREE LI
+			GROUP BY LI.JOBSK_MATCH_SET_SEQ) D
+		ON A.JOBSK_MATCH_SET_SEQ = D.JOBSK_MATCH_SET_SEQ
+		LEFT OUTER JOIN (SELECT LI.JOBSK_MATCH_SET_SEQ, GROUP_CONCAT(LI.LANG_CD ORDER BY LI.LANG_CD ASC SEPARATOR ',') AS LANG_CD
+			FROM CPES_JOBSK_MATCH_SET_LANG LI
+			GROUP BY LI.JOBSK_MATCH_SET_SEQ) E
+		ON A.JOBSK_MATCH_SET_SEQ = E.JOBSK_MATCH_SET_SEQ
+		LEFT OUTER JOIN (SELECT LI.JOBSK_MATCH_SET_SEQ, GROUP_CONCAT(LI.PREFERNT_COND_CD ORDER BY LI.PREFERNT_COND_CD ASC SEPARATOR ',') AS PREFERNT_COND_CD
+			FROM CPES_JOBSK_MATCH_SET_PREFERNT_COND LI
+			GROUP BY LI.JOBSK_MATCH_SET_SEQ) F
+		ON A.JOBSK_MATCH_SET_SEQ = F.JOBSK_MATCH_SET_SEQ
+		WHERE A.USER_SEQ = #{userSeq}
+       ]]>
+	</select>
+
+	<select id="selectMatchingIscoList" resultType="ony.cpes.external.mypage.privt.bean.MatchingIscoBean" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+	/* matching.selectMatchingIscoList */
+		SELECT *
+		FROM CPES_JOBSK_MATCH_SET_ISCO
+		WHERE JOBSK_MATCH_SET_SEQ = #{jobskMatchSetSeq}
+		ORDER BY LENGTH(ISCO_CD)
+	</select>
+
+	<select id="selectMatchingLocList" resultType="ony.cpes.external.mypage.privt.bean.MatchingLocBean" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+	/* matching.selectMatchingLocList */
+		SELECT *
+		FROM CPES_JOBSK_MATCH_SET_LOC
+		WHERE JOBSK_MATCH_SET_SEQ = #{jobskMatchSetSeq}
+		ORDER BY JOBSK_MATCH_SET_LOC_CD
+	</select>
+
+	<select id="selectMatchingLangList" resultType="ony.cpes.external.mypage.privt.bean.MatchingLangBean" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+	/* matching.selectMatchingLangList */
+		SELECT *
+		FROM CPES_JOBSK_MATCH_SET_LANG
+		WHERE JOBSK_MATCH_SET_SEQ = #{jobskMatchSetSeq}
+		ORDER BY LANG_CD
+	</select>
+
+	<select id="selectMatchingEduDegreeList" resultType="ony.cpes.external.mypage.privt.bean.MatchingEduDegreeBean" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+	/* matching.selectMatchingEduDegreeList */
+		SELECT *
+		FROM CPES_JOBSK_MATCH_SET_MIN_EDU_DEGREE
+		WHERE JOBSK_MATCH_SET_SEQ = #{jobskMatchSetSeq}
+		ORDER BY MIN_EDU_DEGREE_CD
+	</select>
+
+	<sql id="whereMatchingByVacancy">
+       <where>
+        <if test="iscoCdStr != null">
+        M.ISCO_CD = SUBSTRING_INDEX(#{iscoCdStr}, ',', -1)
+        </if>
+       	<if test="employCtrctDecidCd != null or employCtrctUndecidCd != null">
+        AND ( M.EMPLOY_CTRCT_CD = #{employCtrctDecidCd} OR M.EMPLOY_CTRCT_CD = #{employCtrctUndecidCd} )
+       	</if>
+       	<if test="preferEmploymtTypeCd != null">
+        AND ( M.PREFER_EMPLOYMT_TYPE_CD = #{preferEmploymtTypeCd} OR M.PREFER_EMPLOYMT_TYPE_CD = #{preferEmploymtTypeCd} )
+       	</if>
+       	<if test="hopeSalary != null">
+        AND ( M.MIN_SALARY_AMT <![CDATA[ >= ]]> #{hopeSalary} AND M.MAX_SALARY_AMT <![CDATA[ <= ]]> #{hopeSalary} )
+       	</if>
+       	<if test="condAddrCd != null">
+        AND M.ADDR_CD LIKE CONCAT(#{condAddrCd}, '%')
+       	</if>
+       	<if test="minWorkExp != null">
+        AND M.MIN_WORK_EXP = #{minWorkExp}
+       	</if>
+       	<if test="!langCds.isEmpty()">
+        AND (
+			<foreach collection="langCds" index="ix" item="code">
+				<if test="ix > 0">
+				OR
+				</if>
+				M.LANG_CD = #{code}
+			</foreach> )
+		</if>
+       	<if test="!preferntCondCds.isEmpty()">
+        AND (
+			<foreach collection="preferntCondCds" index="ix" item="code">
+				<if test="ix > 0">
+				OR
+				</if>
+				M.PREFERNT_COND_CD = #{code}
+			</foreach> )
+		</if>
+       	<if test="!eduDegreeCds.isEmpty()">
+        AND (
+			<foreach collection="eduDegreeCds" index="ix" item="code">
+				<if test="ix > 0">
+				OR
+				</if>
+				M.MIN_EDU_DEGREE_CD = #{code}
+			</foreach> )
+		</if>
+       </where>
+	</sql>
+
+	<sql id="includeSelectMatching">
+		SELECT
+          	 B.VACANCY_SEQ,
+               B.COMPNY_SEQ,
+               B.VACANCY_TITLE,
+               B.EMPLOY_FORM_CD,
+               B.EMPLOY_CTRCT_CD,
+               FN_GET_COMMON_NM('EMPLOY_FORM_CD', B.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_NM,
+				FN_GET_COMMON_NM('EMPLOY_CTRCT_CD', B.EMPLOY_CTRCT_CD, #{langCd}) AS EMPLOY_CTRCT_NM,
+				FN_GET_COMMON_NM('EMPLOY_CTRCT_TYPE_CD', B.EMPLOY_CTRCT_TYPE_CD, #{langCd}) AS EMPLOY_CTRCT_TYPE_NM,
+				FN_GET_COMMON_NM('SALARY_UNIT_CD', B.SALARY_UNIT_CD, #{langCd}) AS SALARY_UNIT_NM,
+				FN_GET_COMMON_NM('MIN_EDU_DEGREE_CD', B.MIN_EDU_DEGREE_CD, #{langCd}) AS MIN_EDU_DEGREE_NM,
+				FN_GET_COMMON_NM('VACANCY_TYPE_CD', B.VACANCY_TYPE_CD, #{langCd}) AS VACANCY_TYPE_NM,
+				FN_GET_COMMON_NM('PREFER_EMPLOYMT_TYPE_CD', B.PREFER_EMPLOYMT_TYPE_CD, #{langCd}) AS PREFER_EMPLOYMT_TYPE_NM,
+				FN_GET_COMMON_NM('EXPCT_SALARY_CD', B.EXPCT_SALARY_CD, #{langCd}) AS EXPCT_SALARY_NM,
+               B.RECRUMT_MEMB,
+               B.MIN_SALARY_AMT,
+               B.MAX_SALARY_AMT,
+               FN_GET_COMPNY_NM(B.COMPNY_SEQ, #{langCd}) AS COMPNY_NM,
+               B.VACANCY_STS_CD,
+               FN_GET_COMMON_NM('VACANCY_STS_CD', B.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM,
+               B.MIN_EDU_DEGREE_CD,
+               B.ISCO_CD,
+               D.ADDR_CD,
+               FN_GET_ADDR_NM(SUBSTR(D.ADDR_CD,1,3), '2', #{langCd}) AS ADDR_FULL_NM,
+               E.LANG_CD,
+               F.PREFERNT_COND_CD,
+               B.PREFER_EMPLOYMT_TYPE_CD,
+               B.MIN_WORK_EXP,
+               B.REG_DT,
+		 FN_GET_NEW_YN(B.REG_DT) AS NEW_YN,
+		 (
+	          	 	SELECT BKMK_SEQ
+	          	 	FROM CPES_BKMK F
+	          	 	WHERE F.CATE_CD = 'BCT0000000003'
+	          	 	AND F.TABLE_KEY_SEQ = B.VACANCY_SEQ
+	          	 	AND F.USER_SEQ = #{userSeq}
+	          	 	LIMIT 1
+	          	 ) AS BKMK_SEQ,
+		 FN_GET_FILE_PATH(C.LOGO_FILE_GRP_SEQ) AS FILE_PATH
+		     , DATEDIFF(B.END_DT, NOW()) AS REMAIN_DAYS
+		     , TIMESTAMPDIFF(HOUR, NOW(), B.END_DT) AS REMAIN_HOURS
+		     , B.BKMK_CNT
+		     , B.VIEW_CNT
+           FROM CPES_VACANCY B
+           INNER JOIN CPES_COMPNY C
+           ON B.COMPNY_SEQ = C.COMPNY_SEQ
+           INNER JOIN (SELECT LI.VACANCY_SEQ, GROUP_CONCAT(LI.ADDR_CD ORDER BY LI.ADDR_CD ASC SEPARATOR ',') AS ADDR_CD
+			FROM CPES_VACANCY_LOC LI
+			GROUP BY LI.VACANCY_SEQ) D
+           ON B.VACANCY_SEQ = D.VACANCY_SEQ
+           INNER JOIN (SELECT LI.VACANCY_SEQ, GROUP_CONCAT(LI.LANG_CD ORDER BY LI.LANG_CD ASC SEPARATOR ',') AS LANG_CD
+			FROM CPES_VACANCY_LANG LI
+			GROUP BY LI.VACANCY_SEQ) E
+			ON B.VACANCY_SEQ = E.VACANCY_SEQ
+           INNER JOIN (SELECT LI.VACANCY_SEQ, GROUP_CONCAT(LI.PREFERNT_COND_CD ORDER BY LI.PREFERNT_COND_CD ASC SEPARATOR ',') AS PREFERNT_COND_CD
+			FROM CPES_VACANCY_PREFERNT_COND LI
+			GROUP BY LI.VACANCY_SEQ) F
+		ON B.VACANCY_SEQ = F.VACANCY_SEQ
+		WHERE B.USE_YN = 'Y'
+		AND B.DEL_YN = 'N'
+	</sql>
+
+	<select id="selectMatchingByVacancysCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.MatchingSrchBean">
+        	/*matching.selectMatchingByVacancysCnt*/
+            SELECT COUNT(1)
+			FROM (
+				<include refid="includeSelectMatching" />
+			) M
+       <include refid="whereMatchingByVacancy" />
+	</select>
+
+	<select id="selectMatchingByVacancys" resultType="ony.cpes.external.vacancy.bean.VacancyBean" parameterType="ony.cpes.external.mypage.privt.bean.MatchingSrchBean">
+        	/*matching.selectMatchingByVacancys*/
+            SELECT M.*
+			FROM (
+				<include refid="includeSelectMatching" />
+			) M
+       <include refid="whereMatchingByVacancy" />
+		ORDER BY
+		<choose>
+			<when test="condSort != null and condSort.equals('POPULAR')">
+				M.BKMK_CNT DESC, M.REG_DT DESC
+			</when>
+			<when test="condSort != null and condSort.equals('VIEW')">
+				M.VIEW_CNT DESC, M.REG_DT DESC
+			</when>
+			<otherwise>
+	  			M.REG_DT DESC
+			</otherwise>
+		</choose>
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+
+	<!-- select resume information by prior resume -->
+	<select id="selectMatchingResume" resultType="ony.cpes.external.mypage.privt.bean.MatchingBean" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+		/*matching.selectMatchingResume*/
+		SELECT A.RESUME_SEQ
+		     , A.EXPCT_MIN_SALARY_AMT
+		     , A.EXPCT_MAX_SALARY_AMT
+		     , (
+		        SELECT GROUP_CONCAT(X2.CD_EN_NM ORDER BY END_DT DESC SEPARATOR ',') AS EDU_DEGREE_NM
+		          FROM CPES_RESUME_GENRL_EDU X1
+		               INNER JOIN
+		               CPES_COMM_DTL_CD X2
+		                  ON X2.DTL_CD = X1.EDU_DEGREE_CD
+		                 AND X2.GRP_CD = 'EDU_DEGREE_CD'
+		         WHERE X1.RESUME_SEQ = A.RESUME_SEQ
+		       ) AS EDU_DEGREE_NM
+		     , (
+		        SELECT GROUP_CONCAT(
+		                CONCAT(
+		                   IFNULL(FN_GET_ADDR_NM(SUBSTR(ADDR_FULL_CD,1,3), '2', UPPER(#{langCd})),''),' > ',
+		                   IFNULL(FN_GET_ADDR_NM(SUBSTR(ADDR_FULL_CD,1,5), '3', UPPER(#{langCd})),''),' > ',
+		                   IFNULL(FN_GET_ADDR_NM(SUBSTR(ADDR_FULL_CD,1,7), '4', UPPER(#{langCd})),''),' > ',
+		                   IFNULL(FN_GET_ADDR_NM(SUBSTR(ADDR_FULL_CD,1,9), '5', UPPER(#{langCd})),'')
+		                )
+		               ORDER BY ADDR_FULL_CD DESC SEPARATOR ', ') AS LOC_NM
+		          FROM CPES_RESUME_HOPE_WORK_LOC
+		         WHERE RESUME_SEQ = A.RESUME_SEQ
+		       ) AS WORK_LOC_NM
+		     , (
+		        SELECT GROUP_CONCAT(
+		                CONCAT(
+		                   (
+		                    SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN KH_NM ELSE EN_NM END AS NM
+		                      FROM CPES_ISCO_CD
+		                     WHERE ISCO_ID = SUBSTRING_INDEX(SUBSTRING_INDEX(B1.CD_LVL,'=>',-4),'=>',1)
+		                   )
+		                   ,' > ',
+		                   (
+		                    SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN KH_NM ELSE EN_NM END AS NM
+		                      FROM CPES_ISCO_CD
+		                     WHERE ISCO_ID = SUBSTRING_INDEX(SUBSTRING_INDEX(B1.CD_LVL,'=>',-3),'=>',1)
+		                   )
+		                   ,' > ',
+		                   (
+		                    SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN KH_NM ELSE EN_NM END AS NM
+		                      FROM CPES_ISCO_CD
+		                     WHERE ISCO_ID = SUBSTRING_INDEX(SUBSTRING_INDEX(B1.CD_LVL,'=>',-2),'=>',1)
+		                   )
+		                   ,' > ',
+		                   (
+		                    SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN KH_NM ELSE EN_NM END AS NM
+		                      FROM CPES_ISCO_CD
+		                     WHERE ISCO_ID = SUBSTRING_INDEX(SUBSTRING_INDEX(B1.CD_LVL,'=>',-1),'=>',1)
+		                   )
+		                )
+		               ORDER BY B1.CD_LVL DESC SEPARATOR ', ') AS ISCO_NM
+		          FROM CPES_RESUME_ISCO A1
+		               INNER JOIN
+		               CPES_ISCO_CD B1
+		                  ON B1.ISCO_CD = A1.ISCO_CD
+		         WHERE A1.RESUME_SEQ = A.RESUME_SEQ
+		       ) AS ISCO_NM
+		  FROM CPES_RESUME A
+		 WHERE A.USER_SEQ = #{userSeq}
+		   AND A.USE_YN = 'Y'
+		   AND A.PRI_RESUME_YN = 'Y'
+		   AND A.JC_AGREE_STS_CD = 'JAS0000000001'
+		   AND A.RESUME_STS_CD = 'RSS0000000002'
+		   AND A.JC_VERITY_USER_SEQ IS NOT NULL
+		 LIMIT 1
+	</select>
+
+	<!-- select vacancy count of auto matching  -->
+	<select id="selectMatchingAutoCnt" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean" resultType="int">
+		/*matching.selectMatchingAutoCnt*/
+		SELECT COUNT(1) AS CNT
+		  FROM CPES_VACANCY A
+		       LEFT OUTER JOIN
+		       CPES_VACANCY_LOC B
+		          ON B.VACANCY_SEQ = A.VACANCY_SEQ
+		       LEFT OUTER JOIN
+		       CPES_COMPNY D
+		           ON D.COMPNY_SEQ = A.COMPNY_SEQ
+		       CROSS JOIN (
+		        SELECT RESUME_SEQ, EXPCT_MIN_SALARY_AMT
+		          FROM CPES_RESUME
+		         WHERE USER_SEQ = #{userSeq}
+		           AND USE_YN = 'Y'
+		           AND PRI_RESUME_YN = 'Y'
+		           AND JC_AGREE_STS_CD = 'JAS0000000001'
+		           AND RESUME_STS_CD = 'RSS0000000002'
+		           AND JC_VERITY_USER_SEQ IS NOT NULL
+		         LIMIT 1
+		       ) X
+		 WHERE A.VACANCY_STS_CD = 'VCS0000000001'
+		   AND A.REG_DT <![CDATA[ <= ]]> DATE_ADD(A.REG_DT, INTERVAL 1 MONTH)
+		   AND A.USE_YN = 'Y'
+		   AND A.DEL_YN = 'N'
+	</select>
+
+	<!-- select vacancy list of auto matching  -->
+	<select id="selectMatchingAutoList" resultType="ony.cpes.external.vacancy.bean.VacancyBean" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+		/*matching.selectMatchingAutoList*/
+		SELECT * FROM (
+		SELECT A.VACANCY_SEQ
+		     , A.VACANCY_TITLE
+		     , A.BKMK_CNT
+		     , A.VIEW_CNT
+		     , A.REG_DT
+		     , A.RECRUMT_MEMB
+		     , A.MIN_SALARY_AMT
+		     , A.MAX_SALARY_AMT
+		     , FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+		     , (
+		        SELECT BKMK_SEQ
+		          FROM CPES_BKMK
+		         WHERE TABLE_KEY_SEQ = A.VACANCY_SEQ
+		           AND USER_SEQ = #{userSeq}
+		           AND CATE_CD = 'BCT0000000003'
+		         LIMIT 1
+		       ) AS BKMK_SEQ
+		     , FN_GET_FILE_PATH(D.LOGO_FILE_GRP_SEQ) AS FILE_PATH
+		     , FN_GET_REMAIN_CNT(A.END_DT) REMAIN_DT
+		     , FN_GET_REMAIN_DIV(A.END_DT) REMAIN_DIV
+		     , FN_GET_COMPNY_NM(A.COMPNY_SEQ,#{langCd}) AS COMPNY_NM
+		     , A.VACANCY_STS_CD
+		     , FN_GET_COMMON_NM('VACANCY_STS_CD', A.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM
+		     , FN_GET_COMMON_NM('PREFER_EMPLOYMT_TYPE_CD', A.PREFER_EMPLOYMT_TYPE_CD, #{langCd}) AS PREFER_EMPLOYMT_TYPE_NM
+		     , FN_GET_COMMON_NM('EMPLOY_FORM_CD', A.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_NM
+		     , FN_GET_ADDR_NM(SUBSTR(B.ADDR_CD,1,3), '2', #{langCd}) AS ADDR_FULL_NM
+		     , FN_GET_COMMON_NM('EMPLOY_FORM_CD',A.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_CD
+		     , FN_GET_BASE_DATE_CHAR(A.END_DT, #{langCd}) AS END_DT
+		     , A.END_DT AS END_DATE
+		     , (
+		        SELECT SUM((FN_GET_MATCH_EDU_POINT(A.MIN_EDU_DEGREE_CD,A1.EDU_DEGREE_CD))) AS PNT
+		          FROM CPES_RESUME_GENRL_EDU A1
+		         WHERE A1.RESUME_SEQ = X.RESUME_SEQ
+		       ) +
+		       FN_GET_MATCH_WAGE_POINT(A.MIN_SALARY_AMT,X.EXPCT_MIN_SALARY_AMT) +
+		       (
+		        SELECT SUM(FN_GET_MATCH_LOC_POINT(
+		               SUBSTRING_INDEX(SUBSTRING_INDEX(A1.ADDR_FULL_CD,',',-4),',',1),
+		               SUBSTRING_INDEX(SUBSTRING_INDEX(A1.ADDR_FULL_CD,',',-3),',',1),
+		               B.ADDR_FULL_CD
+		               )) AS PNT
+		          FROM CPES_RESUME_HOPE_WORK_LOC A1
+		         WHERE A1.RESUME_SEQ = X.RESUME_SEQ
+		       ) + (
+		        SELECT SUM(FN_GET_MATCH_OCCU_POINT(
+		               SUBSTRING_INDEX(SUBSTRING_INDEX(B1.CD_LVL,'=>',-4),'=>',1),
+		               SUBSTRING_INDEX(SUBSTRING_INDEX(B1.CD_LVL,'=>',-3),'=>',1),
+		               SUBSTRING_INDEX(SUBSTRING_INDEX(B1.CD_LVL,'=>',-2),'=>',1),
+		               SUBSTRING_INDEX(SUBSTRING_INDEX(B1.CD_LVL,'=>',-1),'=>',1),
+		               A.ISCO_CD
+		               )) AS PNT
+		          FROM CPES_RESUME_ISCO A1
+		               INNER JOIN
+		               CPES_ISCO_CD B1
+		                  ON B1.ISCO_CD = A1.ISCO_CD
+		         WHERE A1.RESUME_SEQ = X.RESUME_SEQ
+		       ) AS MATCH_TOTAL_POINT
+		  FROM CPES_VACANCY A
+		       LEFT OUTER JOIN
+		       CPES_VACANCY_LOC B
+		          ON B.VACANCY_SEQ = A.VACANCY_SEQ
+		       LEFT OUTER JOIN
+		       CPES_COMPNY D
+		           ON D.COMPNY_SEQ = A.COMPNY_SEQ
+		       CROSS JOIN (
+		        SELECT RESUME_SEQ, EXPCT_MIN_SALARY_AMT
+		          FROM CPES_RESUME
+		         WHERE USER_SEQ = #{userSeq}
+		           AND USE_YN = 'Y'
+		           AND PRI_RESUME_YN = 'Y'
+		           AND JC_AGREE_STS_CD = 'JAS0000000001'
+		           AND RESUME_STS_CD = 'RSS0000000002'
+		         LIMIT 1
+		       ) X
+		 WHERE A.VACANCY_STS_CD = 'VCS0000000001'
+		   AND A.REG_DT <![CDATA[ <= ]]> DATE_ADD(A.REG_DT, INTERVAL 1 MONTH)
+		   AND A.USE_YN = 'Y'
+		   AND A.DEL_YN = 'N'
+		       ) Z
+		 ORDER BY MATCH_TOTAL_POINT DESC
+		<choose>
+			<when test="condSort != null and condSort.equals('LIKE')">
+				, BKMK_CNT DESC, REG_DT DESC
+			</when>
+			<when test="condSort != null and condSort.equals('VIEW')">
+				, VIEW_CNT DESC, REG_DT DESC
+			</when>
+			<otherwise>
+	  			, REG_DT DESC
+			</otherwise>
+		</choose>
+		 LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+
+</mapper>

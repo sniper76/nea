@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setCounsel">
+
+
+
+	<!-- insert Counsel -->
+    <insert id="insertCounsel" parameterType="ony.cpes.external.counsel.bean.CounselBean">
+		/*setCounsel.insertCounsel*/
+		INSERT INTO CPES_COUNSEL
+			(
+				ANS_CONTENT,
+				ANS_FILE_GRP_SEQ,
+				ANS_MOD_DT,
+				ANS_MOD_USER_SEQ,
+				ANS_REG_DT,
+				ANS_REG_USER_SEQ,
+				ANS_TITLE,
+				COUNSEL_AMPM,
+				COUNSEL_CATE_DIV_CD,
+				COUNSEL_DT,
+				COUNSEL_HOUR,
+				COUNSEL_METHOD_DIV_CD,
+				COUNSEL_MINUTE,
+				COUNSEL_NTCE,
+				COUNSEL_SEQ,
+				COUNSEL_STS_CD,
+				COUNSEL_TARGET_CD,
+				DEL_YN,
+				HOPE_COUNSEL_BGN_AMPM,
+				HOPE_COUNSEL_BGN_TIME,
+				HOPE_COUNSEL_DT,
+				HOPE_COUNSEL_END_AMPM,
+				HOPE_COUNSEL_END_TIME,
+				ISCO_CD,
+				JC_USER_SEQ,
+				LIKE_CNT,
+				QUST_CONTENT,
+				QUST_ETC_REQ,
+				QUST_FILE_GRP_SEQ,
+				QUST_JC_CD,
+				QUST_MOD_DT,
+				QUST_MOD_USER_SEQ,
+				QUST_REG_DT,
+				QUST_REG_USER_SEQ,
+				QUST_TITLE,
+				SECRET_YN,
+				VIEW_CNT
+		) VALUES (
+				#{ansContent},
+				#{ansFileGrpSeq},
+				#{ansModDt},
+				#{ansModUserSeq},
+				#{ansRegDt},
+				#{ansRegUserSeq},
+				#{ansTitle},
+				#{counselAmpm},
+				#{counselCateDivCd},
+				#{counselDt},
+				#{counselHour},
+				#{counselMethodDivCd},
+				#{counselMinute},
+				#{counselNtce},
+				#{counselSeq},
+				'CSC0000000001',
+				#{counselTargetCd},
+				'N',
+				#{hopeCounselBgnAmpm},
+				#{hopeCounselBgnTime},
+				#{hopeCounselDt},
+				#{hopeCounselEndAmpm},
+				#{hopeCounselEndTime},
+				#{iscoCd},
+				#{jcUserSeq},
+				0,
+				#{qustContent},
+				#{qustEtcReq},
+				#{qustFileGrpSeq},
+				#{qustJcCd},
+				now(),
+				#{qustModUserSeq},
+				now(),
+				#{qustRegUserSeq},
+				#{qustTitle},
+				#{secretYn},
+				0
+
+		)
+    </insert>
+
+
+
+
+    <!--  updateViewCnt Counsel -->
+    <update id="updateViewCnt" parameterType="ony.cpes.external.counsel.bean.CondCounselBean">
+    	/*setCounsel.updateViewCnt*/
+    	UPDATE CPES_COUNSEL SET VIEW_CNT = VIEW_CNT + 1
+    	WHERE COUNSEL_SEQ = #{condSeq}
+    </update>
+
+    <!--  delete Counsel -->
+    <update id="deleteCounsel" parameterType="ony.cpes.external.counsel.bean.CondCounselBean">
+    	/*setCounsel.deleteCounsel*/
+    	UPDATE CPES_COUNSEL SET DEL_YN = 'Y'
+    	WHERE COUNSEL_SEQ = #{condSeq}
+    	AND QUST_REG_USER_SEQ = #{condUserSeq}
+    </update>
+
+
+    <!--  update Counsel -->
+    <update id="updateCounsel" parameterType="ony.cpes.external.counsel.bean.CounselBean">
+    	/*setCounsel.updateCounsel*/
+    	UPDATE CPES_COUNSEL SET
+				COUNSEL_METHOD_DIV_CD = #{counselMethodDivCd},
+				HOPE_COUNSEL_BGN_AMPM = #{hopeCounselBgnAmpm},
+				HOPE_COUNSEL_BGN_TIME = #{hopeCounselBgnTime},
+				HOPE_COUNSEL_DT = #{hopeCounselDt},
+				HOPE_COUNSEL_END_AMPM = #{hopeCounselEndAmpm},
+				HOPE_COUNSEL_END_TIME = #{hopeCounselEndTime},
+				QUST_CONTENT = #{qustContent},
+				QUST_ETC_REQ = #{qustEtcReq},
+				QUST_MOD_DT = now(),
+				QUST_MOD_USER_SEQ = #{qustModUserSeq},
+				QUST_TITLE = #{qustTitle},
+				SECRET_YN = #{secretYn}
+    	WHERE COUNSEL_SEQ = #{counselSeq}
+    	AND QUST_REG_USER_SEQ = #{qustRegUserSeq}
+    </update>
+
+
+
+
+</mapper>

@@ -1,0 +1,44 @@
+﻿@charset "UTF-8";
+
+/* reset style */
+article,aside,details,figcaption,figure,footer,header,main,menu,nav,section,summary{display:block;}
+audio,canvas,progress,video{display:inline-block;}
+html,body,div,p,h1,h2,h3,h4,h5,h6,dl,dt,dd,ol,ul,li,blockquote,pre,button,fieldset,form,legend,table,caption,tbody,tfoot,thead,tr,th,td,iframe,article,aside,canvas,details,embed,figure,figcaption,header,footer,menu,nav,section,summary,audio,video{margin:0;padding:0;border:0;font-size:inherit;font-family:inherit;vertical-align:baseline;}
+
+img,fieldset{border:none;}
+figure,figcaption{margin:0;padding:0;}
+b,strong{font-weight:600;}
+em,dfn,cite,address,i{font-style:normal;}
+mark{background-color:#ff0;color:#000;}
+small{font-size:90%;}
+sup,sub{position:relative;font-size: 0.9em;line-height:0;vertical-align:baseline;}
+sub{bottom:-0.25em;}
+sup{top:-0.5em;}
+del{text-decoration: line-through;}
+label{cursor:pointer;}
+
+ol,ul,li{list-style:none;}
+table{border-collapse:collapse;border-spacing:0;}
+caption{width:1px;height:1px;margin:0;padding:0;background:none;font-size:1px;color:transparent;line-height:0;overflow:hidden;}
+legend{width:1px;height:1px;margin:0;padding:0;background:none;font-size:1px;color:transparent;line-height:0;overflow:hidden;}
+hr{visibility:hidden;overflow:hidden;position:absolute;height:0;width:0;font-size:0;line-height:0;}
+
+.clearfix:after{display:block;visibility:hidden;clear:both;content:'';overflow:hidden;width:0;height:0;font-size:0;line-height:0;}
+.clearfix{display:inline-block;}
+.clearfix{display:block;}
+.clear{clear:both;}
+.hide{display:none;}
+.skip{position:absolute;width:1px;height:1px;margin:0;padding:0;background:none;font-size:1px;color:transparent;line-height:0;}
+.skip:before,.skip:after{display:none !important;}
+
+/* input form */
+input{font-size:inherit;font-family:inherit;color:inherit;vertical-align:middle;}
+input[type="file"]{border:none;}
+input[type="radio"],input[type="checkbox"]{border:none;}
+button{text-transform:none;vertical-align: middle;}
+button,[type="button"],[type="reset"],[type="submit"]{background-color:transparent;cursor: pointer;}
+select{font-size:inherit;font-family:inherit;color:inherit;text-transform:none;vertical-align:middle;}
+textarea{font-size:inherit;font-family:inherit;color:inherit;vertical-align:middle;resize:none;}
+input[disabled="disabled"]{background-color:#ebebeb;color:#535a65;}
+select[disabled="disabled"]{background-color:#ebebeb;color:transparent;}
+input[type="text"],input[type="search"],input[type="password"],select,textarea{border:1px solid #cecece;}

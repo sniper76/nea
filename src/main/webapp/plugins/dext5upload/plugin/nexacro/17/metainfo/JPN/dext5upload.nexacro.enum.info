@@ -1,0 +1,81 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<MetaInfo version="2.0">
+  <EnumInfo id="enum_01" composite="false" delimiter="" description="0, 1">
+    <Enum name="0" description="0" />
+    <Enum name="1" description="1" />
+  </EnumInfo>
+  <EnumInfo id="enum_12" composite="false" delimiter="" description="1, 2">
+    <Enum name="1" description="1" />
+    <Enum name="2" description="2" />
+  </EnumInfo>
+  <EnumInfo id="enum_012" composite="false" delimiter="" description="0, 1, 2">
+    <Enum name="0" description="0" />
+    <Enum name="1" description="1" />
+    <Enum name="2" description="2" />
+  </EnumInfo>
+  <EnumInfo id="enum_0123" composite="false" delimiter="" description="0, 1, 2, 3">
+    <Enum name="0" description="0" />
+    <Enum name="1" description="1" />
+    <Enum name="2" description="2" />
+    <Enum name="3" description="3" />
+  </EnumInfo>
+  <EnumInfo id="enum_BorderStyle" composite="false" delimiter="" description="none, solid, dashed">
+    <Enum name="none" description="none" />
+    <Enum name="solid" description="solid" />
+    <Enum name="dashed" description="dashed" />
+  </EnumInfo>
+  <EnumInfo id="enum_ButtonBarPosition" composite="false" delimiter="" description="top, bottom">
+    <Enum name="top" description="top" />
+    <Enum name="bottom" description="bottom" />
+  </EnumInfo>
+  <EnumInfo id="enum_DevelopLangage" composite="false" delimiter="" description="NET, JSP">
+    <Enum name="NET" description="NET" />
+    <Enum name="JAVA" description="JAVA" />
+  </EnumInfo>
+  <EnumInfo id="enum_Mode" composite="false" delimiter="" description="edit, view">
+    <Enum name="edit" description="edit" />
+    <Enum name="view" description="view" />
+  </EnumInfo>
+  <EnumInfo id="enum_Align" composite="false" delimiter="" description="left, right">
+    <Enum name="left" description="left" />
+    <Enum name="right" description="right" />
+  </EnumInfo>
+  <EnumInfo id="enum_Views" composite="false" delimiter="" description="list, thumbs">
+    <Enum name="list" description="list" />
+    <Enum name="thumbs" description="thumbs" />
+  </EnumInfo>
+  <EnumInfo id="enum_transferwin" composite="false" delimiter="" description="standard, light">
+    <Enum name="standard" description="standard" />
+    <Enum name="light" description="light" />
+  </EnumInfo>
+  <EnumInfo id="enum_FileNameRule" composite="false" delimiter="" description="GUID, REALFILENAME">
+    <Enum name="GUID" description="GUID" />
+    <Enum name="REALFILENAME" description="REALFILENAME" />
+  </EnumInfo>
+  <EnumInfo id="enum_FileNameRuleEx" composite="false" delimiter="" description="_, #, i">
+    <Enum name="_" description="_" />
+    <Enum name="#" description="#" />
+    <Enum name="i" description="i" />
+  </EnumInfo>
+  <EnumInfo id="enum_Lang" composite="false" delimiter="" description="ko-kr : 한국어(대한민국), en-us : 영어(미국), zh-cn : 중국어(중국), zh-tw : 중국어(대만), ja-jp : 일본어(일본)">
+    <Enum name="ko-kr" description="한국어 (대한민국)" />
+    <Enum name="en-us" description="영어 (미국)" />
+    <Enum name="zh-cn" description="중국어 (중국)" />
+    <Enum name="zh-tw" description="중국어 (대만)" />
+    <Enum name="ja-jp" description="일본어 (일본)" />
+  </EnumInfo>
+  <EnumInfo id="enum_SkinName" composite="false" delimiter="" description="'blue, brown, darkgray, gold, gray, green, orange, pink, purple, red, silver, yellow'">
+    <Enum name="blue" description="blue" />
+    <Enum name="brown" description="brown" />
+    <Enum name="darkgray" description="darkgray" />
+    <Enum name="gold" description="gold" />
+    <Enum name="gray" description="gray" />
+    <Enum name="green" description="green" />
+    <Enum name="orange" description="orange" />
+    <Enum name="pink" description="pink" />
+    <Enum name="purple" description="purple" />
+    <Enum name="red" description="red" />
+    <Enum name="silver" description="silver" />
+    <Enum name="yellow" description="yellow" />
+  </EnumInfo>
+</MetaInfo>

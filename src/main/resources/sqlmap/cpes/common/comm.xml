@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="comm">
+
+
+
+    <!-- common code list  -->
+	<select id="selectCommCdList" resultType="ony.cmm.common.bean.CommDtlCdBean" parameterType="ony.cmm.common.bean.ConditionBean">
+		/*comm.selectCommCdList*/
+		SELECT
+			A.GRP_CD
+		  , A.DTL_CD
+		  , A.CD_EN_NM
+		  , A.CD_KH_NM
+		  , FN_GET_COMMON_NM(A.GRP_CD, A.DTL_CD, #{langCd}) AS CD_NM
+		FROM CPES_COMM_DTL_CD A
+        WHERE A.GRP_CD = #{condGrpCd}
+	    AND A.USE_YN = 'Y'
+	    <if test="flag != null and !flag.equals('')">
+	    AND NOT A.DTL_CD = #{flag}
+	    </if>
+	    ORDER BY A.SORT, A.DTL_CD
+	</select>
+
+	<!-- member info -->
+	<select id="selectMemberInfo" resultType="ony.cpes.external.member.bean.MemberBean" parameterType="ony.cmm.common.bean.ConditionBean">
+        <![CDATA[
+        	/*comm.selectMemberInfo*/
+            SELECT
+                  A.USER_AUTH_CD
+                , FN_GET_COMMON_NM('USER_AUTH_CD', A.USER_AUTH_CD, #{langCd}) AS USER_AUTH_NM
+                , A.USER_EMAIL
+                , A.USER_SEQ
+				, A.USER_NM_KH
+				, A.USER_NM_EN
+				, A.JC_CD
+				, FN_GET_JOB_CNTR_NM(A.JC_CD, #{langCd}) AS JC_NM
+				, (SELECT C.TEL1 FROM CPES_JOB_CENTER C WHERE C.JC_CD = A.JC_CD) AS JC_TEL
+				, FN_GET_USER_NM_BY_USER_SEQ(A.USER_SEQ, #{langCd}) AS USER_NM
+				, FN_GET_JOB_CNTR_NM(A.JC_CD, #{langCd}) AS JC_NM
+				, A.USER_CELL
+				, (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN NM_KH ELSE NM_EN END AS NM FROM CPES_LOC_CD WHERE LVL_CD = A.ADDR_CD) AS ADDR_CD_NM
+				, A.ADDR_DTL
+				, A.FILE_GRP_SEQ
+            FROM CPES_USER A
+            WHERE (A.USER_EMAIL = #{condUserEmail} OR A.USER_CELL = #{condUserEmail})
+            AND A.USE_YN = 'Y'
+            LIMIT 1
+        ]]>
+    </select>
+
+	<select id="selectLocCdList" resultType="ony.cmm.common.bean.LocCdBean" parameterType="ony.cmm.common.bean.ConditionBean">
+		/* selectLocCdList */
+		SELECT LC.LOC_SEQ
+			 , LC.LVL_CD
+			 , LC.LVL
+			 , LC.PARENT_ID
+			 , LC.NM_EN
+			 , LC.NM_KH
+			 , CASE WHEN UPPER(#{langCd}) = 'KH' THEN NM_KH ELSE NM_EN END AS NM
+		FROM CPES_LOC_CD LC
+		WHERE 1=1
+		<if test="condCntryId != null and condCntryId != ''">
+			AND LC.COUNTRY_ID = #{condCntryId}
+		</if>
+		<choose>
+			<when test="depth == null or depth == ''">
+				AND LC.LVL = 2
+			</when>
+			<when test="depth == 0">
+				AND LC.LVL = 1
+			</when>
+			<!-- 연구 및 전문분야 관련 조회 -->
+			<when test="depth == '99'">
+				AND LC.LVL = 2
+				AND LEFT(LC.LVL_CD, #{cdLength}) = #{condGrpCd}
+			</when>
+			<when test="depth == 1 and condGrpCd != null and condGrpCd != '' and cdLength != null and cdLength != ''">
+				AND LC.LVL = 3
+				AND LEFT(LC.LVL_CD, #{cdLength}) = #{condGrpCd}
+			</when>
+			<when test="depth == 2 and condGrpCd != null and condGrpCd != '' and cdLength != null and cdLength != ''">
+				AND LC.LVL = 4
+				AND LEFT(LC.LVL_CD, #{cdLength}) = #{condGrpCd}
+			</when>
+			<when test="depth == 3 and condGrpCd != null and condGrpCd != '' and cdLength != null and cdLength != ''">
+				AND LC.LVL = 5
+				AND LEFT(LC.LVL_CD, #{cdLength}) = #{condGrpCd}
+			</when>
+		</choose>
+	</select>
+
+	<!-- 기능 통합을 위한 복사본 -->
+	<select id="selectCommonLocCdList" resultType="ony.cmm.common.bean.CommonBean" parameterType="ony.cmm.common.bean.ConditionBean">
+		/* selectLocCdList */
+		SELECT LC.LVL_CD AS CD
+			 , CASE WHEN UPPER(#{langCd}) = 'KH' THEN NM_KH ELSE NM_EN END AS CD_NM
+		FROM CPES_LOC_CD LC
+		WHERE 1=1
+		<choose>
+			<when test="depth == null or depth == ''">
+				AND LC.LVL = 2
+			</when>
+			<when test="depth == 0">
+				AND LC.LVL = 1
+			</when>
+			<!-- 연구 및 전문분야 관련 조회 -->
+			<when test="depth == '99'">
+				AND LC.LVL = 2
+				<!-- AND LEFT(LC.LVL_CD, #{cdLength}) = #{condGrpCd} -->
+				AND COUNTRY_ID = #{condGrpCd}
+			</when>
+			<when test="depth == 1 and condGrpCd != null and condGrpCd != '' and cdLength != null and cdLength != ''">
+				AND LC.LVL = 3
+				AND LEFT(LC.LVL_CD, #{cdLength}) = #{condGrpCd}
+				<!-- AND PROVINCE_ID = #{condGrpCd} -->
+			</when>
+			<when test="depth == 2 and condGrpCd != null and condGrpCd != '' and cdLength != null and cdLength != ''">
+				AND LC.LVL = 4
+				AND LEFT(LC.LVL_CD, #{cdLength}) = #{condGrpCd}
+				<!-- AND DISTRICT_ID = #{condGrpCd} -->
+			</when>
+			<when test="depth == 3 and condGrpCd != null and condGrpCd != '' and cdLength != null and cdLength != ''">
+				AND LC.LVL = 5
+				AND LEFT(LC.LVL_CD, #{cdLength}) = #{condGrpCd}
+				<!-- AND COMMUNE_ID = #{condGrpCd} -->
+			</when>
+		</choose>
+	</select>
+
+	<select id="selectIscoCdList" parameterType="ony.cmm.common.bean.ConditionBean" resultType="ony.cmm.common.bean.CommonBean">
+		/*comm.selectIscoCdList*/
+		SELECT IC.ISCO_CD AS CD
+			 , CASE WHEN UPPER(#{langCd}) = 'KH' THEN KH_NM ELSE EN_NM END AS CD_NM
+		FROM CPES_ISCO_CD IC
+		WHERE 1=1
+		AND IC.USE_YN = 'Y'
+		<choose>
+			<when test="depth == null or depth == ''">
+				AND IC.LVL = 1
+			</when>
+			<when test="depth == 1 and cd != null and cd != ''">
+				AND IC.LVL = 2
+				AND LEFT(IC.ISCO_CD, 1) = #{cd}
+			</when>
+			<when test="depth == 2 and cd != null and cd != ''">
+				AND IC.LVL = 3
+				AND LEFT(IC.ISCO_CD, 2) = #{cd}
+			</when>
+			<when test="depth == 3 and cd != null and cd != ''">
+				AND IC.LVL = 4
+				AND LEFT(IC.ISCO_CD, 3) = #{cd}
+			</when>
+		</choose>
+	</select>
+
+	<select id="selectAttachFilesList" parameterType="ony.cmm.common.bean.FileBean" resultType="ony.cmm.common.bean.FileBean">
+		/*comm.selectAttachFilesList*/
+		SELECT AF.FILE_SEQ
+			 , AF.FILE_GRP_SEQ
+			 , AF.ORIGINAL_NM
+			 , AF.SAVE_NM
+			 , AF.SAVE_FILE_PATH
+			 , AF.FILE_EXTENSION
+			 , AF.FILE_SIZE
+		FROM CPES_ATTACH_FILES AF
+		WHERE AF.FILE_GRP_SEQ = #{fileGrpSeq}
+	</select>
+
+	<select id="selectAttachFiles" parameterType="ony.cmm.common.bean.FileBean" resultType="ony.cmm.common.bean.FileBean">
+		/*comm.selectAttachFiles*/
+		SELECT AF.FILE_SEQ
+			 , AF.FILE_GRP_SEQ
+			 , AF.ORIGINAL_NM
+			 , AF.SAVE_NM
+			 , AF.SAVE_FILE_PATH
+			 , AF.FILE_EXTENSION
+			 , AF.FILE_SIZE
+		FROM CPES_ATTACH_FILES AF
+		WHERE AF.FILE_SEQ = #{fileSeq}
+	</select>
+
+	<select id="selectIscedCdList" resultType="ony.cmm.common.bean.IscedCdBean" parameterType="ony.cmm.common.bean.ConditionBean" >
+		/*comm.selectIscedCdList*/
+		SELECT
+			   A.ISCED_CD
+			 , CASE WHEN #{langCd} = 'KH' THEN A.KH_NM
+			        ELSE A.EN_NM
+			   END AS NM
+			 , A.UPPER_CD
+		FROM CPES_ISCED_CD A
+		WHERE A.LVL = CAST(#{condLvl} AS UNSIGNED)
+		<if test="condUpperCd != null and condUpperCd != ''">
+			AND A.UPPER_CD = #{condUpperCd}
+		</if>
+		AND A.USE_YN = 'Y'
+
+	</select>
+
+	<select id="selectIsicCdList" resultType="ony.cmm.common.bean.IsicCdBean" parameterType="ony.cmm.common.bean.ConditionBean" >
+		/*comm.selectIsicCdList*/
+		SELECT
+			   A.ISIC_CD
+			 , CASE WHEN #{langCd} = 'KH' THEN A.KH_NM
+			        ELSE A.EN_NM
+			   END AS NM
+			 , A.UPPER_CD
+		FROM CPES_ISIC_CD A
+		WHERE A.LVL = CAST(#{condLvl} AS UNSIGNED)
+		<if test="condUpperCd != null and condUpperCd != ''">
+			AND A.UPPER_CD = #{condUpperCd}
+		</if>
+		AND A.USE_YN = 'Y'
+
+	</select>
+
+	<select id="selectMemberInfoByUserSeq" resultType="ony.cpes.external.member.bean.MemberBean" parameterType="ony.cmm.common.bean.ConditionBean">
+        <![CDATA[
+        	/*comm.selectMemberInfoByUserSeq*/
+            SELECT
+                  A.USER_AUTH_CD
+                , FN_GET_COMMON_NM('USER_AUTH_CD', A.USER_AUTH_CD, #{langCd}) AS USER_AUTH_NM
+                , A.USER_EMAIL
+                , A.USER_SEQ
+				, A.USER_NM_KH
+				, A.USER_NM_EN
+				, A.JC_CD
+				, FN_GET_JOB_CNTR_NM(A.JC_CD, #{langCd}) AS JC_NM
+				, (SELECT C.TEL1 FROM CPES_JOB_CENTER C WHERE C.JC_CD = A.JC_CD) AS JC_TEL
+				, FN_GET_USER_NM_BY_USER_SEQ(A.USER_SEQ, #{langCd}) AS USER_NM
+				, FN_GET_JOB_CNTR_NM(A.JC_CD, #{langCd}) AS JC_NM
+				, A.USER_CELL
+				, (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN NM_KH ELSE NM_EN END AS NM FROM CPES_LOC_CD WHERE LVL_CD = A.ADDR_CD) AS ADDR_CD_NM
+				, A.ADDR_DTL
+				, A.FILE_GRP_SEQ
+				, B.LOGO_FILE_GRP_SEQ
+				, C.INSTT_LOGO_FILE_GRP_SEQ
+            FROM CPES_USER A
+            	LEFT JOIN CPES_COMPNY B
+				ON A.USER_SEQ = B.USER_SEQ
+					LEFT JOIN CPES_INSTT C
+					ON A.USER_SEQ = C.USER_SEQ
+            WHERE A.USER_SEQ = #{condUserSeq}
+            AND A.USE_YN = 'Y'
+            LIMIT 1
+        ]]>
+    </select>
+
+    <select id="selectBanWordList" resultType="string">
+    	SELECT BANWORD.BANWORD
+    	FROM CPES_BANWORD BANWORD
+    	WHERE BANWORD.USE_YN = 'Y'
+    </select>
+
+</mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setEduTrnng">
+
+    <insert id="insertEduTrnngUser" parameterType="ony.cpes.external.mypage.privt.bean.EduTrnngBean">
+		/*setMatching.insertEduTrnngUser*/
+		INSERT INTO CPES_EDU_TRNNG_USER (
+			USER_SEQ,
+			REG_USER_SEQ,
+			REG_DT,
+			MOD_USER_SEQ,
+			MOD_DT,
+			JC_AGREE_STS_CD,
+			EDU_TRNNG_SEQ,
+			JC_USER_SEQ,
+			DEL_YN,
+			CANCEL_YN
+		)
+		VALUES (
+			#{userSeq},
+			#{regUserSeq},
+			NOW(),
+			#{modUserSeq},
+			NOW(),
+			#{jcAgreeStsCd},
+			#{eduTrnngSeq},
+			#{jcUserSeq},
+			'N',
+			'N'
+		)
+		ON DUPLICATE KEY
+		UPDATE
+			MOD_USER_SEQ = #{modUserSeq},
+			MOD_DT = NOW(),
+			JC_AGREE_STS_CD = #{jcAgreeStsCd},
+			EDU_TRNNG_SEQ = #{eduTrnngSeq},
+			JC_USER_SEQ = #{jcUserSeq},
+			DEL_YN = 'N',
+			CANCEL_YN = 'N'
+    </insert>
+
+</mapper>

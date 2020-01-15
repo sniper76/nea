@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="login">
+
+
+	<resultMap type="ony.cmm.common.bean.CustomUserDetailsBean" id="userMap">
+		<result property="id" 				column="id" 				javaType="String" />
+		<result property="password" 		column="password" 			javaType="String" />
+		<result property="username" 		column="username" 			javaType="String" />
+		<result property="authority" 		column="authority" 			javaType="String" />
+		<result property="mngId" 			column="mngId" 				javaType="String" />
+		<result property="pwdChgYn" 		column="pwdChgYn" 			javaType="String" />
+		<result property="pwdFailCnt" 		column="pwdFailCnt" 		javaType="int" />
+		<result property="accntLockStsCd" 	column="accntLockStsCd" 	javaType="String" />
+		<result property="dormancyYn" 		column="dormancyYn" 		javaType="String" />
+		<result property="userSeq" 		column="userSeq" 		javaType="String" />
+		<result property="userAuthCd" 		column="userAuthCd" 		javaType="String" />
+		<result property="userEmail" 		column="userEmail" 		javaType="String" />
+	</resultMap>
+
+	<!-- user Login -->
+	<select id="selectUserById" resultMap="userMap" parameterType="String">
+        <![CDATA[
+        	/*login.selectUserById*/
+            SELECT
+                  A.USER_AUTH_CD AS AUTHORITY
+                , A.USER_EMAIL AS ID
+                , A.USER_SEQ AS USERNAME
+                , A.USER_PWD AS PASSWORD
+                , A.MNG_ID
+                , CASE
+                	WHEN A.PWD_CREAT_DT >= DATE_ADD(now(), interval - 3 month) THEN 'N'
+                  ELSE 'Y'
+                  END AS PWD_CHG_YN
+                , A.PWD_FAIL_CNT
+                , A.ACCNT_LOCK_STS_CD
+                , A.DORMANCY_YN
+                , A.USER_SEQ
+                , A.USER_AUTH_CD
+                , A.USER_EMAIL
+            FROM CPES_USER A
+            WHERE (A.USER_EMAIL = #{mngId} OR A.USER_CELL = #{mngId})
+            AND A.USE_YN = 'Y'
+            LIMIT 1
+        ]]>
+    </select>
+
+    <!-- user info search  -->
+	<select id="selectSearchIdPwd" resultType="ony.cpes.external.user.bean.UserBean" parameterType="ony.cpes.external.user.bean.UserBean">
+		/*login.selectSearchIdPwd*/
+		SELECT
+			A.USER_EMAIL
+		  , A.USER_PWD
+		  , A.USER_PWD_OLD
+		  , A.NEW_PWD_APPLY_YN
+		  , A.USER_NM_KH
+		  , A.USER_NM_EN
+		  , A.EMAIL_USER_AUTH_VALUE
+		  , A.USER_SEQ
+          , CASE WHEN A.PWD_CREAT_DT >= DATE_ADD(now(), interval - 3 month) THEN 'Y'
+                 ELSE 'N'
+            END AS PWD_CHG_YN
+          , A.DORMANCY_YN
+          , A.USER_AUTH_CD
+          , A.JC_CD
+          , FN_GET_COMMON_NM('USER_AUTH_CD', A.USER_AUTH_CD, #{langCd}) AS USER_AUTH_NM
+          , FN_GET_JOB_CNTR_NM(A.JC_CD, #{langCd}) AS JC_NM
+          , (
+          	SELECT F.TEL1
+          	FROM CPES_JOB_CENTER F
+          	WHERE F.JC_CD = A.JC_CD
+          ) AS JC_TEL
+		FROM CPES_USER A
+        WHERE (A.USER_EMAIL = #{mngId} OR A.USER_CELL = #{mngId})
+	    AND A.USE_YN = 'Y'
+	    LIMIT 1
+	</select>
+
+
+	<!-- select user info -->
+	<select id="selectUser" resultType="ony.cpes.external.login.bean.LoginBean" parameterType="ony.cpes.external.login.bean.LoginBean">
+		/*login.selectUser*/
+		SELECT
+		    A.USER_AUTH_CD
+		  ,	A.USER_EMAIL
+		  , A.USER_PWD
+		  , A.USER_SEQ
+		FROM CPES_USER A
+        WHERE (A.USER_EMAIL = #{mngId} OR A.USER_CELL = #{mngId})
+	    AND A.USE_YN = 'Y'
+	    LIMIT 1
+	</select>
+
+
+
+	<!-- select user find id(public user,student) -->
+	<select id="selectFindIdTypeG" resultType="ony.cpes.external.login.bean.LoginBean" parameterType="ony.cpes.external.login.bean.LoginBean">
+		/*login.selectFindIdTypeG*/
+		SELECT
+		  	A.USER_EMAIL
+		  , A.USER_CELL
+		  , A.USER_SEQ
+		FROM CPES_USER A
+		<choose>
+			<!--  'M' IS CELL PHONE SEARCH -->
+	  		<when test="stopDiv == 'M'.toString()">
+	        	WHERE A.USER_CELL = #{userCell}
+	  		</when>
+	  		<otherwise>
+	    		WHERE A.USER_EMAIL = #{userEmail}
+	  		</otherwise>
+		</choose>
+		AND (A.USER_NM_KH = #{userNm} OR A.USER_NM_EN = #{userNm})
+		AND A.USER_AUTH_CD = #{userAuthCd}
+	    AND A.USE_YN = 'Y'
+	</select>
+
+
+	<!-- select user find id(company user) -->
+	<select id="selectFindIdTypeC" resultType="ony.cpes.external.login.bean.LoginBean" parameterType="ony.cpes.external.login.bean.LoginBean">
+		/*login.selectFindIdTypeC*/
+		SELECT
+		  	A.USER_EMAIL
+		  , A.USER_CELL
+		  , A.USER_SEQ
+		FROM CPES_USER A
+		INNER JOIN CPES_COMPNY B
+		ON A.USER_SEQ = B.USER_SEQ
+		WHERE B.REG_NUM = #{regNum}
+	    AND B.MNGER_NM = #{mngerNm}
+		AND A.USER_AUTH_CD = #{userAuthCd}
+	    AND A.USE_YN = 'Y'
+	</select>
+
+	<!-- select user find id(TRNCT user) -->
+	<select id="selectFindIdTypeT" resultType="ony.cpes.external.login.bean.LoginBean" parameterType="ony.cpes.external.login.bean.LoginBean">
+		/*login.selectFindIdTypeT*/
+		SELECT
+		  	A.USER_EMAIL
+		  , A.USER_CELL
+		  , A.USER_SEQ
+		FROM CPES_USER A
+		INNER JOIN CPES_INSTT B
+		ON A.USER_SEQ = B.USER_SEQ
+		WHERE B.INSTT_REG_NUM = #{regNum}
+	    AND B.INSTT_MNGER_NM = #{mngerNm}
+		AND A.USER_AUTH_CD = #{userAuthCd}
+	    AND A.USE_YN = 'Y'
+	    LIMIT 1
+	</select>
+
+
+	<!-- select user find id(public user,student) -->
+	<select id="selectFindPwdTypeG" resultType="ony.cpes.external.login.bean.LoginBean" parameterType="ony.cpes.external.login.bean.LoginBean">
+		/*login.selectFindPwdTypeG*/
+		SELECT
+		  	A.USER_EMAIL
+		  , A.USER_CELL
+		  , A.USER_SEQ
+		FROM CPES_USER A
+		WHERE A.USER_EMAIL = #{userEmail}
+	    AND (A.USER_NM_KH = #{userNm} OR A.USER_NM_EN = #{userNm})
+		AND A.USER_AUTH_CD = #{userAuthCd}
+	    AND A.USE_YN = 'Y'
+	</select>
+
+
+	<!-- select user find password(company user) -->
+	<select id="selectFindPwdTypeC" resultType="ony.cpes.external.login.bean.LoginBean" parameterType="ony.cpes.external.login.bean.LoginBean">
+		/*login.selectFindPwdTypeC*/
+		SELECT
+		  	A.USER_EMAIL
+		  , A.USER_CELL
+		  , A.USER_SEQ
+		FROM CPES_USER A
+		INNER JOIN CPES_COMPNY B
+		ON A.USER_SEQ = B.USER_SEQ
+		WHERE A.USER_EMAIL = #{userEmail}
+		AND A.USER_AUTH_CD = #{userAuthCd}
+		AND A.USE_YN = 'Y'
+		AND B.REG_NUM = #{regNum}
+	    AND B.MNGER_NM = #{mngerNm}
+	</select>
+
+	<!-- select user find password(TRNCT user) -->
+	<select id="selectFindPwdTypeT" resultType="ony.cpes.external.login.bean.LoginBean" parameterType="ony.cpes.external.login.bean.LoginBean">
+		/*login.selectFindPwdTypeT*/
+		SELECT
+		  	A.USER_EMAIL
+		  , A.USER_CELL
+		  , A.USER_SEQ
+		FROM CPES_USER A
+		INNER JOIN CPES_INSTT B
+		ON A.USER_SEQ = B.USER_SEQ
+		WHERE A.USER_EMAIL = #{userEmail}
+		AND A.USER_AUTH_CD = #{userAuthCd}
+		AND A.USE_YN = 'Y'
+		AND B.INSTT_REG_NUM = #{regNum}
+	    AND B.INSTT_MNGER_NM = #{mngerNm}
+	</select>
+
+</mapper>

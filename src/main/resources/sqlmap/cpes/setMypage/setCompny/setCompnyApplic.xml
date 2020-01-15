@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setCompnyApplic">
+	<!-- 입사지원 상태 변경 -->
+	<update id="updateProcStat"  parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+		/*setCompnyApplic.updateProcStat*/
+           UPDATE CPES_APPLIC SET
+           	APPLIC_PROC_CD = #{condTypeCd},
+           	MOD_DT = now(),
+           	MOD_USER_SEQ = #{modUserSeq}
+           WHERE APPLIC_SEQ = #{condSeq}
+           AND VACANCY_SEQ = (
+           	SELECT
+           		A.VACANCY_SEQ
+           	FROM CPES_VACANCY A
+           	INNER JOIN CPES_COMPNY B
+           	ON A.COMPNY_SEQ = B.COMPNY_SEQ
+           	WHERE A.VACANCY_SEQ = #{condSeq2}
+           	AND B.USER_SEQ = #{condUserSeq}
+           )
+	</update>
+
+
+	<!-- 입사지원 이력서 열람 처리 -->
+	<update id="updateResumeOpen"  parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+			/*setCompnyApplic.updateResumeOpen*/
+            UPDATE CPES_APPLIC SET
+            	APPLIC_PROC_CD = 'APC0000000002',
+            	RESUME_OPEN_DT = now(),
+            	MOD_USER_SEQ = #{modUserSeq}
+            WHERE APPLIC_SEQ = #{condSeq}
+            AND VACANCY_SEQ = (
+            	SELECT
+            		A.VACANCY_SEQ
+            	FROM CPES_VACANCY A
+            	INNER JOIN CPES_COMPNY B
+            	ON A.COMPNY_SEQ = B.COMPNY_SEQ
+            	WHERE A.VACANCY_SEQ = #{condSeq2}
+            	AND B.USER_SEQ = #{condUserSeq}
+            )
+	</update>
+
+	<!-- 알선 삭제-->
+	<update id="deleteReferral"  parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+		/*setCompnyApplic.deleteReferral*/
+		UPDATE CPES_REFERRAL SET
+			DEL_YN = 'Y',
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{condUserSeq}
+        WHERE VACANCY_SEQ = (
+           	SELECT
+           		A.VACANCY_SEQ
+           	FROM CPES_VACANCY A
+           	INNER JOIN CPES_COMPNY B
+           	ON A.COMPNY_SEQ = B.COMPNY_SEQ
+           	WHERE A.VACANCY_SEQ = #{condSeq}
+           	AND B.USER_SEQ = #{condUserSeq}
+        )
+		AND RESUME_SEQ = #{condSeq2}
+		AND REFERRAL_TYPE_CD = 'RFT0000000001'
+	</update>
+
+
+
+	<!-- 알선수락-->
+	<update id="updateReferralOk"  parameterType="ony.cpes.external.mypage.privt.bean.ReferralBean">
+		/*setCompnyApplic.updateReferralOk*/
+		UPDATE CPES_REFERRAL SET
+			REFERRAL_STS_CD = 'RFS0000000003',
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+        WHERE VACANCY_SEQ = (
+           	SELECT
+           		A.VACANCY_SEQ
+           	FROM CPES_VACANCY A
+           	INNER JOIN CPES_COMPNY B
+           	ON A.COMPNY_SEQ = B.COMPNY_SEQ
+           	WHERE A.VACANCY_SEQ = #{vacancySeq}
+           	AND B.USER_SEQ = #{regUserSeq}
+        )
+		AND RESUME_SEQ = #{resumeSeq}
+		AND REFERRAL_TYPE_CD = 'RFT0000000001'
+	</update>
+
+
+	<!-- 알선거부-->
+	<update id="updateReferralNo"  parameterType="ony.cpes.external.mypage.privt.bean.ReferralBean">
+		/*setCompnyApplic.updateReferralNo*/
+		UPDATE CPES_REFERRAL SET
+			REFERRAL_STS_CD = 'RFS0000000002',
+			REFERRAL_REJECT_CD = #{referralRejectCd},
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+        WHERE VACANCY_SEQ = (
+           	SELECT
+           		A.VACANCY_SEQ
+           	FROM CPES_VACANCY A
+           	INNER JOIN CPES_COMPNY B
+           	ON A.COMPNY_SEQ = B.COMPNY_SEQ
+           	WHERE A.VACANCY_SEQ = #{vacancySeq}
+           	AND B.USER_SEQ = #{regUserSeq}
+        )
+		AND RESUME_SEQ = #{resumeSeq}
+		AND REFERRAL_TYPE_CD = 'RFT0000000001'
+	</update>
+
+	<!-- 입사제의 삭제-->
+	<delete id="deleteOffer"  parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+		/*setCompnyApplic.deleteOffer*/
+		DELETE FROM CPES_OFFER
+		WHERE OFFER_SEQ = #{condSeq}
+        AND VACANCY_SEQ = (
+           	SELECT
+           		A.VACANCY_SEQ
+           	FROM CPES_VACANCY A
+           	INNER JOIN CPES_COMPNY B
+           	ON A.COMPNY_SEQ = B.COMPNY_SEQ
+           	WHERE A.VACANCY_SEQ = #{condSeq2}
+           	AND B.USER_SEQ = #{condUserSeq}
+        )
+	</delete>
+
+	<!-- 알선신청-->
+	<update id="updateReferralReq"  parameterType="ony.cpes.external.mypage.privt.bean.ReferralBean">
+		/*setCompnyApplic.updateReferralReq*/
+		UPDATE CPES_VACANCY SET
+			RECRUMT_DIFFCLT_YN = 'Y',
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+        WHERE VACANCY_SEQ = #{condSeq}
+        AND COMPNY_SEQ = (
+        	SELECT COMPNY_SEQ FROM CPES_COMPNY
+        	WHERE USER_SEQ = #{condUserSeq}
+        )
+	</update>
+
+
+	<!-- 입사지원 불한격 처리-->
+	<update id="updateFailReason"  parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+		/*setCompnyApplic.updateFailReason*/
+        UPDATE CPES_APPLIC SET
+        	APPLIC_PROC_CD = 'APC0000000006',
+        	FAIL_REASON = #{condText},
+           	MOD_DT = now(),
+           	MOD_USER_SEQ = #{modUserSeq}
+        WHERE APPLIC_SEQ = #{condSeq}
+        AND VACANCY_SEQ = (
+           	SELECT
+           		A.VACANCY_SEQ
+           	FROM CPES_VACANCY A
+           	INNER JOIN CPES_COMPNY B
+           	ON A.COMPNY_SEQ = B.COMPNY_SEQ
+           	WHERE A.VACANCY_SEQ = #{condSeq2}
+           	AND B.USER_SEQ = #{condUserSeq}
+        )
+	</update>
+
+	<!-- 인터뷰 제안 -->
+	<insert id="insertIntvw"  parameterType="ony.cpes.external.mypage.privt.bean.IntvwBean">
+		/*setCompnyApplic.insertIntvw*/
+		<selectKey resultType="string" keyProperty="intvwSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_INTVW (
+			  APPLIC_SEQ
+			, CONTENT
+			, INTVW_DT
+			, INTVW_OPEN_DT
+			, INTVW_OPEN_YN
+			, INTVW_SEQ
+			, INTVW_STS_CD
+			, INTVW_TYPE_CD
+			, MOD_DT
+			, MOD_USER_SEQ
+			, REFERRAL_YN
+			, REG_DT
+			, REG_USER_SEQ
+		) VALUES (
+			  #{applicSeq}
+			, #{content}
+			, #{intvwDt}
+			, #{intvwOpenDt}
+			, 'N'
+			, #{intvwSeq}
+			, 'ITV0000000001'
+			, #{intvwTypeCd}
+			, NOW()
+			, #{modUserSeq}
+			, #{referralYn}
+			, NOW()
+			, #{regUserSeq}
+		)
+	</insert>
+</mapper>

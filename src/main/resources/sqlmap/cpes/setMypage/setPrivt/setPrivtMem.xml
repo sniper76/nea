@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setPrivtMem">
+
+
+ 	<!-- 회원정보 수정-->
+	<update id="updateMember"  parameterType="ony.cpes.external.mypage.privt.bean.PrivtMemBean">
+		/*setPrivtMem.updateMember*/
+		UPDATE CPES_USER SET
+			BIRTH = #{birth},
+			ADDR_CD = #{addrCd},
+			ADDR_DTL = #{addrDtl},
+			ADDR_FULL_CD = #{addrFullCd},
+			ADDR_FULL_NM = #{addrFullNm},
+			NID = #{nid},
+			MOD_USER_SEQ = #{modUserSeq},
+			MOD_DT = now()
+		WHERE USER_SEQ = #{userSeq}
+    </update>
+
+
+	<!-- update user password -->
+	<update id="updatePwd" parameterType="ony.cpes.external.mypage.privt.bean.PrivtMemBean">
+		/*setPrivtMem.updatePwd*/
+		UPDATE CPES_USER SET
+			USER_PWD = #{newPwd},
+		    NEW_PWD_APPLY_YN = 'Y',
+		    PWD_CREAT_DT = NOW(),
+		   	MOD_USER_SEQ = #{modUserSeq},
+		   	MOD_DT = now()
+		WHERE USER_SEQ = #{userSeq}
+	</update>
+
+
+	<!-- delete user -->
+	<update id="deleteMember" parameterType="ony.cpes.external.mypage.privt.bean.PrivtMemBean">
+		/*setPrivtMem.deleteMember*/
+		UPDATE CPES_USER SET
+			DEL_YN = 'Y',
+			MOD_USER_SEQ = #{modUserSeq},
+			MOD_DT = now()
+		WHERE USER_SEQ = #{userSeq}
+	</update>
+
+	<!-- delete user -->
+	<insert id="insertMemberTypeChange" parameterType="ony.cpes.external.mypage.privt.bean.PrivtMemBean">
+		/*setPrivtMem.insertMemberTypeChange*/
+		INSERT INTO CPES_USER_CHG (
+			AGREE_REJECT_REASON,
+			CHG_AGREE_STS_CD,
+			CHG_NEXT_CD,
+			CHG_PREV_CD,
+			CHG_REASON,
+			JC_CD,
+			JC_USER_SEQ,
+			MOD_DT,
+			MOD_USER_SEQ,
+			REG_DT,
+			REG_USER_SEQ,
+			STS_CHG_DT,
+			USER_CHG_SEQ,
+			USER_SEQ
+		) VALUES (
+			#{agreeRejectReason},
+			'CAS0000000001',
+			#{chgNextCd},
+			#{chgPrevCd},
+			#{chgReason},
+			#{jcCd},
+			#{jcUserSeq},
+			now(),
+			#{modUserSeq},
+			now(),
+			#{regUserSeq},
+			#{stsChgDt},
+			#{userChgSeq},
+			#{userSeq}
+		)
+
+	</insert>
+
+
+	<!-- delete user -->
+	<update id="deleteCompany" parameterType="ony.cpes.external.mypage.privt.bean.PrivtMemBean">
+		/*setPrivtMem.deleteCompany*/
+		UPDATE CPES_COMPNY SET
+			DEL_YN = 'Y',
+			MOD_USER_SEQ = #{modUserSeq},
+			MOD_DT = now()
+		WHERE USER_SEQ = #{userSeq}
+	</update>
+
+	<!-- delete user -->
+	<update id="deleteInstt" parameterType="ony.cpes.external.mypage.privt.bean.PrivtMemBean">
+		/*setPrivtMem.deleteInstt*/
+		UPDATE CPES_INSTT SET
+			DEL_YN = 'Y',
+			MOD_USER_SEQ = #{modUserSeq},
+			MOD_DT = now()
+		WHERE USER_SEQ = #{userSeq}
+	</update>
+
+</mapper>

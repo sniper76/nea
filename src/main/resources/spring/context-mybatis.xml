@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration  PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <settings>
+        <!-- changes from the defaults for testing -->
+        <setting name="cacheEnabled"            value="true" />
+        <setting name="useGeneratedKeys"        value="false" />
+        <setting name="defaultExecutorType"     value="REUSE" />
+        <setting name="defaultStatementTimeout" value="25000" />
+        <setting name="callSettersOnNulls"      value="true"/>
+        <setting name="jdbcTypeForNull"         value="VARCHAR"/>
+        <setting name="mapUnderscoreToCamelCase"   value="true"/>
+    </settings>
+
+    <typeAliases>
+		<typeAlias  alias="map"                 	type="java.util.Map"/>
+		<typeAlias  alias="hashMap"             	type="java.util.HashMap" />
+		<package 	name="ony.cpes.external.user.bean"/>
+		<package 	name="ony.cmm.common.bean"/>
+    </typeAliases>        
+</configuration>

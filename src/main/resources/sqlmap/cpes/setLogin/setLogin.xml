@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setLogin">
+
+	<!-- update success login -->
+	<update id="updateLogin" parameterType="ony.cpes.external.user.bean.UserBean">
+		/*setLogin.updateLogin*/
+		UPDATE CPES_USER
+		   SET PWD_FAIL_CNT = 0
+		   	,  LAST_LOGIN_DT = now()
+		   	,  LAST_LOGIN_IP = #{lastLoginIp}
+		 WHERE USER_SEQ = #{userSeq}
+	</update>
+
+	<!-- update fail login -->
+	<update id="updateLoginFail" parameterType="ony.cpes.external.user.bean.UserBean">
+		/*setLogin.updateLogin*/
+		UPDATE CPES_USER
+		   SET PWD_FAIL_CNT = PWD_FAIL_CNT + 1
+		WHERE (USER_EMAIL = #{mngId} OR USER_CELL = #{mngId})
+	</update>
+
+	<!-- update user password -->
+	<update id="updatePwd" parameterType="ony.cpes.external.login.bean.LoginBean">
+		/*setLogin.updatePwd*/
+		UPDATE CPES_USER SET
+			USER_PWD = #{newPwd},
+		    NEW_PWD_APPLY_YN = 'Y',
+		    PWD_CREAT_DT = NOW(),
+		    PWD_FAIL_CNT = 0
+		WHERE USER_SEQ = #{userSeq}
+	</update>
+
+	<!-- update user Dormancy -->
+	<update id="updateDormancy" parameterType="ony.cpes.external.login.bean.LoginBean">
+		/*setLogin.updateDormancy*/
+		UPDATE CPES_USER SET
+			DORMANCY_YN = 'N',
+		    PWD_CREAT_DT = NOW(),
+		    PWD_FAIL_CNT = 0
+		WHERE (USER_EMAIL = #{mngId} OR USER_CELL = #{mngId})
+	</update>
+
+
+</mapper>

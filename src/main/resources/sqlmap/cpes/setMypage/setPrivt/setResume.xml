@@ -1,0 +1,928 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setResume">
+
+	<!-- insertResume -->
+    <insert id="insertResume" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/*setResume.insertResume*/
+		<selectKey resultType="string" keyProperty="resumeSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	<choose>
+    		<when test="tempFlag == 1">
+    			INSERT INTO CPES_RESUME_TEMP (
+    		</when>
+    		<otherwise>
+    			INSERT INTO CPES_RESUME (
+    		</otherwise>
+    	</choose>
+
+		RESUME_SEQ
+		, RESUME_ID
+		, USER_SEQ
+		, USER_ID
+		, JC_CD
+		, CMPLT_USER_NM_KH
+		, CMPLT_USER_NM_EN
+		, GENDER_CD
+		, NATION_CD
+		, BIRTH
+		, IDENTI_NO
+		, BIRTH_LOC_CD
+		, MARRI_CD
+		, FAMILY_CNT
+		, UNDER_AGE15_FAMILY_CNT
+		, OVER_AGE64_FAMILY_CNT
+		, ADDR_DTL
+		, ADDR_CD
+		, FRSTIME_JOB_SEEKER_YN
+		, STUDYING_YN
+		, RET_MIGRAT_YN
+		, RURAL_LABO_YN
+		, SRVC_YN
+		, ETHNIC_MINOR_YN
+		, DISABL_YN
+		, DISABL_OPTION_CD
+		, DISABL_ETC
+		, NOW_WORK_YN
+		, BEFORE_WORK_DURA
+		, SELFEMP_YN
+		, SELFEMP_CLASS_CD
+		, URGENT_JOBSEEK_YN
+		, JOBSEEK_WAIT_DURA
+		, FILE_GRP_SEQ
+		, PRO_LICNS_YN
+		, PRO_LICNS_SPEC
+		, CAREER_YN
+		, TOT_CAREER_TERM_YEAR_CNT
+		, TOT_CAREER_TERM_MONTH_CNT
+		, JC_USER_MOD_DT
+		, JC_VERITY_USER_SEQ
+		, JC_NOTE
+		, UPLOAD_CV
+		, STEP_INPUT
+		, MOBILE_ID
+		, RESUME_STS_CD
+		, LAST_MOD_DT
+		, REG_USER_SEQ
+		, REG_DT
+		, MOD_USER_SEQ
+		, MOD_DT
+		, JC_USER_SEQ
+		, LANG_USE_CD
+		, RESUME_TITLE
+		, PRI_RESUME_YN
+		, RESUME_KEYWORD
+		, PREFER_JOB_TITLE
+		, ISCO_CD
+		, ISIC_CD
+		, EMPLOY_FORM_CD
+		, PREFER_EMPLOY_TYPE_CD
+		, TYPE_EMPLOY_HOUR_DAY
+		, TYPE_EMPLOY_DAY_WEEK
+		, PREFER_CRTCT_TERMS
+		, PREFER_CRTCT_TERMS_DURA
+		, PREFER_CRTCT_TYPE
+		, NIGHT_WORK_YN
+		, OVER_TIME_WORK_YN
+		, HLDAY_WORK_YN
+		, EXPCT_MIN_SALARY_AMT
+		, EXPCT_MAX_SALARY_AMT
+		, EXPCT_SALARY_TYPE_CD
+		, DIFF_PROVC_WORK_YN
+		, WORK_BGN_ABLE_YN
+		, WORK_BGN_ABLE_WITHIN
+		, JOBSK_REQ_YN
+		, USE_YN
+		, BIRTH_ADDR_DTL
+		, PREFER_DAY_MON
+		, PREFER_DAY_TUE
+		, PREFER_DAY_WED
+		, PREFER_DAY_THU
+		, PREFER_DAY_FRI
+		, PREFER_DAY_SAT
+		, PREFER_DAY_SUN
+		, PREFER_POSITION
+		, ADDR_FULL_CD
+		, ADDR_FULL_NM
+		) VALUES (
+		#{resumeSeq}
+		, #{resumeId}
+		, #{userSeq}
+		, #{userId}
+		, #{jcCd}
+		, #{cmpltUserNmKh}
+		, #{cmpltUserNmEn}
+		, #{genderCd}
+		, #{nationCd}
+		, #{birth}
+		, #{identiNo}
+		, #{birthLocCd}
+		, #{marriCd}
+		, #{familyCnt}
+		, #{underAge15FamilyCnt}
+		, #{overAge64FamilyCnt}
+		, #{addrDtl}
+		, #{addrCd}
+		, #{frstimeJobSeekerYn}
+		, #{studyingYn}
+		, #{retMigratYn}
+		, #{ruralLaboYn}
+		, #{srvcYn}
+		, #{ethnicMinorYn}
+		, #{disablYn}
+		, #{disablOptionCd}
+		, #{disablEtc}
+		, #{nowWorkYn}
+		, #{beforeWorkDura}
+		, #{selfempYn}
+		, #{selfempClassCd}
+		, #{urgentJobseekYn}
+		, #{jobseekWaitDura}
+		, #{fileGrpSeq}
+		, #{proLicnsYn}
+		, #{proLicnsSpec}
+		, #{careerYn}
+		, #{totCareerTermYearCnt}
+		, #{totCareerTermMonthCnt}
+		, #{jcUserModDt}
+		, #{jcVerityUserSeq}
+		, #{jcNote}
+		, #{uploadCv}
+		, #{stepInput}
+		, #{mobileId}
+		<!-- , #{resumeStsCd} -->
+		, 'RSS0000000002'
+		, #{lastModDt}
+		, #{regUserSeq}
+		, NOW()
+		, #{modUserSeq}
+		, NOW()
+		, #{jcUserSeq}
+		, #{langUseCd}
+		, #{resumeTitle}
+		, #{priResumeYn}
+		, #{resumeKeyword}
+		, #{preferJobTitle}
+		, #{iscoCd}
+		, #{isicCd}
+		, #{employFormCd}
+		, #{preferEmployTypeCd}
+		, #{typeEmployHourDay}
+		, #{typeEmployDayWeek}
+		, #{preferCrtctTerms}
+		, #{preferCrtctTermsDura}
+		, #{preferCrtctType}
+		, #{nightWorkYn}
+		, #{overTimeWorkYn}
+		, #{hldayWorkYn}
+		, #{expctMinSalaryAmt}
+		, #{expctMaxSalaryAmt}
+		, #{expctSalaryTypeCd}
+		, #{diffProvcWorkYn}
+		, #{workBgnAbleYn}
+		, #{workBgnAbleWithin}
+		, #{jobskReqYn}
+		, 'Y'
+		, #{birthAddrDtl}
+		, #{preferDayMon}
+		, #{preferDayTue}
+		, #{preferDayWed}
+		, #{preferDayThu}
+		, #{preferDayFri}
+		, #{preferDaySat}
+		, #{preferDaySun}
+		, #{preferPosition}
+		, #{addrFullCd}
+		, #{addrFullNm}
+		)
+    </insert>
+
+    <insert id="insertResumeHopeWorkLoc" parameterType="ony.cpes.external.mypage.privt.bean.ResumeHopeWorkLocBean">
+    	/*setResume.insertResumeHopeWorkLoc*/
+		<selectKey resultType="string" keyProperty="resumeHopeWorkLocSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	<choose>
+    		<when test="tempFlag == 1">
+    			INSERT INTO CPES_RESUME_HOPE_WORK_LOC_TEMP (
+    		</when>
+    		<otherwise>
+    			INSERT INTO CPES_RESUME_HOPE_WORK_LOC (
+    		</otherwise>
+    	</choose>
+
+		RESUME_HOPE_WORK_LOC_SEQ
+		, RESUME_SEQ
+		, ADDR_CD
+		, ADDR_DTL
+		, REG_USER_SEQ
+		, REG_DT
+		, MOD_USER_SEQ
+		, MOD_DT
+		, ADDR_FULL_CD
+		, ADDR_FULL_NM
+		) VALUES (
+		#{resumeHopeWorkLocSeq}
+		, #{resumeSeq}
+		, #{addrCd}
+		, #{addrDtl}
+		, #{regUserSeq}
+		, NOW()
+		, #{modUserSeq}
+		, NOW()
+		, #{addrFullCd}
+		, #{addrFullNm}
+		)
+    </insert>
+
+    <insert id="insertResumeSpecialStudy" parameterType="ony.cpes.external.mypage.privt.bean.ResumeSpecialStudyBean">
+		/*setResume.insertResumeSpecialStudy*/
+		<selectKey resultType="string" keyProperty="specialStudySeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	<choose>
+    		<when test="tempFlag == 1">
+    			INSERT INTO CPES_RESUME_SPECIAL_STUDY_TEMP (
+    		</when>
+    		<otherwise>
+    			INSERT INTO CPES_RESUME_SPECIAL_STUDY (
+    		</otherwise>
+    	</choose>
+
+    	SPECIAL_STUDY_SEQ
+    	, SPECIAL_STUDY_NM
+    	, DURA_MONTH_CNT
+    	, BGN_DT
+    	, END_DT
+    	, INSTT_NM
+    	, CNTRY_CD
+    	, PROVC_CD
+    	, REG_USER_SEQ
+    	, REG_DT
+    	, MOD_USER_SEQ
+    	, MOD_DT
+    	, RESUME_SEQ
+    	) VALUES (
+    	#{specialStudySeq}
+    	, #{specialStudyNm}
+    	, #{duraMonthCnt}
+    	, #{bgnDt}
+    	, #{endDt}
+    	, #{insttNm}
+    	, #{cntryCd}
+    	, #{provcCd}
+    	, #{regUserSeq}
+    	, NOW()
+    	, #{modUserSeq}
+    	, NOW()
+    	, #{resumeSeq}
+    	)
+    </insert>
+
+    <insert id="insertResumeOtherTrnng" parameterType="ony.cpes.external.mypage.privt.bean.ResumeOtherTrnngBean">
+		/*setResume.insertResumeOtherTrnng*/
+		<selectKey resultType="string" keyProperty="resumeOtherTrnngSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	<choose>
+    		<when test="tempFlag == 1">
+    			INSERT INTO CPES_RESUME_OTHER_TRNNG_TEMP (
+    		</when>
+    		<otherwise>
+    			INSERT INTO CPES_RESUME_OTHER_TRNNG (
+    		</otherwise>
+    	</choose>
+
+		RESUME_OTHER_TRNNG_SEQ
+		, RESUME_OTHER_TRNNG_ID
+		, BGN_DT
+		, END_DT
+		, TRNNG_EDU_DEGREE_CD
+		, INSTT_NM
+		, ISCED_CD
+		, ADDR_PROVC_CD
+		, REG_USER_SEQ
+		, REG_DT
+		, MOD_USER_SEQ
+		, MOD_DT
+		, RESUME_SEQ
+		) VALUES (
+		#{resumeOtherTrnngSeq}
+		, #{resumeOtherTrnngId}
+		, #{bgnDt             }
+		, #{endDt             }
+		, #{trnngEduDegreeCd  }
+		, #{insttNm           }
+		, #{iscedCd           }
+		, #{addrProvcCd       }
+		, #{regUserSeq        }
+		, NOW()
+		, #{modUserSeq        }
+		, NOW()
+		, #{resumeSeq         }
+		)
+    </insert>
+
+    <insert id="insertResumeLang" parameterType="ony.cpes.external.mypage.privt.bean.ResumeLangBean">
+		/*setResume.insertResumeLang*/
+		<selectKey resultType="string" keyProperty="resumeLangSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	<choose>
+    		<when test="tempFlag == 1">
+    			INSERT INTO CPES_RESUME_LANG_TEMP (
+    		</when>
+    		<otherwise>
+    			INSERT INTO CPES_RESUME_LANG (
+    		</otherwise>
+    	</choose>
+
+    	RESUME_LANG_SEQ
+    	, RESUME_LANG_ID
+    	, LANG_CD
+    	, LANG_LVL_CD
+    	, LANG_TYPE_CD
+    	, RESUME_SEQ
+    	, REG_USER_SEQ
+    	, REG_DT
+    	, MOD_USER_SEQ
+    	, MOD_DT
+    	) VALUES (
+    	#{resumeLangSeq}
+    	, #{resumeLangId}
+    	, #{langCd      }
+    	, #{langLvlCd   }
+    	, #{langTypeCd  }
+    	, #{resumeSeq   }
+    	, #{regUserSeq  }
+    	, NOW()
+    	, #{modUserSeq  }
+    	, NOW()
+    	)
+    </insert>
+
+    <insert id="insertResumeWorkExp" parameterType="ony.cpes.external.mypage.privt.bean.ResumeWorkExpBean">
+    	/*setResume.insertResumeWorkExp*/
+		<selectKey resultType="string" keyProperty="resumeWorkExpSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	<choose>
+    		<when test="tempFlag == 1">
+    			INSERT INTO CPES_RESUME_WORK_EXP_TEMP (
+    		</when>
+    		<otherwise>
+    			INSERT INTO CPES_RESUME_WORK_EXP (
+    		</otherwise>
+    	</choose>
+
+    	RESUME_WORK_EXP_SEQ
+    	, RESUME_WORK_EXP_ID
+    	, BGN_DT
+    	, END_DT
+    	, ISCO_CD
+    	, ISIC_CD
+    	, ORGNZ_NM
+    	, LEAVE_REASON
+    	, ADDR_PROVC_CD
+    	, RESUME_SEQ
+    	, REG_USER_SEQ
+    	, REG_DT
+    	, MOD_USER_SEQ
+    	, MOD_DT
+    	, SELFEMP_YN
+    	) VALUES (
+    	#{resumeWorkExpSeq}
+    	, #{resumeWorkExpId}
+    	, #{bgnDt          }
+    	, #{endDt          }
+    	, #{iscoCd         }
+    	, #{isicCd         }
+    	, #{orgnzNm        }
+    	, #{leaveReason    }
+    	, #{addrProvcCd    }
+    	, #{resumeSeq      }
+    	, #{regUserSeq     }
+    	, NOW()
+    	, #{modUserSeq     }
+    	, NOW()
+    	, #{selfempYn      }
+    	)
+    </insert>
+
+    <insert id="insertResumeSkill" parameterType="ony.cpes.external.mypage.privt.bean.ResumeSkillBean">
+		/*setResume.insertResumeSkill*/
+		<selectKey resultType="string" keyProperty="resumeSkillSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	<choose>
+    		<when test="tempFlag == 1">
+    			INSERT INTO CPES_RESUME_SKILL_TEMP (
+    		</when>
+    		<otherwise>
+    			INSERT INTO CPES_RESUME_SKILL (
+    		</otherwise>
+    	</choose>
+
+    	RESUME_SKILL_SEQ
+    	, RESUME_SKILL_ID
+    	, SKILL_CD
+    	, REG_USER_SEQ
+    	, REG_DT
+    	, MOD_USER_SEQ
+    	, MOD_DT
+    	, RESUME_SEQ
+    	) VALUES (
+    	#{resumeSkillSeq}
+    	, #{resumeSkillId}
+    	, #{skillCd      }
+    	, #{regUserSeq   }
+    	, NOW()
+    	, #{modUserSeq   }
+    	, NOW()
+    	, #{resumeSeq    }
+    	)
+    </insert>
+
+    <insert id="insertResumeRefMan" parameterType="ony.cpes.external.mypage.privt.bean.ResumeRefManBean">
+    	/*setResume.insertResumeRefMan*/
+		<selectKey resultType="string" keyProperty="resumeRefManSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	<choose>
+    		<when test="tempFlag == 1">
+    			INSERT INTO CPES_RESUME_REF_MAN_TEMP (
+    		</when>
+    		<otherwise>
+    			INSERT INTO CPES_RESUME_REF_MAN (
+    		</otherwise>
+    	</choose>
+
+		RESUME_REF_MAN_SEQ
+		, RESUME_REF_MAN_ID
+		, NM
+		, ORGNZ_NM
+		, POSITION
+		, REF
+		, CELL
+		, EMAIL
+		, ADDR_CD
+		, REG_USER_SEQ
+		, REG_DT
+		, MOD_USER_SEQ
+		, MOD_DT
+		, RESUME_SEQ
+		, ADDR_FULL_CD
+		, ADDR_FULL_NM
+		, ADDR_DTL
+		) VALUES (
+		#{resumeRefManSeq}
+		, #{resumeRefManId}
+		, #{nm            }
+		, #{orgnzNm       }
+		, #{position      }
+		, #{ref           }
+		, #{cell          }
+		, #{email         }
+		, #{addrCd        }
+		, #{regUserSeq    }
+		, NOW()
+		, #{modUserSeq    }
+		, NOW()
+		, #{resumeSeq     }
+		, #{addrFullCd    }
+		, #{addrFullNm    }
+		, #{addrDtl       }
+		)
+    </insert>
+
+    <insert id="insertResumeDisable" parameterType="ony.cpes.external.mypage.privt.bean.ResumeDisablBean">
+		/*setResume.insertResumeDisable*/
+		<selectKey resultType="string" keyProperty="resumeDisablSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	<choose>
+    		<when test="tempFlag == 1">
+    			INSERT INTO CPES_RESUME_DISABL_TEMP (
+    		</when>
+    		<otherwise>
+    			INSERT INTO CPES_RESUME_DISABL (
+    		</otherwise>
+    	</choose>
+
+    	RESUME_DISABL_SEQ
+    	, RESUME_SEQ
+    	, DISABLE_CD
+    	, REG_USER_SEQ
+    	, REG_DT
+    	, MOD_USER_SEQ
+    	, MOD_DT
+    	) VALUES (
+    	#{resumeDisablSeq}
+    	, #{resumeSeq}
+    	, #{disableCd}
+    	, #{regUserSeq}
+    	, NOW()
+    	, #{modUserSeq}
+    	, NOW()
+    	)
+    </insert>
+
+    <insert id="insertResumeGenrlEdu" parameterType="ony.cpes.external.mypage.privt.bean.ResumeGenrlEduBean">
+    	/*setResume.insertResumeGenrlEdu*/
+		<selectKey resultType="string" keyProperty="resumeGenrlEduSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	<choose>
+    		<when test="tempFlag == 1">
+    			INSERT INTO CPES_RESUME_GENRL_EDU_TEMP (
+    		</when>
+    		<otherwise>
+    			INSERT INTO CPES_RESUME_GENRL_EDU (
+    		</otherwise>
+    	</choose>
+
+    	RESUME_GENRL_EDU_SEQ
+    	, RESUME_EDU_ID
+    	, EDU_DEGREE_CD
+    	, ISCED_CD
+    	, EDU_DURA
+    	, BGN_DT
+    	, END_DT
+    	, INSTT_NM
+    	, ADDR_PROVC_CD
+    	, REG_USER_SEQ
+    	, REG_DT
+    	, MOD_USER_SEQ
+    	, MOD_DT
+    	, RESUME_SEQ
+    	) VALUES (
+    	#{resumeGenrlEduSeq}
+    	, #{resumeEduId}
+    	, #{eduDegreeCd}
+    	, #{iscedCd    }
+    	, #{eduDura    }
+    	, #{bgnDt      }
+    	, #{endDt      }
+    	, #{insttNm    }
+    	, #{addrProvcCd}
+    	, #{regUserSeq }
+    	, NOW()
+    	, #{modUserSeq }
+    	, NOW()
+    	, #{resumeSeq  }
+    	)
+    </insert>
+
+	<update id="updateResume" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* setResume.updateResume */
+		<choose>
+    		<when test="tempFlag == 1">
+    			UPDATE CPES_RESUME_TEMP
+    		</when>
+    		<otherwise>
+    			UPDATE CPES_RESUME
+    		</otherwise>
+    	</choose>
+		SET MOD_USER_SEQ = #{modUserSeq}
+		, MOD_DT = NOW()
+		, JC_AGREE_STS_CD = ''
+		<if test="jcCd != null and jcCd != ''">, JC_CD = #{jcCd}</if>
+		<if test="cmpltUserNmKh != null and cmpltUserNmKh != ''">, CMPLT_USER_NM_KH = #{cmpltUserNmKh}</if>
+		<if test="cmpltUserNmEn != null and cmpltUserNmEn != ''">, CMPLT_USER_NM_EN = #{cmpltUserNmEn}</if>
+		<if test="genderCd != null and genderCd != ''">, GENDER_CD = #{genderCd}</if>
+		<if test="nationCd != null and nationCd != ''">, NATION_CD = #{nationCd}</if>
+		<if test="birth != null and birth != ''">, BIRTH = #{birth}</if>
+		<if test="identiNo != null and identiNo != ''">, IDENTI_NO = #{identiNo}</if>
+		<if test="birthLocCd != null and birthLocCd != ''">, BIRTH_LOC_CD = #{birthLocCd}</if>
+		<if test="marriCd != null and marriCd != ''">, MARRI_CD = #{marriCd}</if>
+		<if test="familyCnt != null and familyCnt != ''">, FAMILY_CNT = #{familyCnt}</if>
+		<if test="underAge15FamilyCnt != null and underAge15FamilyCnt != ''">, UNDER_AGE15_FAMILY_CNT = #{underAge15FamilyCnt}</if>
+		<if test="overAge64FamilyCnt != null and overAge64FamilyCnt != ''">, OVER_AGE64_FAMILY_CNT = #{overAge64FamilyCnt}</if>
+		<if test="addrDtl != null and addrDtl != ''">, ADDR_DTL = #{addrDtl}</if>
+		<if test="addrCd != null and addrCd != ''">, ADDR_CD = #{addrCd}</if>
+		<if test="frstimeJobSeekerYn != null and frstimeJobSeekerYn != ''">, FRSTIME_JOB_SEEKER_YN = #{frstimeJobSeekerYn}</if>
+		<if test="studyingYn != null and studyingYn != ''">, STUDYING_YN = #{studyingYn}</if>
+		<if test="retMigratYn != null and retMigratYn != ''">, RET_MIGRAT_YN = #{retMigratYn}</if>
+		<if test="ruralLaboYn != null and ruralLaboYn != ''">, RURAL_LABO_YN = #{ruralLaboYn}</if>
+		<if test="srvcYn != null and srvcYn != ''">, SRVC_YN = #{srvcYn}</if>
+		<if test="ethnicMinorYn != null and ethnicMinorYn != ''">, ETHNIC_MINOR_YN = #{ethnicMinorYn}</if>
+		<if test="disablYn != null and disablYn != ''">, DISABL_YN = #{disablYn}</if>
+		<if test="disablOptionCd != null and disablOptionCd != ''">, DISABL_OPTION_CD = #{disablOptionCd}</if>
+		<if test="disablEtc != null and disablEtc != ''">, DISABL_ETC = #{disablEtc}</if>
+		<if test="nowWorkYn != null and nowWorkYn != ''">, NOW_WORK_YN = #{nowWorkYn}</if>
+		<if test="beforeWorkDura != null and beforeWorkDura != ''">, BEFORE_WORK_DURA = #{beforeWorkDura}</if>
+		<if test="selfempYn != null and selfempYn != ''">, SELFEMP_YN = #{selfempYn}</if>
+		<if test="selfempClassCd != null and selfempClassCd != ''">, SELFEMP_CLASS_CD = #{selfempClassCd}</if>
+		<if test="urgentJobseekYn != null and urgentJobseekYn != ''">, URGENT_JOBSEEK_YN = #{urgentJobseekYn}</if>
+		<if test="jobseekWaitDura != null and jobseekWaitDura != ''">, JOBSEEK_WAIT_DURA = #{jobseekWaitDura}</if>
+		<if test="fileGrpSeq != null and fileGrpSeq != ''">, FILE_GRP_SEQ = #{fileGrpSeq}</if>
+		<if test="proLicnsYn != null and proLicnsYn != ''">, PRO_LICNS_YN = #{proLicnsYn}</if>
+		<if test="proLicnsSpec != null and proLicnsSpec != ''">, PRO_LICNS_SPEC = #{proLicnsSpec}</if>
+		<if test="careerYn != null and careerYn != ''">, CAREER_YN = #{careerYn}</if>
+		<if test="totCareerTermYearCnt != null and totCareerTermYearCnt != ''">, TOT_CAREER_TERM_YEAR_CNT = #{totCareerTermYearCnt}</if>
+		<if test="totCareerTermMonthCnt != null and totCareerTermMonthCnt != ''">, TOT_CAREER_TERM_MONTH_CNT = #{totCareerTermMonthCnt}</if>
+		<if test="jcUserModDt != null and jcUserModDt != ''">, JC_USER_MOD_DT = #{jcUserModDt}</if>
+		<if test="jcVerityUserSeq != null and jcVerityUserSeq != ''">, JC_VERITY_USER_SEQ = #{jcVerityUserSeq}</if>
+		<if test="jcNote != null and jcNote != ''">, JC_NOTE = #{jcNote}</if>
+		<if test="uploadCv != null and uploadCv != ''">, UPLOAD_CV = #{uploadCv}</if>
+		<if test="stepInput != null and stepInput != ''">, STEP_INPUT = #{stepInput}</if>
+		<if test="mobileId != null and mobileId != ''">, MOBILE_ID = #{mobileId}</if>
+		<if test="resumeStsCd != null and resumeStsCd != ''">, RESUME_STS_CD = #{resumeStsCd}</if>
+		<if test="lastModDt != null and lastModDt != ''">, LAST_MOD_DT = #{lastModDt}</if>
+		<if test="jcUserSeq != null and jcUserSeq != ''">, JC_USER_SEQ = #{jcUserSeq}</if>
+		<if test="langUseCd != null and langUseCd != ''">, LANG_USE_CD = #{langUseCd}</if>
+		<if test="resumeTitle != null and resumeTitle != ''">, RESUME_TITLE = #{resumeTitle}</if>
+		<if test="priResumeYn != null and priResumeYn != ''">, PRI_RESUME_YN = #{priResumeYn}</if>
+		<if test="resumeKeyword != null and resumeKeyword != ''">, RESUME_KEYWORD = #{resumeKeyword}</if>
+		<if test="preferJobTitle != null and preferJobTitle != ''">, PREFER_JOB_TITLE = #{preferJobTitle}</if>
+		<if test="iscoCd != null and iscoCd != ''">, ISCO_CD = #{iscoCd}</if>
+		<if test="isicCd != null and isicCd != ''">, ISIC_CD = #{isicCd}</if>
+		<if test="employFormCd != null and employFormCd != ''">, EMPLOY_FORM_CD = #{employFormCd}</if>
+		<if test="preferEmployTypeCd != null and preferEmployTypeCd != ''">, PREFER_EMPLOY_TYPE_CD = #{preferEmployTypeCd}</if>
+		<if test="typeEmployHourDay != null and typeEmployHourDay != ''">, TYPE_EMPLOY_HOUR_DAY = #{typeEmployHourDay}</if>
+		<if test="typeEmployDayWeek != null and typeEmployDayWeek != ''">, TYPE_EMPLOY_DAY_WEEK = #{typeEmployDayWeek}</if>
+		<if test="preferCrtctTerms != null and preferCrtctTerms != ''">, PREFER_CRTCT_TERMS = #{preferCrtctTerms}</if>
+		<if test="preferCrtctTermsDura != null and preferCrtctTermsDura != ''">, PREFER_CRTCT_TERMS_DURA = #{preferCrtctTermsDura}</if>
+		<if test="preferCrtctType != null and preferCrtctType != ''">, PREFER_CRTCT_TYPE = #{preferCrtctType}</if>
+		<if test="nightWorkYn != null and nightWorkYn != ''">, NIGHT_WORK_YN = #{nightWorkYn}</if>
+		<if test="overTimeWorkYn != null and overTimeWorkYn != ''">, OVER_TIME_WORK_YN = #{overTimeWorkYn}</if>
+		<if test="hldayWorkYn != null and hldayWorkYn != ''">, HLDAY_WORK_YN = #{hldayWorkYn}</if>
+		<if test="expctMinSalaryAmt != null and expctMinSalaryAmt != ''">, EXPCT_MIN_SALARY_AMT = #{expctMinSalaryAmt}</if>
+		<if test="expctMaxSalaryAmt != null and expctMaxSalaryAmt != ''">, EXPCT_MAX_SALARY_AMT = #{expctMaxSalaryAmt}</if>
+		<if test="expctSalaryTypeCd != null and expctSalaryTypeCd != ''">, EXPCT_SALARY_TYPE_CD = #{expctSalaryTypeCd}</if>
+		<if test="diffProvcWorkYn != null and diffProvcWorkYn != ''">, DIFF_PROVC_WORK_YN = #{diffProvcWorkYn}</if>
+		<if test="workBgnAbleYn != null and workBgnAbleYn != ''">, WORK_BGN_ABLE_YN = #{workBgnAbleYn}</if>
+		<if test="workBgnAbleWithin != null and workBgnAbleWithin != ''">, WORK_BGN_ABLE_WITHIN = #{workBgnAbleWithin}</if>
+		<if test="jobskReqYn != null and jobskReqYn != '' and jobskReqYn != NULL">, JOBSK_REQ_YN = #{jobskReqYn}</if>
+		<if test="useYn != null and useYn != '' and useYn != NULL">, USE_YN = #{useYn}</if>
+		<if test="birthAddrDtl != null and birthAddrDtl != ''">, BIRTH_ADDR_DTL = #{birthAddrDtl}</if>
+		<if test="preferDayMon != null and preferDayMon != ''">, PREFER_DAY_MON = #{preferDayMon}</if>
+		<if test="preferDayTue != null and preferDayTue != ''">, PREFER_DAY_TUE = #{preferDayTue}</if>
+		<if test="preferDayWed != null and preferDayWed != ''">, PREFER_DAY_WED = #{preferDayWed}</if>
+		<if test="preferDayThu != null and preferDayThu != ''">, PREFER_DAY_THU = #{preferDayThu}</if>
+		<if test="preferDayFri != null and preferDayFri != ''">, PREFER_DAY_FRI = #{preferDayFri}</if>
+		<if test="preferDaySat != null and preferDaySat != ''">, PREFER_DAY_SAT = #{preferDaySat}</if>
+		<if test="preferDaySun != null and preferDaySun != ''">, PREFER_DAY_SUN = #{preferDaySun}</if>
+		<if test="preferPosition != null and preferPosition != ''">, PREFER_POSITION = #{preferPosition}</if>
+		<if test="addrFullCd != null and addrFullCd != ''">, ADDR_FULL_CD = #{addrFullCd}</if>
+		<if test="addrFullNm != null and addrFullNm != ''">, ADDR_FULL_NM = #{addrFullNm}</if>
+
+		WHERE RESUME_SEQ = #{resumeSeq}
+	</update>
+
+	<update id="resetPriResumeYn" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* setResume.resetPriResumeYn */
+		UPDATE CPES_RESUME
+		SET MOD_USER_SEQ = #{modUserSeq}
+		, MOD_DT = NOW()
+		, PRI_RESUME_YN = 'N'
+		, JC_AGREE_STS_CD = ''
+		WHERE USER_SEQ = #{userSeq}
+	</update>
+
+	<update id="deleteResume" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* setResume.deleteResume */
+
+		<choose>
+			<when test="tempCheck == '10'">
+				UPDATE CPES_RESUME
+			</when>
+			<otherwise>
+				UPDATE CPES_RESUME_TEMP
+			</otherwise>
+		</choose>
+
+		SET MOD_USER_SEQ = #{modUserSeq}
+		, MOD_DT = NOW()
+		, USE_YN = 'N'
+		WHERE RESUME_SEQ = #{resumeSeq}
+	</update>
+
+	<delete id="deleteResumeHopeWorkLoc" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* setResume.deleteResumeHopeWorkLoc */
+
+		<choose>
+    		<when test="tempFlag == 1">
+    			DELETE FROM CPES_RESUME_HOPE_WORK_LOC_TEMP
+    		</when>
+    		<otherwise>
+    			DELETE FROM CPES_RESUME_HOPE_WORK_LOC
+    		</otherwise>
+    	</choose>
+		WHERE RESUME_SEQ = #{resumeSeq}
+	</delete>
+
+	<delete id="deleteResumeGenrlEdu" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* setResume.deleteResumeGenrlEdu */
+
+		<choose>
+    		<when test="tempFlag == 1">
+    			DELETE FROM CPES_RESUME_GENRL_EDU_TEMP
+    		</when>
+    		<otherwise>
+    			DELETE FROM CPES_RESUME_GENRL_EDU
+    		</otherwise>
+    	</choose>
+
+		WHERE RESUME_SEQ = #{resumeSeq}
+	</delete>
+
+	<delete id="deleteResumeSpecialStudy" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* setResume.deleteResumeSpecialStudy */
+
+		<choose>
+    		<when test="tempFlag == 1">
+    			DELETE FROM CPES_RESUME_SPECIAL_STUDY_TEMP
+    		</when>
+    		<otherwise>
+    			DELETE FROM CPES_RESUME_SPECIAL_STUDY
+    		</otherwise>
+    	</choose>
+
+		WHERE RESUME_SEQ = #{resumeSeq}
+	</delete>
+
+	<delete id="deleteResumeOtherTrnng" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* setResume.deleteResumeOtherTrnng */
+
+		<choose>
+    		<when test="tempFlag == 1">
+    			DELETE FROM CPES_RESUME_OTHER_TRNNG_TEMP
+    		</when>
+    		<otherwise>
+    			DELETE FROM CPES_RESUME_OTHER_TRNNG
+    		</otherwise>
+    	</choose>
+
+		WHERE RESUME_SEQ = #{resumeSeq}
+	</delete>
+
+	<delete id="deleteResumeLang" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* setResume.deleteResumeLang */
+
+		<choose>
+    		<when test="tempFlag == 1">
+    			DELETE FROM CPES_RESUME_LANG_TEMP
+    		</when>
+    		<otherwise>
+    			DELETE FROM CPES_RESUME_LANG
+    		</otherwise>
+    	</choose>
+
+		WHERE RESUME_SEQ = #{resumeSeq}
+	</delete>
+
+	<delete id="deleteResumeWorkExp" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* setResume.deleteResumeWorkExp */
+		<choose>
+    		<when test="tempFlag == 1">
+    			DELETE FROM CPES_RESUME_WORK_EXP_TEMP
+    		</when>
+    		<otherwise>
+    			DELETE FROM CPES_RESUME_WORK_EXP
+    		</otherwise>
+    	</choose>
+
+		WHERE RESUME_SEQ = #{resumeSeq}
+	</delete>
+
+	<delete id="deleteResumeSkill" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* setResume.deleteResumeSkill */
+
+		<choose>
+    		<when test="tempFlag == 1">
+    			DELETE FROM CPES_RESUME_SKILL_TEMP
+    		</when>
+    		<otherwise>
+    			DELETE FROM CPES_RESUME_SKILL
+    		</otherwise>
+    	</choose>
+
+		WHERE RESUME_SEQ = #{resumeSeq}
+	</delete>
+
+	<delete id="deleteResumeRefMan" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* setResume.deleteResumeRefMan */
+
+		<choose>
+    		<when test="tempFlag == 1">
+    			DELETE FROM CPES_RESUME_REF_MAN_TEMP
+    		</when>
+    		<otherwise>
+    			DELETE FROM CPES_RESUME_REF_MAN
+    		</otherwise>
+    	</choose>
+
+		WHERE RESUME_SEQ = #{resumeSeq}
+	</delete>
+
+	<delete id="deleteResumeDisabl" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* setResume.deleteResumeDisabl */
+
+		<choose>
+    		<when test="tempFlag == 1">
+    			DELETE FROM CPES_RESUME_DISABL_TEMP
+    		</when>
+    		<otherwise>
+    			DELETE FROM CPES_RESUME_DISABL
+    		</otherwise>
+    	</choose>
+
+		WHERE RESUME_SEQ = #{resumeSeq}
+	</delete>
+
+	<update id="updateJobskReq" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* setResume.deleteResumeDisabl */
+
+		UPDATE CPES_JOBSK_REQ
+		SET MOD_DT = NOW()
+		, MOD_USER_SEQ = #{modUserSeq}
+		, RESUME_SEQ = #{resumeSeq}
+		, JC_AGREE_STS_CD = 'JAS0000000002'
+		WHERE DEL_YN = 'N'
+		AND RESUME_SEQ = (SELECT RESUME_SEQ FROM CPES_RESUME WHERE USER_SEQ = #{modUserSeq}
+						  AND PRI_RESUME_YN = 'Y')
+	</update>
+
+	<insert id="insertResumeIsco" parameterType="ony.cpes.external.mypage.privt.bean.ResumeIscoBean">
+		/* setResume.insertResumeIsco */
+		<selectKey resultType="string" keyProperty="resumeIscoSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	<choose>
+    		<when test="tempFlag == 1">
+    			INSERT INTO CPES_RESUME_ISCO_TEMP (
+    		</when>
+    		<otherwise>
+    			INSERT INTO CPES_RESUME_ISCO (
+    		</otherwise>
+    	</choose>
+		RESUME_ISCO_SEQ
+		, ISCO_CD
+		, RESUME_SEQ
+		, REG_USER_SEQ
+		, REG_DT
+		, MOD_USER_SEQ
+		, MOD_DT
+		) VALUES (
+		#{resumeIscoSeq}
+		, #{iscoCd}
+		, #{resumeSeq}
+		, #{regUserSeq}
+		, NOW()
+		, #{modUserSeq}
+		, NOW()
+		)
+	</insert>
+
+	<delete id="deleteResumeIsco" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* setResume.deleteResumeIsco */
+		<choose>
+    		<when test="tempFlag == 1">
+    			DELETE FROM CPES_RESUME_ISCO_TEMP
+    		</when>
+    		<otherwise>
+    			DELETE FROM CPES_RESUME_ISCO
+    		</otherwise>
+    	</choose>
+    	WHERE RESUME_SEQ = #{resumeSeq}
+	</delete>
+
+	<update id="deleteJobskReq" parameterType="string">
+		UPDATE CPES_JOBSK_REQ
+		SET MOD_DT = NOW()
+		, MOD_USER_SEQ = #{modUserSeq}
+		, DEL_YN = 'Y'
+		, DEL_DT = NOW()
+		WHERE RESUME_SEQ = (SELECT RESUME_SEQ FROM CPES_RESUME WHERE USER_SEQ = #{modUserSeq}
+						  AND PRI_RESUME_YN = 'Y')
+	</update>
+
+	<delete id="deleteApplic" parameterType="string">
+		DELETE FROM CPES_APPLIC
+		WHERE RESUME_SEQ = #{resumeSeq}
+	</delete>
+
+	<delete id="deleteOffer" parameterType="string">
+		DELETE FROM CPES_OFFER
+		WHERE RESUME_SEQ = #{resumeSeq}
+	</delete>
+
+	<delete id="deleteIntvw" parameterType="string">
+		DELETE FROM CPES_INTVW
+		WHERE APPLIC_SEQ = (SELECT APPLIC_SEQ FROM CPES_APPLIC WHERE RESUME_SEQ = #{resumeSeq})
+	</delete>
+
+</mapper>

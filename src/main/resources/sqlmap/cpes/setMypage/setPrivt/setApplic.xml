@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setApplic">
+
+	<!-- 입사지원 취소-->
+	<update id="updateCancelApplic"  parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+		/*setApplic.updateCancelApplic*/
+		UPDATE CPES_APPLIC SET
+			APPLIC_CANCEL_YN = 'Y',
+			APPLIC_CANCEL_DT = now()
+		WHERE VACANCY_SEQ = #{condSeq2}
+		AND RESUME_SEQ = (
+			SELECT
+			RESUME_SEQ FROM
+			CPES_RESUME
+			WHERE RESUME_SEQ = #{condSeq}
+			AND USER_SEQ = #{condUserSeq}
+		) /* 자신의 이력서 */
+	</update>
+
+
+
+	<!-- 입사제의 삭제-->
+	<delete id="deleteOffer"  parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+		/*setApplic.deleteOffer*/
+		DELETE FROM CPES_OFFER
+		WHERE OFFER_SEQ = #{condSeq}
+		AND RESUME_SEQ = (
+			SELECT
+			RESUME_SEQ
+			FROM CPES_RESUME
+			WHERE RESUME_SEQ = #{condSeq2}
+			AND USER_SEQ = #{condUserSeq}
+		) /* 자신의 이력서 */
+	</delete>
+
+
+	<!-- 이력서 열람 기업 삭제-->
+	<delete id="deleteResumeOpenCompny"  parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+		/*setApplic.deleteResumeOpenCompny*/
+		DELETE FROM CPES_RESUME_OPEN_COMPNY
+		WHERE RESUME_OPEN_COMPNY_SEQ = #{condSeq}
+		AND RESUME_SEQ = (SELECT RESUME_SEQ FROM CPES_RESUME WHERE RESUME_SEQ = #{condSeq2} AND USER_SEQ = #{condUserSeq}) /* 자신의 이력서 */
+	</delete>
+
+	<!-- 알선수락-->
+	<update id="updateReferralOk"  parameterType="ony.cpes.external.mypage.privt.bean.ReferralBean">
+		/*setApplic.updateReferralOk*/
+		UPDATE CPES_REFERRAL SET
+			REFERRAL_STS_CD = 'RFS0000000003',
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE VACANCY_SEQ = #{vacancySeq}
+		AND RESUME_SEQ = (SELECT RESUME_SEQ FROM CPES_RESUME WHERE RESUME_SEQ = #{resumeSeq} AND USER_SEQ = #{regUserSeq}) /* 자신의 이력서 */
+		AND REFERRAL_TYPE_CD = 'RFT0000000002'
+	</update>
+
+	<!-- 입사지원-->
+	<insert id="insertApplic"  parameterType="ony.cpes.external.mypage.privt.bean.ApplicBean">
+		/*setApplic.insertApplic*/
+		<selectKey resultType="string" keyProperty="applicSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_APPLIC (
+			APPLIC_CANCEL_DT,
+			APPLIC_CANCEL_YN,
+			APPLIC_PROC_CD,
+			APPLIC_SEQ,
+			APPLIC_TYPE_CD,
+			NEGO_AMT,
+			NEGO_AMT_UNIT_CD,
+			REFERRAL_YN,
+			REG_DT,
+			REG_USER_SEQ,
+			RESUME_OPEN_DT,
+			RESUME_SEQ,
+			VACANCY_SEQ
+		) VALUES (
+			#{applicCancelDt},
+			'N',
+			'APC0000000001',  /* 미열람 */
+			#{applicSeq},
+			'ATC0000000001',  /* 온라인 */
+			#{negoAmt},
+			#{negoAmtUnitCd},
+			#{referralYn},
+			now(),
+			#{regUserSeq},
+			#{resumeOpenDt},
+			#{resumeSeq},
+			#{vacancySeq}
+		)
+	</insert>
+
+	<!-- delete application-->
+	<update id="deleteApplic" parameterType="ony.cpes.external.mypage.privt.bean.ApplicBean">
+		/*setApplic.deleteApplic*/
+		UPDATE CPES_APPLIC
+		   SET DEL_YN       = 'Y'
+		     , MOD_USER_SEQ = #{modUserSeq}
+		     , MOD_DT       = NOW()
+		 WHERE APPLIC_SEQ   = #{applicSeq}
+		   AND REG_USER_SEQ = #{modUserSeq}
+	</update>
+
+	<!-- 알선 삭제-->
+	<update id="deleteReferral"  parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+		/*setApplic.deleteReferral*/
+		UPDATE CPES_REFERRAL SET
+			DEL_YN = 'Y',
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{condUserSeq}
+		WHERE VACANCY_SEQ = #{condSeq}
+		AND RESUME_SEQ = (SELECT RESUME_SEQ FROM CPES_RESUME WHERE RESUME_SEQ = #{condSeq2} AND USER_SEQ = #{condUserSeq}) /* 자신의 이력서 */
+		AND REFERRAL_TYPE_CD = 'RFT0000000002'
+	</update>
+
+	<!-- 알선거부-->
+	<update id="updateReferralNo"  parameterType="ony.cpes.external.mypage.privt.bean.ReferralBean">
+		/*setApplic.updateReferralNo*/
+		UPDATE CPES_REFERRAL SET
+			REFERRAL_STS_CD = 'RFS0000000002',
+			REFERRAL_REJECT_CD = #{referralRejectCd},
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE VACANCY_SEQ = #{vacancySeq}
+		AND RESUME_SEQ = (SELECT RESUME_SEQ FROM CPES_RESUME WHERE RESUME_SEQ = #{resumeSeq} AND USER_SEQ = #{regUserSeq}) /* 자신의 이력서 */
+		AND REFERRAL_TYPE_CD = 'RFT0000000002'
+	</update>
+
+
+	<!-- 입사제의 수락,거절-->
+	<update id="updateOfferUser"  parameterType="ony.cpes.external.mypage.privt.bean.OfferBean">
+		/*setApplic.updateOfferUser*/
+		UPDATE CPES_OFFER SET
+			  OFFER_OPEN_YN = 'Y'
+			, OFFER_OPEN_DT = now()
+			, OFFER_ACPT_YN = #{offerAcptYn}
+			, OFFER_ACPT_DT = now()
+			, MOD_USER_SEQ = #{modUserSeq}
+			, MOD_DT = now()
+		WHERE OFFER_SEQ = #{offerSeq}
+		AND RESUME_SEQ = (
+			SELECT
+			RESUME_SEQ
+			FROM CPES_RESUME
+			WHERE USER_SEQ = #{modUserSeq}
+			AND PRI_RESUME_YN = 'Y'
+		) /* 자신의 이력서 */
+	</update>
+
+
+
+	<!-- 입사제의 수락후 입사지원-->
+	<insert id="insertApplicOffer"  parameterType="ony.cpes.external.mypage.privt.bean.ApplicBean">
+		/*setApplic.insertApplicOffer*/
+		<selectKey resultType="string" keyProperty="applicSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_APPLIC (
+			APPLIC_CANCEL_DT,
+			APPLIC_CANCEL_YN,
+			APPLIC_PROC_CD,
+			APPLIC_SEQ,
+			APPLIC_TYPE_CD,
+			NEGO_AMT,
+			NEGO_AMT_UNIT_CD,
+			REFERRAL_YN,
+			REG_DT,
+			REG_USER_SEQ,
+			RESUME_OPEN_DT,
+			RESUME_SEQ,
+			VACANCY_SEQ
+		) VALUES (
+			#{applicCancelDt},
+			'N',
+			'APC0000000001',  /* 미열람 */
+			#{applicSeq},
+			'ATC0000000001',  /* 온라인 */
+			#{negoAmt},
+			#{negoAmtUnitCd},
+			#{referralYn},
+			now(),
+			#{regUserSeq},
+			#{resumeOpenDt},
+			(
+				SELECT RESUME_SEQ
+				FROM CPES_RESUME
+				WHERE USER_SEQ = #{regUserSeq}
+				AND PRI_RESUME_YN = 'Y'
+			),
+			#{vacancySeq}
+		)
+	</insert>
+
+
+	<!-- 인터뷰 수락-->
+	<update id="updateIntvwOk"  parameterType="ony.cpes.external.mypage.privt.bean.IntvwBean">
+		/*setApplic.updateIntvwOk*/
+		UPDATE CPES_INTVW SET
+			INTVW_OPEN_DT = now(),
+			INTVW_OPEN_YN = #{intvwOpenYn},
+			INTVW_STS_CD = 'ITV0000000002'
+		WHERE INTVW_SEQ = #{intvwSeq}
+		AND EXISTS (
+			SELECT
+				B.RESUME_SEQ
+			FROM CPES_APPLIC A
+			INNER JOIN CPES_RESUME B
+			ON A.RESUME_SEQ = B.RESUME_SEQ
+			WHERE A.APPLIC_SEQ = #{applicSeq}
+			AND B.USER_SEQ = #{regUserSeq}
+		) /* 자신의 이력서 */
+	</update>
+
+
+	<!-- 인터뷰 거절-->
+	<update id="updateIntvwReject"  parameterType="ony.cpes.external.mypage.privt.bean.IntvwBean">
+		/*setApplic.updateIntvwReject*/
+		UPDATE CPES_INTVW SET
+			INTVW_OPEN_DT = now(),
+			INTVW_OPEN_YN = #{intvwOpenYn},
+			INTVW_REJECT_CD = #{intvwRejectCd},
+			INTVW_STS_CD = 'ITV0000000003'
+		WHERE INTVW_SEQ = #{intvwSeq}
+		AND EXISTS (
+			SELECT
+				B.RESUME_SEQ
+			FROM CPES_APPLIC A
+			INNER JOIN CPES_RESUME B
+			ON A.RESUME_SEQ = B.RESUME_SEQ
+			WHERE A.APPLIC_SEQ = #{applicSeq}
+			AND B.USER_SEQ = #{regUserSeq}
+		) /* 자신의 이력서 */
+	</update>
+
+</mapper>

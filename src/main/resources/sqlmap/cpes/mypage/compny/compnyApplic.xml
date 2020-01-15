@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="compnyApplic">
+
+	<!-- 입사지원 조건 -->
+	<sql id="whereCond">
+		WHERE A.VACANCY_SEQ = #{condSeq}
+		AND A.DEL_YN = 'N'	/* 입사지원 삭제 */
+		AND A.APPLIC_CANCEL_YN = 'N'	/* 입사지원 취소 */
+		AND C.USER_SEQ = #{condUserSeq}
+		AND B.USE_YN = 'Y' /* 채용공고 사용여부 */
+		AND B.DEL_YN = 'N' /* 채용공고 삭제여부 */
+		AND C.USE_YN = 'Y' /* 기업 사용여부 */
+		AND C.DEL_YN = 'N' /* 기업 삭제여부 */
+		AND D.USE_YN = 'Y' /* 이력서 사용여부 */
+		AND E.DEL_YN = 'N' /* 사용자 삭제여부 */
+		AND E.USE_YN = 'Y' /* 사용자 사용여부 */
+
+
+		<choose>
+			<when test="condApplicProcCd != null and condApplicProcCd.equals('NOT_OPEN')"> <!-- 이력서 미열람 -->
+				 AND A.APPLIC_PROC_CD = 'APC0000000001' /* 이력서 미열람 */
+			</when>
+			<when test="condApplicProcCd != null and condApplicProcCd.equals('CHECK')"> <!-- 검토중 -->
+				 AND A.APPLIC_PROC_CD = 'APC0000000002' /* 검토중 */
+			</when>
+			<when test="condApplicProcCd != null and condApplicProcCd.equals('DOC_PASS')"> <!-- 서류합격 -->
+				 AND A.APPLIC_PROC_CD = 'APC0000000003' /* 서류합격 */
+			</when>
+			<when test="condApplicProcCd != null and condApplicProcCd.equals('INTVW')"> <!-- 면접제의 -->
+				 AND A.APPLIC_PROC_CD = '0000000005' /* 면접제의 */
+			</when>
+			<when test="condApplicProcCd != null and condApplicProcCd.equals('PASS')"> <!-- 채용확정 -->
+				 AND A.APPLIC_PROC_CD = 'APC0000000004' /* 채용확정 */
+			</when>
+		</choose>
+
+
+
+		<choose>
+			<when test="condText != null and !condText.equals('')">
+				AND (
+					D.RESUME_TITLE LIKE CONCAT('%',#{condText},'%') OR
+					E.USER_NM_EN LIKE CONCAT('%',#{condText},'%') OR
+					E.USER_NM_KH LIKE CONCAT('%',#{condText},'%')
+				)
+			</when>
+		</choose>
+	</sql>
+
+	<!-- 입사지원 조건 -->
+	<sql id="whereCond2">
+		WHERE A.VACANCY_SEQ = #{condSeq}
+		AND A.APPLIC_CANCEL_YN = 'N'	/* 입사지원 취소 */
+		AND A.DEL_YN = 'N' /* 입사지원 삭제여부 */
+		AND C.USER_SEQ = #{condUserSeq}
+		AND B.USE_YN = 'Y'
+		AND B.DEL_YN = 'N'
+		AND C.USE_YN = 'Y'
+		AND C.DEL_YN = 'N'
+		AND D.USE_YN = 'Y'
+		AND E.DEL_YN = 'N'
+		AND E.USE_YN = 'Y'
+	</sql>
+
+	<!-- 입사제의  조건 -->
+	<sql id="whereOfferCond">
+		WHERE C.USER_SEQ = #{condUserSeq}
+		AND C.USE_YN = 'Y'
+		AND C.DEL_YN = 'N'
+		AND B.USE_YN = 'Y'
+		AND B.DEL_YN = 'N'
+		AND D.USE_YN = 'Y'
+		AND E.DEL_YN = 'N'
+		AND E.USE_YN = 'Y'
+		<choose>
+			<when test="condText != null and !condText.equals('')">
+				AND (
+					D.RESUME_TITLE LIKE CONCAT('%',#{condText},'%') OR
+					E.USER_NM_EN LIKE CONCAT('%',#{condText},'%') OR
+					E.USER_NM_KH LIKE CONCAT('%',#{condText},'%')
+				)
+			</when>
+		</choose>
+	</sql>
+
+
+	<!-- 알선  조건 -->
+	<sql id="whereReferralCond">
+		WHERE C.USER_SEQ = #{condUserSeq}
+		AND C.USE_YN = 'Y' /* 기업 사용여부 */
+		AND C.DEL_YN = 'N' /* 기업 삭제여부 */
+		AND A.REFERRAL_TYPE_CD = 'RFT0000000001' /* 구인 알선 */
+		AND A.DEL_YN = 'N'  /* 알선 삭제여부 */
+		AND B.USE_YN = 'Y' /* 채용공고 사용여부 */
+		AND B.DEL_YN = 'N' /* 채용공고 삭제여부 */
+		AND D.USE_YN = 'Y' /* 이력서 사용여부 */
+		AND E.DEL_YN = 'N' /* 사용자 삭제여부 */
+		AND E.USE_YN = 'Y' /* 사용자 사용여부 */
+
+
+		<choose>
+			<when test="condText != null and !condText.equals('')">
+				AND (
+					D.RESUME_TITLE LIKE CONCAT('%',#{condText},'%') OR
+					E.USER_NM_EN LIKE CONCAT('%',#{condText},'%') OR
+					E.USER_NM_KH LIKE CONCAT('%',#{condText},'%')
+				)
+			</when>
+		</choose>
+	</sql>
+
+
+	<sql id="whereVacancyCond">
+		<!-- 검색조건,search condition -->
+		AND A.USE_YN = 'Y' /* 채용공고 사용여부 */
+		AND A.DEL_YN = 'N' /* 채용공고 삭제여부 */
+		AND B.USE_YN = 'Y' /* 기업 사용여부 */
+		AND B.DEL_YN = 'N' /* 기업 삭제여부 */
+		AND A.JC_AGREE_STS_CD = 'JAS0000000001' /* 승인 */
+		AND A.VACANCY_STS_CD = 'VCS0000000001'  /* 진행중 */
+
+		<if test="condText != null and !condText.equals('')">
+			AND (
+				A.VACANCY_KEYWORD LIKE CONCAT('%',#{condText},'%') OR
+				A.VACANCY_TITLE LIKE CONCAT('%',#{condText},'%') OR
+				B.COMPNY_NM_EN LIKE CONCAT('%',#{condText},'%') OR
+				B.COMPNY_NM_KH LIKE CONCAT('%',#{condText},'%')
+			)
+		</if>
+	</sql>
+
+
+	<!-- 채용공고 간단 목록,vacancy simple list -->
+	<select id="selectVacancySimpleList" resultType="ony.cpes.external.mypage.compny.bean.VacancyBean" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*compnyVacancy.selectVacancySimpleList*/
+            SELECT
+                  A.VACANCY_SEQ,
+                  A.COMPNY_SEQ,
+                  A.VACANCY_TITLE,
+				  FN_GET_REMAIN_CNT(A.END_DT) REMAIN_DT,
+                  FN_GET_REMAIN_DIV(A.END_DT) REMAIN_DIV,
+ 				  A.RECRUMT_MEMB,
+                  DATE_FORMAT(A.BGN_DT, '%d/%m/%Y') AS BGN_DT,
+                  DATE_FORMAT(A.END_DT, '%d/%m/%Y') AS END_DT,
+				  FN_GET_COMMON_NM('VACANCY_STS_CD', A.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM,
+				  FN_GET_NEW_YN(A.REG_DT) AS NEW_YN,
+				  A.VACANCY_STS_CD
+            FROM CPES_VACANCY A
+            INNER JOIN CPES_COMPNY B
+            ON A.COMPNY_SEQ = B.COMPNY_SEQ
+            WHERE B.USER_SEQ = #{condUserSeq}
+            AND A.VACANCY_STS_CD IN ('VCS0000000001','VCS0000000002') /* 채공공고 진행중,마감  */
+            AND A.USE_YN = 'Y'
+            AND A.DEL_YN = 'N'
+            AND B.DEL_YN = 'N'
+            AND B.USE_YN = 'Y'
+            ORDER BY A.REG_DT DESC
+        ]]>
+    </select>
+
+
+	<!-- 입사지원 목록 count,applic list count -->
+	<select id="selectApplicListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*compnyApplic.selectApplicListCnt*/
+            SELECT
+                 COUNT(1) AS CNT
+            FROM CPES_APPLIC A
+            INNER JOIN CPES_VACANCY B
+            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY C
+            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+            INNER JOIN CPES_RESUME D
+            ON A.RESUME_SEQ = D.RESUME_SEQ
+            INNER JOIN CPES_USER E
+            ON D.USER_SEQ = E.USER_SEQ
+
+       ]]>
+            <include refid="whereCond"/>
+
+    </select>
+
+    <sql id="selectApplicListInclude">
+    <![CDATA[
+        	/*compnyApplic.selectApplicList*/
+            SELECT
+            	 A.APPLIC_SEQ,
+                 A.VACANCY_SEQ,
+                 A.APPLIC_TYPE_CD,
+                 C.COMPNY_SEQ,
+                 FN_GET_COMPNY_NM(C.COMPNY_SEQ, #{langCd}) AS COMPNY_NM,
+                 B.VACANCY_STS_CD,
+                 FN_GET_COMMON_NM('VACANCY_STS_CD', B.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM,
+                 B.VACANCY_TITLE,
+                 A.RESUME_SEQ,
+                 A.APPLIC_PROC_CD,
+                 FN_GET_COMMON_NM('APPLIC_PROC_CD', A.APPLIC_PROC_CD, #{langCd}) AS APPLIC_PROC_NM,
+				 FN_GET_USER_NM_BY_USER_SEQ(D.USER_SEQ, #{langCd}) AS USER_NM,
+				 FLOOR((CAST(REPLACE(CURRENT_DATE,'-','') AS UNSIGNED) -  CAST(E.BIRTH AS UNSIGNED)) / 10000 ) AS AGE,
+				 D.RESUME_TITLE,
+				 (
+				 	SELECT FN_GET_COMMON_NM('EDU_DEGREE_CD', G.EDU_DEGREE_CD, #{langCd})
+				 	FROM CPES_RESUME_GENRL_EDU G
+				 	WHERE G.RESUME_SEQ = D.RESUME_SEQ
+				 	LIMIT 1
+				 ) AS EDU_DEGREE_NM,
+				 (
+				 	SELECT FN_GET_ISCO_NM(G.ISCO_CD, #{langCd})
+				 	FROM CPES_RESUME_ISCO G
+				 	WHERE G.RESUME_SEQ = D.RESUME_SEQ
+				 	LIMIT 1
+				 ) AS ISCO_NM,
+				 IFNULL(D.CAREER_YN, '') AS CAREER_YN,
+				 D.TOT_CAREER_TERM_YEAR_CNT,
+				 D.TOT_CAREER_TERM_MONTH_CNT,
+				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN,
+				 E.GENDER_CD,
+				 FN_GET_FILE_PATH(D.FILE_GRP_SEQ) AS FILE_PATH,
+				 FN_GET_COMMON_NM('GENDER_CD', E.GENDER_CD, #{langCd}) AS GENDER_NM,
+				 FN_GET_ADDR_NM(SUBSTR(D.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM,
+				 FN_GET_BASE_DATE_CHAR(A.REG_DT, #{langCd}) AS REG_DT,
+				 A.FAIL_REASON
+            FROM CPES_APPLIC A
+            INNER JOIN CPES_VACANCY B
+            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY C
+            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+            INNER JOIN CPES_RESUME D
+            ON A.RESUME_SEQ = D.RESUME_SEQ
+            INNER JOIN CPES_USER E
+            ON D.USER_SEQ = E.USER_SEQ
+       ]]>
+    </sql>
+
+
+
+	<select id="selectApplicExcelList" resultType="java.util.Map" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <include refid="selectApplicListInclude"/>
+            <include refid="whereCond"/>
+            ORDER BY A.REG_DT DESC
+    </select>
+
+
+	<!-- 입사지원 목록,applic list -->
+	<select id="selectApplicList" resultType="ony.cpes.external.mypage.privt.bean.ApplicBean" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <include refid="selectApplicListInclude"/>
+            <include refid="whereCond"/>
+            ORDER BY A.REG_DT DESC
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+ 	<!-- 입사지원 목록 count,applic list count -->
+	<select id="selectApplicStatCnt" resultType="ony.cpes.external.mypage.privt.bean.ApplicBean" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        	/*compnyApplic.selectApplicStatCnt*/
+            SELECT
+                 (
+                 	SELECT COUNT(1) AS CNT
+		            FROM CPES_APPLIC A
+		            INNER JOIN CPES_VACANCY B
+		            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+		            INNER JOIN CPES_COMPNY C
+		            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+		            INNER JOIN CPES_RESUME D
+		            ON A.RESUME_SEQ = D.RESUME_SEQ
+		            INNER JOIN CPES_USER E
+		            ON D.USER_SEQ = E.USER_SEQ
+		            <include refid="whereCond2"/>
+                 ) AS TOT_CNT, /* 입사지원 전체 */
+                 (
+                 	SELECT COUNT(1) AS CNT
+		            FROM CPES_APPLIC A
+		            INNER JOIN CPES_VACANCY B
+		            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+		            INNER JOIN CPES_COMPNY C
+		            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+		            INNER JOIN CPES_RESUME D
+		            ON A.RESUME_SEQ = D.RESUME_SEQ
+		            INNER JOIN CPES_USER E
+		            ON D.USER_SEQ = E.USER_SEQ
+		            <include refid="whereCond2"/>
+		            AND A.APPLIC_PROC_CD = 'APC0000000001'
+                 ) AS OPEN_N_CNT, /* 이력서 미열람 */
+                 (
+                 	SELECT COUNT(1) AS CNT
+		            FROM CPES_APPLIC A
+		            INNER JOIN CPES_VACANCY B
+		            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+		            INNER JOIN CPES_COMPNY C
+		            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+		            INNER JOIN CPES_RESUME D
+		            ON A.RESUME_SEQ = D.RESUME_SEQ
+		            INNER JOIN CPES_USER E
+		            ON D.USER_SEQ = E.USER_SEQ
+		            <include refid="whereCond2"/>
+		            AND A.APPLIC_PROC_CD = 'APC0000000002'
+                 ) AS CHECK_CNT, /* 심사중 */
+                 (
+                 	SELECT COUNT(1) AS CNT
+		            FROM CPES_APPLIC A
+		            INNER JOIN CPES_VACANCY B
+		            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+		            INNER JOIN CPES_COMPNY C
+		            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+		            INNER JOIN CPES_RESUME D
+		            ON A.RESUME_SEQ = D.RESUME_SEQ
+		            INNER JOIN CPES_USER E
+		            ON D.USER_SEQ = E.USER_SEQ
+		            <include refid="whereCond2"/>
+		            AND A.APPLIC_PROC_CD = 'APC0000000003'
+                 ) AS PAPER_CNT, /* 서류합격 */
+                 (
+                 	SELECT COUNT(1) AS CNT
+		            FROM CPES_APPLIC A
+		            INNER JOIN CPES_VACANCY B
+		            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+		            INNER JOIN CPES_COMPNY C
+		            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+		            INNER JOIN CPES_RESUME D
+		            ON A.RESUME_SEQ = D.RESUME_SEQ
+		            INNER JOIN CPES_USER E
+		            ON D.USER_SEQ = E.USER_SEQ
+		            <include refid="whereCond2"/>
+		            AND A.APPLIC_PROC_CD = 'APC0000000005'
+                 ) AS INTVW_CNT, /* 면접제안 */
+
+                 (
+                 	SELECT COUNT(1) AS CNT
+		            FROM CPES_APPLIC A
+		            INNER JOIN CPES_VACANCY B
+		            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+		            INNER JOIN CPES_COMPNY C
+		            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+		            INNER JOIN CPES_RESUME D
+		            ON A.RESUME_SEQ = D.RESUME_SEQ
+		            INNER JOIN CPES_USER E
+		            ON D.USER_SEQ = E.USER_SEQ
+		            <include refid="whereCond2"/>
+		            AND A.APPLIC_PROC_CD = 'APC0000000004'
+                 ) AS PASS_CNT /* 최종합격 */
+            FROM DUAL
+
+    </select>
+
+ 	<!-- 입사제의 목록 count,offer list count -->
+	<select id="selectOfferListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*compnyApplic.selectOfferListCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+            FROM CPES_OFFER A
+            INNER JOIN CPES_VACANCY B
+            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY C
+            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+            INNER JOIN CPES_RESUME D
+ 			ON A.RESUME_SEQ = D.RESUME_SEQ
+ 			INNER JOIN CPES_USER E
+ 			ON D.USER_SEQ = E.USER_SEQ
+       ]]>
+            <include refid="whereOfferCond"/>
+
+    </select>
+
+  	<!-- 입사제의 목록,offer list -->
+	<select id="selectOfferList" resultType="ony.cpes.external.mypage.privt.bean.OfferBean" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*compnyApplic.selectOfferList*/
+            SELECT
+            	 A.OFFER_SEQ,
+            	 A.CONTENT,
+            	 FN_GET_BASE_DATE_CHAR(A.OFFER_ACPT_DT, #{langCd}) AS OFFER_ACPT_DT,
+            	 A.OFFER_ACPT_YN,
+            	 FN_GET_BASE_DATE_CHAR(A.OFFER_OPEN_DT, #{langCd}) AS OFFER_OPEN_DT,
+            	 A.OFFER_OPEN_YN,
+            	 FN_GET_BASE_DATE_CHAR(A.REG_DT, #{langCd}) AS REG_DT,
+                 B.VACANCY_SEQ,
+                 B.VACANCY_TITLE,
+                 B.COMPNY_SEQ,
+                 A.RESUME_SEQ,
+				 FN_GET_USER_NM_BY_USER_SEQ(D.USER_SEQ, #{langCd}) AS USER_NM,
+				 FLOOR((CAST(REPLACE(CURRENT_DATE,'-','') AS UNSIGNED) -  CAST(E.BIRTH AS UNSIGNED)) / 10000 ) AS AGE,
+				 D.RESUME_TITLE,
+				 (
+				 	SELECT FN_GET_COMMON_NM('EDU_DEGREE_CD', G.EDU_DEGREE_CD, #{langCd})
+				 	FROM CPES_RESUME_GENRL_EDU G
+				 	WHERE G.RESUME_SEQ = D.RESUME_SEQ
+				 	LIMIT 1
+				 ) AS EDU_DEGREE_NM,
+				 (
+				 	SELECT FN_GET_ISCO_NM(G.ISCO_CD, #{langCd})
+				 	FROM CPES_RESUME_ISCO G
+				 	WHERE G.RESUME_SEQ = D.RESUME_SEQ
+				 	LIMIT 1
+				 ) AS ISCO_NM,
+				 D.CAREER_YN,
+				 D.TOT_CAREER_TERM_YEAR_CNT,
+				 D.TOT_CAREER_TERM_MONTH_CNT,
+				 E.GENDER_CD,
+				 FN_GET_FILE_PATH(D.FILE_GRP_SEQ) AS IMAGE_PATH,
+				 FN_GET_COMMON_NM('GENDER_CD', E.GENDER_CD, #{langCd}) AS GENDER_NM,
+				 FN_GET_ADDR_NM(SUBSTR(D.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM,
+				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN,
+				 FN_GET_FILE_PATH(D.FILE_GRP_SEQ) AS FILE_PATH
+            FROM CPES_OFFER A
+            INNER JOIN CPES_VACANCY B
+            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY C
+            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+ 			INNER JOIN CPES_RESUME D
+ 			ON A.RESUME_SEQ = D.RESUME_SEQ
+ 			INNER JOIN CPES_USER E
+ 			ON D.USER_SEQ = E.USER_SEQ
+       ]]>
+            <include refid="whereOfferCond"/>
+            ORDER BY A.REG_DT DESC
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+
+    </select>
+
+
+ 	<!-- 알선 목록 count,Referral list count -->
+	<select id="selectReferralListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*compnyApplic.selectReferralListCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+            FROM CPES_REFERRAL A
+            INNER JOIN CPES_VACANCY B
+            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY C
+            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+            INNER JOIN CPES_RESUME D
+ 			ON A.RESUME_SEQ = D.RESUME_SEQ
+ 			INNER JOIN CPES_USER E
+ 			ON D.USER_SEQ = E.USER_SEQ
+       ]]>
+            <include refid="whereReferralCond"/>
+
+    </select>
+
+  	<!-- 알선 목록,Referral list -->
+	<select id="selectReferralList" resultType="ony.cpes.external.mypage.privt.bean.ReferralBean" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*compnyApplic.selectReferralList*/
+            SELECT
+            	 A.EMAIL_NTCE_DT,
+            	 A.EMAIL_NTCE_YN,
+            	 A.MNGER_OPINION,
+            	 A.REFERRAL_STS_CD,
+            	 A.REFERRAL_TYPE_CD,
+            	 FN_GET_BASE_DATE_CHAR(A.REG_DT, #{langCd}) AS REG_DT,
+                 B.VACANCY_SEQ,
+                 B.COMPNY_SEQ,
+                 B.VACANCY_TITLE,
+                 A.RESUME_SEQ,
+				 FN_GET_USER_NM_BY_USER_SEQ(D.USER_SEQ, #{langCd}) AS USER_NM,
+				 FLOOR((CAST(REPLACE(CURRENT_DATE,'-','') AS UNSIGNED) -  CAST(E.BIRTH AS UNSIGNED)) / 10000 ) AS AGE,
+				 D.RESUME_TITLE,
+				 (
+				 	SELECT FN_GET_COMMON_NM('EDU_DEGREE_CD', G.EDU_DEGREE_CD, #{langCd})
+				 	FROM CPES_RESUME_GENRL_EDU G
+				 	WHERE G.RESUME_SEQ = D.RESUME_SEQ
+				 	LIMIT 1
+				 ) AS EDU_DEGREE_NM,
+				 (
+				 	SELECT FN_GET_ISCO_NM(G.ISCO_CD, #{langCd})
+				 	FROM CPES_RESUME_ISCO G
+				 	WHERE G.RESUME_SEQ = D.RESUME_SEQ
+				 	LIMIT 1
+				 ) AS ISCO_NM,
+				 D.CAREER_YN,
+				 D.TOT_CAREER_TERM_YEAR_CNT,
+				 D.TOT_CAREER_TERM_MONTH_CNT,
+				 E.GENDER_CD,
+				 FN_GET_FILE_PATH(D.FILE_GRP_SEQ) AS IMAGE_PATH,
+				 FN_GET_ADDR_NM(SUBSTR(D.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM,
+				 FN_GET_COMMON_NM('GENDER_CD', E.GENDER_CD, #{langCd}) AS GENDER_NM,
+				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+            FROM CPES_REFERRAL A
+            INNER JOIN CPES_VACANCY B
+            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY C
+            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+ 			INNER JOIN CPES_RESUME D
+ 			ON A.RESUME_SEQ = D.RESUME_SEQ
+ 			INNER JOIN CPES_USER E
+ 			ON D.USER_SEQ = E.USER_SEQ
+       ]]>
+            <include refid="whereReferralCond"/>
+            ORDER BY A.REG_DT DESC
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+	<!-- 채용공고 목록,vacancy list -->
+	<select id="selectVacancyListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
+        <![CDATA[
+        	/*compnyApplic.selectVacancyListCnt*/
+            SELECT
+                 COUNT(1) AS CNT
+            FROM CPES_VACANCY A
+            INNER JOIN CPES_COMPNY B
+            ON A.COMPNY_SEQ = B.COMPNY_SEQ
+            WHERE B.USER_SEQ = #{condUserSeq}
+       ]]>
+            <include refid="whereVacancyCond"/>
+
+    </select>
+
+	<!-- 채용공고 목록,vacancy list -->
+	<select id="selectVacancyList" resultType="ony.cpes.external.mypage.compny.bean.VacancyBean" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
+        <![CDATA[
+        	/*compnyApplic.selectVacancyList*/
+            SELECT
+                  A.VACANCY_SEQ,
+                  A.COMPNY_SEQ,
+                  A.VACANCY_TITLE,
+                  A.JC_AGREE_STS_CD,
+                  A.VACANCY_STS_CD,
+				  FN_GET_REMAIN_CNT(A.END_DT) REMAIN_DT,
+                  FN_GET_REMAIN_DIV(A.END_DT) REMAIN_DIV,
+				  A.MIN_SALARY_AMT,
+				  A.MAX_SALARY_AMT,
+				  A.EMPLOY_FORM_CD,
+				  FN_GET_COMMON_NM('EMPLOY_FORM_CD', A.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_NM,
+				  A.RECRUMT_MEMB,
+				  (
+				 	SELECT FN_GET_ADDR_NM(SUBSTR(F.ADDR_FULL_CD,1,3), '2', #{langCd})
+				 	FROM CPES_VACANCY_LOC F
+				 	WHERE F.VACANCY_SEQ = A.VACANCY_SEQ
+				 	LIMIT 1
+				  ) AS ADDR_NM,
+				  A.RECRUMT_DIFFCLT_YN,
+				  FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+            FROM CPES_VACANCY A
+            INNER JOIN CPES_COMPNY B
+            ON A.COMPNY_SEQ = B.COMPNY_SEQ
+            WHERE B.USER_SEQ = #{condUserSeq}
+
+       ]]>
+            <include refid="whereVacancyCond"/>
+            ORDER BY A.REG_DT DESC
+            LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+
+	<!-- 입사지원 인터뷰 중복 체크 -->
+	<select id="selectApplicIntvwDupCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*compnyApplic.selectApplicIntvwDupCnt*/
+            SELECT
+                 COUNT(1) AS CNT
+            FROM CPES_INTVW A
+            WHERE A.APPLIC_SEQ = #{condSeq}
+       ]]>
+    </select>
+
+</mapper>

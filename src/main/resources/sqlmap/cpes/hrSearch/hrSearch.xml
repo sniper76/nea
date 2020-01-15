@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hrSearch">
+
+	<sql id="whereCond">
+		WHERE RE.USE_YN = 'Y'
+		AND RE.PRI_RESUME_YN = 'Y'
+		AND RE.JOBSK_REQ_YN = 'Y'
+		AND JR.JOBSK_STS_CD = 'JSC0000000001'
+
+		<if test="keyword != null and keyword != ''">
+			AND (RE.RESUME_KEYWORD LIKE CONCAT('%', #{keyword}, '%') OR RE.RESUME_TITLE LIKE CONCAT('%', #{keyword}, '%'))
+		</if>
+		<if test="simpleKeyword != null and simpleKeyword != ''">
+			AND (RE.RESUME_KEYWORD LIKE CONCAT('%', #{simpleKeyword}, '%') OR RE.RESUME_TITLE LIKE CONCAT('%', #{simpleKeyword}, '%'))
+		</if>
+		<if test="employFormCd != null and employFormCd != '' and employFormCd.size != 0">
+			AND RE.EMPLOY_FORM_CD IN
+			<foreach collection="employFormCd" item="employForm" open="(" separator="," close=")">
+				#{employForm}
+			</foreach>
+		</if>
+		<if test="salary != null and salary != ''">
+			<![CDATA[
+			AND RE.EXPCT_MIN_SALARY_AMT <= #{salary}
+			AND RE.EXPCT_MAX_SALARY_AMT >= #{salary}
+			]]>
+		</if>
+		<if test="preferEmployTypeCd != null and preferEmployTypeCd != ''">
+			AND RE.PREFER_EMPLOY_TYPE_CD = #{preferEmployTypeCd}
+		</if>
+		<if test="preferCrtctType != null and preferCrtctType != ''">
+			ANDRE.PREFER_CRTCT_TYPE = #{preferCrtctType}
+		</if>
+		<if test="disablYn != null and disablYn != ''">
+			AND RE.DISABL_YN = 'Y'
+		</if>
+		<if test="retMigratYn != null and retMigratYn != ''">
+			AND RE.RET_MIGRAT_YN = 'Y'
+		</if>
+		<if test="genderCd != null and genderCd != ''">
+			AND US.GENDER_CD = #{genderCd}
+		</if>
+		<if test="locCd_1depth != null and locCd_1depth != ''">
+			AND RE.RESUME_SEQ IN (SELECT RESUME_SEQ FROM CPES_RESUME_HOPE_WORK_LOC
+								  WHERE SUBSTR(ADDR_FULL_CD,1,3) = #{locCd_1depth}
+								  <if test="locCd_2depth != null and locCd_2depth != ''">
+									  AND SUBSTR(ADDR_FULL_CD,1,5) = #{locCd_2depth}
+								  </if>
+								  )
+		</if>
+		<if test="simpleLocCd != null and simpleLocCd != ''">
+			AND RE.RESUME_SEQ IN (SELECT RESUME_SEQ FROM CPES_RESUME_HOPE_WORK_LOC
+								  WHERE SUBSTR(ADDR_FULL_CD,1,3) = #{simpleLocCd})
+		</if>
+		<if test="iscoCd_1depth != null and iscoCd_1depth != ''">
+			AND RE.RESUME_SEQ IN (SELECT RESUME_SEQ FROM CPES_RESUME_ISCO
+								  WHERE SUBSTR(ISCO_CD,1,1) = #{iscoCd_1depth}
+								  <if test="iscoCd_2depth != null and iscoCd_2depth != ''">
+									  AND SUBSTR(ISCO_CD,1,2) = #{iscoCd_2depth}
+								  </if>
+								  <if test="iscoCd_3depth != null and iscoCd_3depth != ''">
+									  AND SUBSTR(ISCO_CD,1,3) = #{iscoCd_3depth}
+								  </if>
+								  <if test="iscoCd_4depth != null and iscoCd_4depth != ''">
+									  AND ISCO_CD = #{iscoCd_4depth}
+								  </if>
+								  )
+		</if>
+		<if test="eduDegreeCd != null and eduDegreeCd != '' and eduDegreeCd.size != 0">
+			AND RE.RESUME_SEQ IN (SELECT RESUME_SEQ FROM CPES_RESUME_GENRL_EDU
+								  WHERE EDU_DEGREE_CD IN
+								  <foreach collection="eduDegreeCd" item="eduDegree" open="(" separator="," close=")">
+								  	#{eduDegree}
+								  </foreach>
+								  )
+		</if>
+		<if test="searchType != null and searchType != '' and searchType == 'user'">
+			AND US.USER_AUTH_CD IN ('ROLE_USER', 'ROLE_LOWJS')
+		</if>
+		<if test="searchType != null and searchType != '' and searchType == 'stdit'">
+			AND US.USER_AUTH_CD IN ('ROLE_STDIT')
+		</if>
+
+	</sql>
+
+	<select id="selectHrSearchResultTotCnt" parameterType="ony.cpes.external.hrSearch.bean.HrSearchBean" resultType="int">
+		SELECT COUNT(1) AS CNT
+		FROM (SELECT RE.RESUME_SEQ
+				   , RE.RESUME_TITLE
+				   , RE.TOT_CAREER_TERM_YEAR_CNT
+				   , RE.ADDR_FULL_CD
+				   , (SELECT EDU_DEGREE_CD FROM CPES_RESUME_GENRL_EDU WHERE RESUME_SEQ = RE.RESUME_SEQ LIMIT 1) AS EDU_DEGREE_CD
+				   , RE.PREFER_JOB_TITLE
+				   , FN_GET_USER_AGE(US.BIRTH) AS AGE
+				   , JR.JC_AGREE_DT
+				   , RE.FILE_GRP_SEQ
+				   , RE.USE_YN
+				   , RE.PRI_RESUME_YN
+				   , RE.JOBSK_REQ_YN
+				   , JR.JOBSK_STS_CD
+				   , RE.RESUME_KEYWORD
+				   , RE.EMPLOY_FORM_CD
+				   , RE.EXPCT_MIN_SALARY_AMT
+				   , RE.EXPCT_MAX_SALARY_AMT
+				   , RE.PREFER_EMPLOY_TYPE_CD
+				   , RE.PREFER_CRTCT_TYPE
+				   , RE.DISABL_YN
+				   , RE.RET_MIGRAT_YN
+				   , US.GENDER_CD
+				   , US.USER_AUTH_CD
+				FROM CPES_RESUME RE
+					INNER JOIN CPES_JOBSK_REQ JR
+					ON RE.RESUME_SEQ = JR.RESUME_SEQ
+						INNER JOIN CPES_USER US
+						ON RE.USER_SEQ = US.USER_SEQ
+
+						<include refid="whereCond"/>
+			 ) A
+
+			<if test="youthYn != null and youthYn != ''">
+				<![CDATA[
+				WHERE A.AGE <= 15
+				AND A.AGE <= 35
+				]]>
+			</if>
+
+	</select>
+
+	<select id="selectHrSearchResultList" parameterType="ony.cpes.external.hrSearch.bean.HrSearchBean" resultType="ony.cpes.external.hrSearch.bean.HrSearchBean">
+		SELECT A.RESUME_SEQ
+			 , A.RESUME_TITLE
+			 , A.TOT_CAREER_TERM_YEAR_CNT
+			 , FN_GET_ADDR_NM(SUBSTR(A.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM
+			 , A.PREFER_JOB_TITLE
+			 , A.AGE
+			 , DATE_FORMAT(A.JC_AGREE_DT, '%d/%m') AS JC_AGREE_DT
+			 , FN_GET_FILE_PATH(A.FILE_GRP_SEQ) AS FILE_PATH
+			 , FN_GET_BKMK_SEQ(#{userSeq}, 'BCT0000000006', A.RESUME_SEQ) AS BKMK_SEQ
+			 , FN_GET_NEW_YN(A.JC_AGREE_DT) AS NEW_YN
+			 , FN_GET_COMMON_NM('GENDER_CD', A.GENDER_CD, #{langCd}) AS GENDER_NM
+			 , FN_GET_USER_NM_BY_USER_SEQ(A.USER_SEQ, #{langCd}) AS USER_NM
+			 , FN_GET_COMMON_NM('EDU_DEGREE_CD', A.EDU_DEGREE_CD, #{langCd}) AS EDU_DEGREE_NM
+		FROM (SELECT RE.RESUME_SEQ
+				   , RE.RESUME_TITLE
+				   , RE.TOT_CAREER_TERM_YEAR_CNT
+				   , RE.ADDR_FULL_CD
+				   , (SELECT EDU_DEGREE_CD FROM CPES_RESUME_GENRL_EDU WHERE RESUME_SEQ = RE.RESUME_SEQ LIMIT 1) AS EDU_DEGREE_CD
+				   , RE.PREFER_JOB_TITLE
+				   , FN_GET_USER_AGE(US.BIRTH) AS AGE
+				   , JR.JC_AGREE_DT
+				   , RE.FILE_GRP_SEQ
+				   , RE.USE_YN
+				   , RE.PRI_RESUME_YN
+				   , RE.JOBSK_REQ_YN
+				   , JR.JOBSK_STS_CD
+				   , RE.RESUME_KEYWORD
+				   , RE.EMPLOY_FORM_CD
+				   , RE.EXPCT_MIN_SALARY_AMT
+				   , RE.EXPCT_MAX_SALARY_AMT
+				   , RE.PREFER_EMPLOY_TYPE_CD
+				   , RE.PREFER_CRTCT_TYPE
+				   , RE.DISABL_YN
+				   , RE.RET_MIGRAT_YN
+				   , US.GENDER_CD
+				   , RE.USER_SEQ
+				   , (SELECT COUNT(1) FROM CPES_RESUME_OPEN_COMPNY WHERE RESUME_SEQ = RE.RESUME_SEQ) AS OPEN_CNT
+				   , (SELECT COUNT(1) FROM CPES_BKMK WHERE CATE_CD = 'BCT0000000006' AND TABLE_KEY_SEQ = RE.RESUME_SEQ) AS BKMK_CNT
+				   , US.USER_AUTH_CD
+				FROM CPES_RESUME RE
+					INNER JOIN CPES_JOBSK_REQ JR
+					ON RE.RESUME_SEQ = JR.RESUME_SEQ
+						INNER JOIN CPES_USER US
+						ON RE.USER_SEQ = US.USER_SEQ
+
+				<include refid="whereCond"/>
+
+			) A
+
+			<if test="youthYn != null and youthYn != ''">
+				<![CDATA[
+				WHERE A.AGE <= 15
+				AND A.AGE <= 35
+				]]>
+			</if>
+
+		<choose>
+			<when test="sortFlag == 'view'">
+				ORDER BY A.OPEN_CNT DESC
+			</when>
+			<when test="sortFlag == 'like'">
+				ORDER BY A.BKMK_CNT DESC
+			</when>
+			<otherwise>
+				ORDER BY A.JC_AGREE_DT DESC
+			</otherwise>
+		</choose>
+
+		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+
+</mapper>

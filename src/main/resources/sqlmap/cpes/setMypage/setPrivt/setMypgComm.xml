@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setMypgComm">
+
+	<!-- insertResume -->
+    <insert id="insertResumeOpenCompny" parameterType="ony.cpes.external.mypage.privt.bean.ResumeOpenCompnyBean">
+		/*setResume.insertResumeOpenCompny*/
+		<selectKey resultType="string" keyProperty="resumeOpenCompnySeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+		INSERT INTO CPES_RESUME_OPEN_COMPNY (
+		RESUME_OPEN_COMPNY_SEQ
+		, COMPNY_SEQ
+		, RESUME_SEQ
+		, REG_USER_SEQ
+		, REG_DT
+		, MOD_USER_SEQ
+		, MOD_DT
+		) VALUES (
+		#{resumeOpenCompnySeq}
+		, (SELECT COMPNY_SEQ FROM CPES_COMPNY WHERE USER_SEQ = #{compnySeq})
+		, #{resumeSeq}
+		, #{compnySeq}
+		, NOW()
+		, #{compnySeq}
+		, NOW()
+		)
+    </insert>
+
+</mapper>

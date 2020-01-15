@@ -1,0 +1,40 @@
+@charset "UTF-8";
+
+/* Noto */
+@font-face{
+	font-family:'NotoKhmer';
+	font-weight: 200;
+	src:url("font/NotoSansKhmer-Thin.ttf") format("truetype");
+}
+@font-face{
+	font-family:'NotoKhmer';
+	font-weight: 300;
+	src:url("font/NotoSansKhmer-Light.ttf") format("truetype");
+}
+@font-face{
+	font-family:'NotoKhmer';
+	font-weight: 400;
+	src:url("font/NotoSansKhmer-Regular.ttf") format("truetype");
+}
+@font-face{
+	font-family:'NotoKhmer';
+	font-weight: 500;
+	src:url("font/NotoSansKhmer-Medium.ttf") format("truetype");
+}
+@font-face{
+	font-family:'NotoKhmer';
+	font-weight: 600;
+	src:url("font/NotoSansKhmer-Bold.ttf") format("truetype");
+}
+@font-face{
+	font-family:'NotoKhmer';
+	font-weight: 700;
+	src:url("font/NotoSansKhmer-Black.ttf") format("truetype");
+}
+
+/* Siemreap */
+@font-face{
+	font-family:'Siemreap';
+	font-weight: 400;
+	src:url("font/Siemreap.ttf") format("truetype");
+}

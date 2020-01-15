@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="compnyMem">
+	<!-- 기업 회원정보 조회 -->
+	<select id="selectMember" resultType="ony.cpes.external.mypage.compny.bean.CompnyMemBean" parameterType="ony.cpes.external.mypage.compny.bean.CondCompnyMemBean">
+		/*compnyMem.selectMember*/
+		SELECT
+			  A.USER_SEQ
+			, FN_GET_COMPNY_NM(B.COMPNY_SEQ, #{langCd}) AS COMPNY_NM
+			, B.COMPNY_TYPE_CD
+			, B.REG_NUM
+			, B.PATENT_NUM
+			, B.OWNER_NATION_CD
+			, B.ADDR_CD
+			, B.ADDR_DTL
+			, B.ADDR_FULL_CD
+			, B.ADDR_FULL_NM
+			, B.MAIN_JOB_PERCENT
+			, B.MNGER_NM
+			, B.MNGER_POSITION
+			, B.MNGER_CELL
+			, B.MNGER_EMAIL
+			, B.MNGER_TEL
+			, B.COMPNY_FAX
+			, B.COMPNY_WEBSITE
+			, B.COMPNY_FACEBOOK
+			, B.PROFILE
+			, B.DISABL_EMPLOYEE_TOT_CNT
+			, B.EMPLOYEE_TOT_CNT
+			, B.EXE_EMPLOYEE_TOT_CNT
+			, B.FEMALE_EMPLOYEE_TOT_CNT
+			, B.FORGNER_TOT_CNT
+			, B.GOOGLE_MAP_LINK
+			, B.FILE_GRP_SEQ
+			, B.LOGO_FILE_GRP_SEQ
+			, B.SUB_MNGER_NM
+			, B.SUB_MNGER_POSITION
+			, B.SUB_MNGER_CELL
+			, B.SUB_MNGER_EMAIL
+		FROM CPES_USER A
+		INNER JOIN CPES_COMPNY B
+		ON A.USER_SEQ = B.USER_SEQ
+        WHERE A.USER_SEQ = #{condUserSeq}
+      	AND A.DEL_YN = 'N'
+        AND A.USE_YN = 'Y'
+        AND B.DEL_YN = 'N'
+        AND B.USE_YN = 'Y'
+	</select>
+
+
+
+
+</mapper>

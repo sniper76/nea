@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="counsel">
+
+	<sql id="whereCond">
+		<!-- 검색조건,search condition -->
+		AND A.COUNSEL_CATE_DIV_CD = #{condCateDivCd}
+		<if test="condTargetCd != null and !condTargetCd.equals('')">
+			AND A.COUNSEL_TARGET_CD = #{condTargetCd}
+		</if>
+
+		<!-- 자기자신의 상담글만 볼경우 -->
+		<if test="condSeflYn != null and condSeflYn == 'Y'.toString()">
+			AND A.QUST_REG_USER_SEQ = #{condUserSeq}
+		</if>
+
+		<if test="condText != null and !condText.equals('')">
+			<choose>
+	   			<when test="condType == null or condType.equals('')">
+	   				AND ( A.QUST_TITLE LIKE CONCAT('%',#{condText},'%') OR
+	   				      A.QUST_CONTENT LIKE CONCAT('%',#{condText},'%') OR
+	   				      B.USER_NM_EN LIKE CONCAT('%',#{condText},'%') OR
+	   				      B.USER_NM_KH LIKE CONCAT('%',#{condText},'%')
+	   				)
+				</when>
+				<when test="condType != null and condType.equals('NAME')">
+					 AND (B.USER_NM_EN LIKE CONCAT('%',#{condText},'%') OR B.USER_NM_KH LIKE CONCAT('%',#{condText},'%'))
+				</when>
+				<when test="condType != null and condType.equals('TITLE')">
+					 AND A.QUST_TITLE LIKE CONCAT('%',#{condText},'%')
+				</when>
+				<when test="condType != null and condType.equals('CONTENT')">
+					 AND A.QUST_CONTENT LIKE CONCAT('%',#{condText},'%')
+				</when>
+			</choose>
+		</if>
+	</sql>
+
+
+
+    <!-- 상담검색,search counsel  -->
+	<select id="selectCounselListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.counsel.bean.CondCounselBean">
+		/*counsel.selectCounselListCnt*/
+		<![CDATA[
+		SELECT COUNT(1) AS CNT
+		FROM CPES_COUNSEL A
+		INNER JOIN CPES_USER B
+		ON A.QUST_REG_USER_SEQ = B.USER_SEQ
+        WHERE A.DEL_YN = 'N'
+        AND B.DEL_YN = 'N'
+        ]]>
+		<include refid="whereCond"/>
+	</select>
+
+    <!-- 상담검색,search counsel  -->
+	<select id="selectCounselList" resultType="ony.cpes.external.counsel.bean.CounselBean" parameterType="ony.cpes.external.counsel.bean.CondCounselBean">
+		/*counsel.selectCounselList*/
+		<![CDATA[
+		SELECT A.COUNSEL_SEQ,
+		       A.QUST_TITLE,
+		       A.SECRET_YN,
+		       A.COUNSEL_METHOD_DIV_CD,
+		       FN_GET_COMMON_NM('COUNSEL_METHOD_DIV_CD', A.COUNSEL_METHOD_DIV_CD, #{langCd}) AS COUNSEL_METHOD_DIV_NM,
+		       FN_GET_BASE_DATE_CHAR(A.QUST_REG_DT,#{langCd}) AS QUST_REG_DT,
+			   FN_GET_USER_NM_BY_USER_SEQ(B.USER_SEQ, #{langCd}) AS REG_NM,
+			   A.VIEW_CNT,
+			   A.LIKE_CNT,
+			   A.COUNSEL_TARGET_CD,
+			   A.COUNSEL_CATE_DIV_CD,
+			   SUBSTR(A.COUNSEL_STS_CD,LENGTH(A.COUNSEL_STS_CD)-1) AS COUNSEL_STS_CD,
+			   FN_GET_COMMON_NM('COUNSEL_STS_CD', A.COUNSEL_STS_CD, #{langCd}) AS COUNSEL_STS_NM,
+			   (SELECT LIKE_SEQ FROM CPES_LIKE WHERE TABLE_KEY_SEQ = A.COUNSEL_SEQ AND USER_SEQ = #{condUserSeq}) AS LIKE_SEQ,
+			   FN_GET_LIKE_YN(#{condUserSeq}, #{condLikeCateCd}, A.COUNSEL_SEQ) AS LIKE_YN,
+			   CASE WHEN A.SECRET_YN = 'N' THEN 'Y'
+			        WHEN B.USER_SEQ = #{condUserSeq} THEN 'Y'
+			        ELSE 'N'
+			   END AS VIEW_YN,
+			   FN_GET_NEW_YN(A.QUST_REG_DT) AS NEW_YN
+		FROM CPES_COUNSEL A
+		INNER JOIN CPES_USER B
+		ON A.QUST_REG_USER_SEQ = B.USER_SEQ
+        WHERE A.DEL_YN = 'N'
+        AND B.DEL_YN = 'N'
+        ]]>
+		<include refid="whereCond"/>
+
+		ORDER BY
+		<choose>
+			<when test="condSort != null and condSort.equals('LATEST')">
+				A.QUST_REG_DT DESC
+			</when>
+			<when test="condSort != null and condSort.equals('LIKE')">
+				A.LIKE_CNT DESC
+			</when>
+			<when test="condSort != null and condSort.equals('VIEW')">
+				A.VIEW_CNT DESC
+			</when>
+			<otherwise>
+   				A.QUST_REG_DT DESC
+			</otherwise>
+
+		</choose>
+
+
+       	LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+
+    <!-- 상담상세,detail counsel  -->
+	<select id="selectCounsel" resultType="ony.cpes.external.counsel.bean.CounselBean" parameterType="ony.cpes.external.counsel.bean.CondCounselBean">
+		/*counsel.selectCounsel*/
+		<![CDATA[
+		SELECT
+				ANS_CONTENT,
+				ANS_FILE_GRP_SEQ,
+				ANS_MOD_DT,
+				FN_GET_BASE_DATE_CHAR(A.ANS_REG_DT,#{langCd}) AS ANS_REG_DT,
+				ANS_TITLE,
+				COUNSEL_AMPM,
+				COUNSEL_CATE_DIV_CD,
+				COUNSEL_DT,
+				COUNSEL_HOUR,
+				COUNSEL_METHOD_DIV_CD,
+				COUNSEL_MINUTE,
+				COUNSEL_NTCE,
+				COUNSEL_SEQ,
+				COUNSEL_STS_CD,
+				COUNSEL_TARGET_CD,
+				HOPE_COUNSEL_BGN_AMPM,
+				HOPE_COUNSEL_BGN_TIME,
+				HOPE_COUNSEL_DT,
+				HOPE_COUNSEL_END_AMPM,
+				HOPE_COUNSEL_END_TIME,
+				ISCO_CD,
+				JC_USER_SEQ,
+				LIKE_CNT,
+				QUST_CONTENT,
+				QUST_ETC_REQ,
+				QUST_FILE_GRP_SEQ,
+				QUST_JC_CD,
+				FN_GET_BASE_DATE_CHAR(A.QUST_REG_DT,#{langCd}) AS QUST_REG_DT,
+				QUST_REG_USER_SEQ,
+				QUST_TITLE,
+				SECRET_YN,
+				VIEW_CNT,
+				FN_GET_COMMON_NM('COUNSEL_STS_CD', A.COUNSEL_STS_CD, #{langCd}) AS COUNSEL_STS_NM,
+				(SELECT LIKE_SEQ FROM CPES_LIKE WHERE TABLE_KEY_SEQ = A.COUNSEL_SEQ AND USER_SEQ = #{condUserSeq}) AS LIKE_SEQ,
+			    FN_GET_LIKE_YN(#{condUserSeq}, #{condLikeCateCd}, A.COUNSEL_SEQ) AS LIKE_YN,
+			    FN_GET_COMMON_NM('COUNSEL_METHOD_DIV_CD', A.COUNSEL_METHOD_DIV_CD, #{langCd}) AS COUNSEL_METHOD_DIV_NM,
+			    CASE WHEN A.SECRET_YN = 'N' THEN 'Y'
+			         WHEN B.USER_SEQ = #{condUserSeq} THEN 'Y'
+			         ELSE 'N'
+			    END AS VIEW_YN,
+			    CASE WHEN A.COUNSEL_STS_CD = 'CSC0000000001' AND B.USER_SEQ = #{condUserSeq} THEN 'Y'
+                     ELSE 'N'
+                END AS MODIFY_YN,
+                FN_GET_USER_NM_BY_USER_SEQ(B.USER_SEQ, #{langCd}) AS REG_NM,
+                FN_GET_USER_NM_BY_USER_SEQ(A.ANS_REG_USER_SEQ, #{langCd}) AS ANS_REG_NM,
+				B.USER_TEL,
+				FN_GET_JOB_CNTR_NM(A.QUST_JC_CD, #{langCd}) AS QUST_JC_NM
+
+		FROM CPES_COUNSEL A
+		INNER JOIN CPES_USER B
+		ON A.QUST_REG_USER_SEQ = B.USER_SEQ
+		WHERE A.COUNSEL_SEQ = #{condSeq}
+		]]>
+		<if test="condModifyYn == 'Y'.toString()">
+		 	AND A.QUST_REG_USER_SEQ = #{condUserSeq}
+		</if>
+        AND A.DEL_YN = 'N'
+        AND B.DEL_YN = 'N'
+
+	</select>
+
+</mapper>

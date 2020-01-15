@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jobFairPatcptn">
+
+    <!-- jobfair participate information (online) -->
+	<select id="selectJobFairApplyPatcptnOnline" resultType="ony.cpes.external.jobfair.bean.JobFairPatcptnCompnyBean" parameterType="hashmap">
+		/*jobFairPatcptn.selectJobFairApplyPatcptnOnline*/
+		SELECT USER_SEQ
+		     , FAIR_SEQ
+		     , JC_AGREE_STS_CD
+		     , JC_AGREE_USER_SEQ
+		     , JC_AGREE_DT
+		     , REG_USER_SEQ
+		     , REG_DT
+		     , MOD_USER_SEQ
+		     , MOD_DT
+		     , PATCPTN_YN
+		     , DEL_YN
+		     , CANCEL_YN
+		  FROM CPES_FAIR_ONLINE_PATCPTN
+		 WHERE FAIR_SEQ = #{fairSeq}
+		   AND USER_SEQ = #{userSeq}
+	</select>
+
+    <!-- jobfair participate information (company) -->
+	<select id="selectJobFairApplyPatcptnCompny" resultType="ony.cpes.external.jobfair.bean.JobFairPatcptnCompnyBean" parameterType="hashmap">
+		/*jobFairPatcptn.selectJobFairApplyPatcptnCompny*/
+		SELECT FAIR_SEQ
+		     , COMPNY_SEQ
+		     , JC_AGREE_STS_CD
+		     , JC_AGREE_USER_SEQ
+		     , JC_AGREE_DT
+		     , COMPNY_RESP_YN
+		     , REQ_DT
+		     , INVITE_YN
+		     , INVITE_DT
+		     , REG_USER_SEQ
+		     , REG_DT
+		     , DEL_YN
+		     , MOD_DT
+		     , MOD_USER_SEQ
+		  FROM CPES_FAIR_PATCPTN_COMPNY
+		 WHERE FAIR_SEQ = #{fairSeq}
+		   AND COMPNY_SEQ = (
+		        SELECT COMPNY_SEQ
+		          FROM CPES_COMPNY
+		         WHERE USER_SEQ = #{userSeq}
+		       )
+	</select>
+
+    <!-- jobfair participate information (institute) -->
+	<select id="selectJobFairApplyPatcptnInstt" resultType="ony.cpes.external.jobfair.bean.JobFairPatcptnInsttBean" parameterType="hashmap">
+		/*jobFairPatcptn.selectJobFairApplyPatcptnInstt*/
+		SELECT FAIR_SEQ
+		     , INSTT_SEQ
+		     , JC_AGREE_STS_CD
+		     , JC_AGREE_USER_SEQ
+		     , JC_AGREE_DT
+		     , INSTT_RESP_YN
+		     , REQ_DT
+		     , INVITE_YN
+		     , INVITE_DT
+		     , REG_USER_SEQ
+		     , REG_DT
+		     , DEL_YN
+		     , MOD_USER_SEQ
+		     , MOD_DT
+		  FROM CPES_FAIR_PATCPTN_INSTT
+		 WHERE FAIR_SEQ = #{fairSeq}
+		   AND INSTT_SEQ = (
+		        SELECT INSTT_SEQ
+		          FROM CPES_INSTT
+		         WHERE USER_SEQ = #{userSeq}
+		       )
+	</select>
+
+</mapper>

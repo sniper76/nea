@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="insttMem">
+	<!-- 기관 회원정보 조회 -->
+	<select id="selectMember" resultType="ony.cpes.external.mypage.instt.bean.InsttMemBean" parameterType="ony.cpes.external.mypage.instt.bean.CondInsttMemBean">
+		/*insttMem.selectMember*/
+		SELECT
+			  A.USER_SEQ
+			, B.INSTT_SEQ
+			, B.INSTT_NM_KH
+			, B.INSTT_NM_EN
+			, B.INSTT_TYPE_CD
+			, B.INSTT_REG_NUM
+			, B.INSTT_ADDR_CD
+			, B.INSTT_ADDR_DTL
+			, B.INSTT_ADDR_FULL_CD
+			, B.INSTT_ADDR_FULL_NM
+			, B.INSTT_MNGER_NM
+			, B.INSTT_EMAIL
+			, B.INSTT_CELL
+			, B.INSTT_OFFICE_TEL
+			, B.INSTT_WEBSITE
+			, CASE WHEN #{langCd} = 'KH' THEN B.INSTT_NM_KH
+			  	   ELSE B.INSTT_NM_EN
+			  END AS INSTT_NM
+			, B.INSTT_PROFILE
+			, B.INSTT_LOGO_FILE_GRP_SEQ
+			, B.FILE_GRP_SEQ
+			, FN_GET_FILE_PATH(B.INSTT_LOGO_FILE_GRP_SEQ) AS FILE_PATH
+		FROM CPES_USER A
+		INNER JOIN CPES_INSTT B
+		ON A.USER_SEQ = B.USER_SEQ
+        WHERE A.USER_SEQ = #{condUserSeq}
+      	AND A.DEL_YN = 'N'
+        AND A.USE_YN = 'Y'
+        AND B.DEL_YN = 'N'
+	</select>
+
+
+	<!-- 교육훈련 이력 목록 조회 -->
+	<select id="selectEduTrnngHistList" resultType="ony.cpes.external.mypage.instt.bean.EduTrnngHistBean" parameterType="ony.cpes.external.mypage.instt.bean.CondInsttMemBean">
+		/*insttMem.selectEduTrnngHistList*/
+		SELECT
+			  A.EDU_PROGRAM_ID
+			, A.INSTT_SEQ
+			, A.INSTT_TRNNG_HIST_SEQ
+			, FN_GET_BASE_DATE_CHAR(A.TRNNG_DT, #{langCd}) AS TRNNG_DT
+			, A.TRNNG_NM
+		FROM CPES_INSTT_TRNNG_HIST A
+		INNER JOIN CPES_INSTT B
+		ON A.INSTT_SEQ = B.INSTT_SEQ
+		INNER JOIN CPES_USER C
+		ON B.USER_SEQ = C.USER_SEQ
+		WHERE C.USER_SEQ = #{condUserSeq}
+      	AND C.DEL_YN = 'N'
+        AND C.USE_YN = 'Y'
+        AND B.DEL_YN = 'N'
+        ORDER BY A.REG_DT
+
+	</select>
+
+</mapper>

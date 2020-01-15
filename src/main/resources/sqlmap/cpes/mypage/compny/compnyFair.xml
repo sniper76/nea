@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="compnyFair">
+
+	<!-- 초청받은 채용행사 조건 -->
+	<sql id="whereInviteCond">
+		WHERE A.COMPNY_SEQ = (
+			SELECT G.COMPNY_SEQ
+			FROM CPES_COMPNY G
+			WHERE G.USER_SEQ = #{condUserSeq}
+			LIMIT 1
+		)
+		AND A.INVITE_YN = 'Y' /* 초청여부 */
+		<if test="condTypeCd != null and condTypeCd.equals('JOIN')">
+			AND A.COMPNY_RESP_YN = 'Y' /* 기업_응답_여부 */
+			AND A.JC_AGREE_STS_CD = 'JAS0000000001' /* 승인처리 */
+		</if>
+		AND A.DEL_YN = 'N' /* 삭제여부 */
+		AND B.USE_YN = 'Y'  /* 채용행사 사용여부 */
+		AND B.DEL_YN = 'N'  /* 채용행사 삭제여부 */
+	</sql>
+
+	<!-- 채용행사 부스 조건 -->
+	<sql id="whereBoothCond">
+		WHERE C.COMPNY_INSTT_SEQ = (
+			SELECT G.COMPNY_SEQ
+			FROM CPES_COMPNY G
+			WHERE G.USER_SEQ = #{condUserSeq}
+			LIMIT 1
+		)
+		AND C.COMPNY_INSTT_DIV_CD = 'CIDC000000001'
+		AND A.USE_YN = 'Y'
+		AND B.USE_YN = 'Y'  /* 채용행사 사용여부 */
+		AND B.DEL_YN = 'N'  /* 채용행사 삭제여부 */
+
+		<if test="condText != null and !condText.equals('')">
+			AND (
+				B.FAIR_NM_EN LIKE CONCAT('%',#{condText},'%') OR
+				B.FAIR_NM_KH LIKE CONCAT('%',#{condText},'%')
+			)
+		</if>
+	</sql>
+
+
+	<!-- 정렬 조건 -->
+	<sql id="sortCond">
+		ORDER BY
+		<choose>
+			<when test="condSort != null and condSort.equals('LIKE')">
+				B.BKMK_CNT DESC
+			</when>
+			<when test="condSort != null and condSort.equals('VIEW')">
+				B.VIEW_CNT DESC
+			</when>
+			<otherwise>
+	  			A.REG_DT DESC
+			</otherwise>
+		</choose>
+	</sql>
+
+ 	<!-- 초청받은 채용행사 목록 count,invite fair list count -->
+	<select id="selectInviteListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+        <![CDATA[
+        	/*compnyFair.selectInviteListCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+            FROM CPES_FAIR_PATCPTN_COMPNY A
+            INNER JOIN CPES_FAIR_MST B
+			ON A.FAIR_SEQ = B.FAIR_SEQ
+
+       ]]>
+            <include refid="whereInviteCond"/>
+
+    </select>
+
+
+
+  	<!-- 초청받은 채용행사 목록 ,invite fair list -->
+	<select id="selectInviteList" resultType="ony.cpes.external.mypage.privt.bean.FairBean" parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+        <![CDATA[
+        	/*compnyFair.selectInviteList*/
+            SELECT
+            	 A.FAIR_SEQ,
+            	 A.COMPNY_SEQ,
+            	 A.COMPNY_RESP_YN,
+            	 FN_GET_BASE_DATE_CHAR(A.INVITE_DT,#{langCd}) AS INVITE_DT,
+            	 A.INVITE_YN,
+            	 A.JC_AGREE_STS_CD,
+            	 FN_GET_COMMON_NM('JC_AGREE_STS_CD', A.JC_AGREE_STS_CD, #{langCd}) AS JC_AGREE_STS_NM,
+ 				 FN_GET_ADDR_NM(SUBSTR(B.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM,
+				 FN_GET_FAIR_NM(B.FAIR_SEQ, #{langCd}) AS FAIR_NM,
+				 FN_GET_COMMON_NM('FAIR_DIV_CD', B.FAIR_DIV_CD, #{langCd}) AS FAIR_DIV_NM,
+				 CONCAT(FN_GET_BASE_DATE_CHAR(B.FAIR_BGN_DT, #{langCd}), ' ', B.FAIR_BGN_HOUR, ':', B.FAIR_BGN_MINUTE, ' ', B.FAIR_BGN_AMPM) AS FAIR_BGN_DT,
+				 CONCAT(FN_GET_BASE_DATE_CHAR(B.FAIR_END_DT, #{langCd}), ' ', B.FAIR_END_HOUR, ':', B.FAIR_END_MINUTE, ' ', B.FAIR_END_AMPM) AS FAIR_END_DT,
+				 B.TEL1,
+				 B.TEL2,
+				 B.EMAIL,
+				 FN_GET_FILE_PATH(B.THUMB_FILE_GRP_SEQ) AS IMAGE_PATH,
+				 B.FAIR_STS_CD,
+				 FN_GET_COMMON_NM('FAIR_STS_CD', B.FAIR_STS_CD, #{langCd}) AS FAIR_STS_NM,
+				 FN_GET_NEW_YN(B.REG_DT) AS NEW_YN
+            FROM CPES_FAIR_PATCPTN_COMPNY A
+            INNER JOIN CPES_FAIR_MST B
+			ON A.FAIR_SEQ = B.FAIR_SEQ
+       ]]>
+            <include refid="whereInviteCond"/>
+            <include refid="sortCond"/>
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+
+  	<!-- 채용행사 상세 -->
+	<select id="selectFair" resultType="ony.cpes.external.mypage.privt.bean.FairBean" parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+        <![CDATA[
+        	/*compnyFair.selectFair*/
+            SELECT
+            	 A.FAIR_SEQ,
+ 				 A.ADDR_DTL,
+				 FN_GET_FAIR_NM(A.FAIR_SEQ, #{langCd}) AS FAIR_NM,
+				 A.FAIR_DIV_CD,
+				 FN_GET_COMMON_NM('FAIR_DIV_CD', A.FAIR_DIV_CD, #{langCd}) AS FAIR_DIV_NM,
+				 CONCAT(FN_GET_BASE_DATE_CHAR(A.FAIR_BGN_DT, #{langCd}), ' ', A.FAIR_BGN_HOUR, ':', A.FAIR_BGN_MINUTE, ' ', A.FAIR_BGN_AMPM) AS FAIR_BGN_DT,
+				 CONCAT(FN_GET_BASE_DATE_CHAR(A.FAIR_END_DT, #{langCd}), ' ', A.FAIR_END_HOUR, ':', A.FAIR_END_MINUTE, ' ', A.FAIR_END_AMPM) AS FAIR_END_DT,
+				 A.TEL1,
+				 A.TEL2,
+				 A.EMAIL,
+				 FN_GET_FILE_PATH(A.THUMB_FILE_GRP_SEQ) AS IMAGE_PATH,
+				 A.FAIR_STS_CD,
+				 FN_GET_COMMON_NM('FAIR_STS_CD', A.FAIR_STS_CD, #{langCd}) AS FAIR_STS_NM
+            FROM CPES_FAIR_MST A
+            WHERE A.FAIR_SEQ = #{condSeq}
+			AND A.USE_YN = 'Y'  /* 채용행사 사용여부 */
+			AND A.DEL_YN = 'N'  /* 채용행사 삭제여부 */
+       ]]>
+
+    </select>
+
+	<!-- 채용공고 목록,vacancy list -->
+	<select id="selectVacancyList" resultType="ony.cpes.external.mypage.compny.bean.VacancyBean" parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+        <![CDATA[
+        	/*compnyFair.selectVacancyList*/
+            SELECT
+            	  B.FAIR_SEQ,
+                  B.VACANCY_SEQ,
+                  B.COMPNY_SEQ,
+                  C.VACANCY_TITLE,
+                  C.VACANCY_STS_CD,
+                  FN_GET_COMMON_NM('VACANCY_STS_CD', C.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM,
+				  FN_GET_REMAIN_CNT(C.END_DT) REMAIN_DT,
+                  FN_GET_REMAIN_DIV(C.END_DT) REMAIN_DIV,
+				  C.MIN_SALARY_AMT,
+				  C.MAX_SALARY_AMT,
+				  C.EMPLOY_FORM_CD,
+				  FN_GET_COMMON_NM('EMPLOY_FORM_CD', C.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_NM,
+				  C.RECRUMT_MEMB,
+				  (
+				 	SELECT FN_GET_ADDR_NM(SUBSTR(F.ADDR_FULL_CD,1,3), '2', #{langCd})
+				 	FROM CPES_VACANCY_LOC F
+				 	WHERE F.VACANCY_SEQ = C.VACANCY_SEQ
+				 	LIMIT 1
+				  ) AS ADDR_NM,
+				  FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+            FROM CPES_FAIR_MST A
+            INNER JOIN CPES_FAIR_PATCPTN_COMPNY_VACANCY B
+            ON A.FAIR_SEQ = B.FAIR_SEQ
+            INNER JOIN CPES_VACANCY C
+            ON B.VACANCY_SEQ = C.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY D
+            ON C.COMPNY_SEQ = B.COMPNY_SEQ
+            WHERE D.USER_SEQ = #{condUserSeq}
+            AND A.FAIR_SEQ = #{condSeq}
+			AND A.USE_YN = 'Y'  /* 채용행사 사용여부 */
+			AND A.DEL_YN = 'N'  /* 채용행사 삭제여부 */
+			AND C.USE_YN = 'Y'	/* 구인 사용여부 */
+			AND C.DEL_YN = 'N'  /* 구인 삭제여부 */
+			AND D.USE_YN = 'Y'	/* 기업 사용여부 */
+			AND D.DEL_YN = 'N'  /* 기업 삭제여부 */
+            ORDER BY B.REG_DT DESC
+
+       ]]>
+
+    </select>
+
+
+  	<!--채용행사 부스 목록 count,fair booth list count -->
+	<select id="selectBoothListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+        <![CDATA[
+        	/*compnyFair.selectBoothListCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+            FROM CPES_FAIR_BOOTH A
+            INNER JOIN CPES_FAIR_MST B
+			ON A.FAIR_SEQ = B.FAIR_SEQ
+			INNER JOIN CPES_FAIR_BOOTH_HIST C
+			ON A.BOOTH_SEQ = C.BOOTH_SEQ
+
+
+
+       ]]>
+            <include refid="whereBoothCond"/>
+
+    </select>
+
+  	<!--채용행사 부스 목록,fair booth list -->
+	<select id="selectBoothList" resultType="ony.cpes.external.mypage.privt.bean.FairBean" parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+        <![CDATA[
+        	/*compnyFair.selectBoothList*/
+            SELECT
+            	 A.FAIR_SEQ,
+            	 A.BOOTH_FEE,
+            	 A.BOOTH_NM,
+            	 A.BOOTH_SEQ,
+				 CASE WHEN DATEDIFF(B.FAIR_BGN_DT,NOW()) >= 10 THEN 'Y'	/* 행사 10전까지 취소 가능 */
+				 	ELSE 'N'
+				 END AS CANCEL_YN,
+				 A.BOOTH_STS_CD,
+ 				 FN_GET_ADDR_NM(SUBSTR(B.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM,
+				 FN_GET_FAIR_NM(B.FAIR_SEQ, #{langCd}) AS FAIR_NM,
+				 B.FAIR_DIV_CD,
+				 FN_GET_COMMON_NM('FAIR_DIV_CD', B.FAIR_DIV_CD, #{langCd}) AS FAIR_DIV_NM,
+				 CONCAT(FN_GET_BASE_DATE_CHAR(B.FAIR_BGN_DT, #{langCd}), ' ', B.FAIR_BGN_HOUR, ':', B.FAIR_BGN_MINUTE, ' ', B.FAIR_BGN_AMPM) AS FAIR_BGN_DT,
+				 CONCAT(FN_GET_BASE_DATE_CHAR(B.FAIR_END_DT, #{langCd}), ' ', B.FAIR_END_HOUR, ':', B.FAIR_END_MINUTE, ' ', B.FAIR_END_AMPM) AS FAIR_END_DT,
+				 B.TEL1,
+				 B.TEL2,
+				 B.EMAIL,
+				 C.COMPNY_INSTT_SEQ AS COMPNY_SEQ,
+				 C.BOOTH_RESV_HIST_SEQ,
+				 C.RESV_STS_CD,
+				 FN_GET_COMMON_NM('RESV_STS_CD', C.RESV_STS_CD, #{langCd}) AS RESV_STS_NM,
+				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+            FROM CPES_FAIR_BOOTH A
+            INNER JOIN CPES_FAIR_MST B
+			ON A.FAIR_SEQ = B.FAIR_SEQ
+			INNER JOIN CPES_FAIR_BOOTH_HIST C
+			ON A.BOOTH_SEQ = C.BOOTH_SEQ
+       ]]>
+            <include refid="whereBoothCond"/>
+            <include refid="sortCond"/>
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+</mapper>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setPrivtFair">
+
+	<!-- 채용행사 신청 취소-->
+	<update id="updateCancelFair"  parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+		/*setPrivtFair.updateCancelFair*/
+		UPDATE CPES_FAIR_ONLINE_PATCPTN SET
+			CANCEL_YN = 'Y',
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE FAIR_SEQ = #{condSeq}
+		AND USER_SEQ = #{condUserSeq}
+	</update>
+
+	<!-- 채용행사 신청 삭제-->
+	<update id="deleteFair"  parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+		/*setPrivtFair.deleteFair*/
+		UPDATE CPES_FAIR_ONLINE_PATCPTN SET
+			CANCEL_YN = 'Y',
+			DEL_YN = 'Y',
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE FAIR_SEQ = #{condSeq}
+		AND USER_SEQ = #{condUserSeq}
+	</update>
+</mapper>

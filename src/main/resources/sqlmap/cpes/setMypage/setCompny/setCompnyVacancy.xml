@@ -1,0 +1,799 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setCompnyVacancy">
+
+	<!-- 채용공고  등록-->
+	<insert id="insertVacancy"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyBean">
+        <![CDATA[
+        	/*setCompnyVacancy.insertVacancy*/
+			INSERT INTO CPES_VACANCY (
+				VACANCY_SEQ,
+				VACANCY_ID,
+				JC_CD,
+				JC_USER_SEQ,
+				COMPNY_ID,
+				VACANCY_TITLE,
+				ISCO_CD,
+				END_DT,
+				WORK_BGN_DT,
+				RECRUMT_DIFFCLT_YN,
+				DIFFCLT_REASON,
+				EMPLOY_FORM_CD,
+				EMPLOY_CTRCT_CD,
+				EMPLOY_CTRCT_DURA,
+				EMPLOY_CTRCT_TYPE_CD,
+				WORK_HOUR_CD,
+				WORK_MORN_BGN_TIME,
+				WORK_MORN_END_TIME,
+				WORK_AFTERNN_BGN_TIME,
+				WORK_AFTERNN_END_TIME,
+				WORK_NIGHT_BGN_TIME,
+				WORK_NIGHT_END_TIME,
+				DAY_WORK_TIME,
+				WEEK_WORK_DAY,
+				NIGHT_WORK_YN,
+				NIGHT_WORK_SPEC,
+				HLDAY_WORK_YN,
+				OVER_WORK_YN,
+				FLEX_WORK_YN,
+				PROBT_YN,
+				PROBT_DURA,
+				TRNNG_YN,
+				TRNNG_DURA,
+				MIN_SALARY_AMT,
+				MAX_SALARY_AMT,
+				SALARY_UNIT_CD,
+				NSSF_YN,
+				ETC_INSU_YN,
+				ETC_INSU_SPEC,
+				MIN_EDU_DEGREE_CD,
+				ISCED_CD,
+				PRO_LICNS_YN,
+				PRO_LICNS_NM,
+				MIN_WORK_EXP,
+				ISIC_CD,
+				ETC_WORK_EXP,
+				ETC_SKILL_REQ,
+				ETC_PREF,
+				JOB_DESC,
+				RECPT_METHOD,
+				EMPLOYER_SIGN,
+				VACANCY_STS_CD,
+				JC_MOD_USER_SEQ,
+				JC_MOD_DT,
+				REG_USER_SEQ,
+				REG_DT,
+				MOD_USER_SEQ,
+				MOD_DT,
+				COMPNY_SEQ,
+				LANG_CD,
+				VIDEO_INTVW_YN,
+				VACANCY_CERT_NO,
+				INTERN_YN,
+				BKMK_CNT,
+				JC_AGREE_YN,
+				BGN_DT,
+				RECRUMT_MEMB,
+				SPOT,
+				VACANCY_CLOSE_DT,
+				VIEW_CNT,
+				WORK_EXPLN,
+				RSPNSB,
+				DUTY,
+				USE_YN,
+				VACANCY_KEYWORD,
+				VACANCY_TYPE_CD,
+				PREFER_EMPLOYMT_TYPE_CD,
+				EXPCT_SALARY_CD,
+				NSSF_SPEC,
+				RECRUMT_JOB_REF_KNOW,
+				RECRUMT_JOB_REF_BASIC_SKILL,
+				RECRUMT_JOB_REF_WORK_NEED_ITEM,
+				ETC,
+				MNGER_NM,
+				MNGER_EMAIL,
+				MNGER_CELL,
+				IMG_FILE_GRP_SEQ,
+				RESUME_FILE_GRP_SEQ,
+				JC_AGREE_STS_CD,
+				JC_AGREE_DT,
+				MIN_EDU_DEGREE_YN,
+				MIN_WORK_EXP_YN,
+				DEL_YN
+			) VALUES (
+				#{vacancySeq},
+				#{vacancyId},
+				(SELECT JC_CD FROM CPES_COMPNY WHERE USER_SEQ = #{regUserSeq}),
+				#{jcUserSeq},
+				#{compnyId},
+				#{vacancyTitle},
+				#{iscoCd},
+				STR_TO_DATE(#{endDt},'%d/%m/%Y'),
+				STR_TO_DATE(#{workBgnDt},'%d/%m/%Y'),
+				#{recrumtDiffcltYn},
+				#{diffcltReason},
+				#{employFormCd},
+				#{employCtrctCd},
+				CASE WHEN #{employCtrctDura} = '' OR #{employCtrctDura} = NULL THEN null ELSE #{employCtrctDura} END,
+				#{employCtrctTypeCd},
+				#{workHourCd},
+				CASE WHEN #{workMornBgnTime} = '' OR #{workMornBgnTime} = NULL THEN null ELSE #{workMornBgnTime} END,
+				CASE WHEN #{workMornEndTime} = '' OR #{workMornEndTime} = NULL THEN null ELSE #{workMornEndTime} END,
+				CASE WHEN #{workAfternnBgnTime} = '' OR #{workAfternnBgnTime} = NULL THEN null ELSE #{workAfternnBgnTime} END,
+				CASE WHEN #{workAfternnEndTime} = '' OR #{workAfternnEndTime} = NULL THEN null ELSE #{workAfternnEndTime} END,
+				CASE WHEN #{workNightBgnTime} = '' OR #{workNightBgnTime} = NULL THEN null ELSE #{workNightBgnTime} END,
+				CASE WHEN #{workNightEndTime} = '' OR #{workNightEndTime} = NULL THEN null ELSE #{workNightEndTime} END,
+				#{dayWorkTime},
+				#{weekWorkDay},
+				#{nightWorkYn},
+				#{nightWorkSpec},
+				#{hldayWorkYn},
+				#{overWorkYn},
+				#{flexWorkYn},
+				#{probtYn},
+				CASE WHEN #{probtDura} = '' OR #{probtDura} = NULL THEN null ELSE #{probtDura} END,
+				#{trnngYn},
+				CASE WHEN #{probtDura} = '' OR #{trnngDura} = NULL THEN null ELSE #{trnngDura} END,
+				#{minSalaryAmt},
+				#{maxSalaryAmt},
+				#{salaryUnitCd},
+				#{nssfYn},
+				#{etcInsuYn},
+				#{etcInsuSpec},
+				#{minEduDegreeCd},
+				#{iscedCd},
+				#{proLicnsYn},
+				#{proLicnsNm},
+				#{minWorkExp},
+				#{isicCd},
+				#{etcWorkExp},
+				#{etcSkillReq},
+				#{etcPref},
+				#{jobDesc},
+				#{recptMethod},
+				#{employerSign},
+				#{vacancyStsCd},
+				#{jcModUserSeq},
+				#{jcModDt},
+				#{regUserSeq},
+				now(),
+				#{modUserSeq},
+				now(),
+				(SELECT COMPNY_SEQ FROM CPES_COMPNY WHERE USER_SEQ = #{regUserSeq}),
+				null,
+				#{videoIntvwYn},
+				#{vacancyCertNo},
+				'N',
+				0,
+				'N',
+				#{bgnDt},
+				#{recrumtMemb},
+				#{spot},
+				#{vacancyCloseDt},
+				0,
+				#{workExpln},
+				#{rspnsb},
+				#{duty},
+				'Y',
+				#{vacancyKeyword},
+				#{vacancyTypeCd},
+				#{preferEmploymtTypeCd},
+				#{expctSalaryCd},
+				#{nssfSpec},
+				#{recrumtJobRefKnow},
+				#{recrumtJobRefBasicSkill},
+				#{recrumtJobRefWorkNeedItem},
+				#{etc},
+				#{mngerNm},
+				#{mngerEmail},
+				#{mngerCell},
+				#{imgFileGrpSeq},
+				#{resumeFileGrpSeq},
+				'JAS0000000002',
+				#{jcAgreeDt},
+				#{minEduDegreeYn},
+				#{minWorkExpYn},
+				'N'
+
+			)
+        ]]>
+    </insert>
+
+	<!-- 채용공고  외국어 등록-->
+	<insert id="insertVacancyLang"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyLangBean">
+		/*setCompnyVacancy.insertVacancyLang*/
+		<selectKey resultType="string" keyProperty="vacancyLangSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_VACANCY_LANG (
+			VACANCY_LANG_SEQ,
+			LANG_CD,
+			LANG_LVL_CD,
+			REG_USER_SEQ,
+			REG_DT,
+			MOD_USER_SEQ,
+			MOD_DT,
+			VACANCY_SEQ
+		) VALUES (
+			#{vacancyLangSeq},
+			#{langCd},
+			#{langLvlCd},
+			#{regUserSeq},
+			now(),
+			#{modUserSeq},
+			now(),
+			#{vacancySeq}
+		)
+    </insert>
+
+	<!-- 채용공고 우대 등록-->
+	<insert id="insertVacancyPrefernt"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyPreferntBean">
+		/*setCompnyVacancy.insertVacancyPrefernt*/
+		<selectKey resultType="string" keyProperty="vacancyPreferntCondSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_VACANCY_PREFERNT_COND (
+			VACANCY_PREFERNT_COND_SEQ,
+			PREFERNT_COND_CD,
+			REG_USER_SEQ,
+			REG_DT,
+			MOD_USER_SEQ,
+			MOD_DT,
+			VACANCY_SEQ
+		) VALUES (
+			#{vacancyPreferntCondSeq},
+			#{preferntCondCd},
+			#{regUserSeq},
+			now(),
+			#{modUserSeq},
+			now(),
+			#{vacancySeq}
+		)
+    </insert>
+
+
+	<!-- 채용공고  등록-->
+	<insert id="insertVacancyTemp"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyBean">
+        <![CDATA[
+        	/*setCompnyVacancy.insertVacancyTemp*/
+			INSERT INTO CPES_VACANCY_TEMP (
+				VACANCY_SEQ,
+				VACANCY_ID,
+				JC_CD,
+				JC_USER_SEQ,
+				COMPNY_ID,
+				VACANCY_TITLE,
+				ISCO_CD,
+				END_DT,
+				WORK_BGN_DT,
+				RECRUMT_DIFFCLT_YN,
+				DIFFCLT_REASON,
+				EMPLOY_FORM_CD,
+				EMPLOY_CTRCT_CD,
+				EMPLOY_CTRCT_DURA,
+				EMPLOY_CTRCT_TYPE_CD,
+				WORK_HOUR_CD,
+				WORK_MORN_BGN_TIME,
+				WORK_MORN_END_TIME,
+				WORK_AFTERNN_BGN_TIME,
+				WORK_AFTERNN_END_TIME,
+				WORK_NIGHT_BGN_TIME,
+				WORK_NIGHT_END_TIME,
+				DAY_WORK_TIME,
+				WEEK_WORK_DAY,
+				NIGHT_WORK_YN,
+				NIGHT_WORK_SPEC,
+				HLDAY_WORK_YN,
+				OVER_WORK_YN,
+				FLEX_WORK_YN,
+				PROBT_YN,
+				PROBT_DURA,
+				TRNNG_YN,
+				TRNNG_DURA,
+				MIN_SALARY_AMT,
+				MAX_SALARY_AMT,
+				SALARY_UNIT_CD,
+				NSSF_YN,
+				ETC_INSU_YN,
+				ETC_INSU_SPEC,
+				MIN_EDU_DEGREE_CD,
+				ISCED_CD,
+				PRO_LICNS_YN,
+				PRO_LICNS_NM,
+				MIN_WORK_EXP,
+				ISIC_CD,
+				ETC_WORK_EXP,
+				ETC_SKILL_REQ,
+				ETC_PREF,
+				JOB_DESC,
+				RECPT_METHOD,
+				EMPLOYER_SIGN,
+				VACANCY_STS_CD,
+				JC_MOD_USER_SEQ,
+				JC_MOD_DT,
+				REG_USER_SEQ,
+				REG_DT,
+				MOD_USER_SEQ,
+				MOD_DT,
+				COMPNY_SEQ,
+				LANG_CD,
+				VIDEO_INTVW_YN,
+				VACANCY_CERT_NO,
+				INTERN_YN,
+				BKMK_CNT,
+				JC_AGREE_YN,
+				BGN_DT,
+				RECRUMT_MEMB,
+				SPOT,
+				VACANCY_CLOSE_DT,
+				VIEW_CNT,
+				WORK_EXPLN,
+				RSPNSB,
+				DUTY,
+				USE_YN,
+				VACANCY_KEYWORD,
+				VACANCY_TYPE_CD,
+				PREFER_EMPLOYMT_TYPE_CD,
+				EXPCT_SALARY_CD,
+				NSSF_SPEC,
+				RECRUMT_JOB_REF_KNOW,
+				RECRUMT_JOB_REF_BASIC_SKILL,
+				RECRUMT_JOB_REF_WORK_NEED_ITEM,
+				ETC,
+				MNGER_NM,
+				MNGER_EMAIL,
+				MNGER_CELL,
+				IMG_FILE_GRP_SEQ,
+				RESUME_FILE_GRP_SEQ,
+				JC_AGREE_STS_CD,
+				JC_AGREE_DT,
+				MIN_EDU_DEGREE_YN,
+				MIN_WORK_EXP_YN
+			) VALUES (
+				#{vacancySeq},
+				#{vacancyId},
+				(SELECT JC_CD FROM CPES_COMPNY WHERE USER_SEQ = #{regUserSeq}),
+				#{jcUserSeq},
+				#{compnyId},
+				#{vacancyTitle},
+				#{iscoCd},
+				STR_TO_DATE(#{endDt},'%d/%m/%Y'),
+				STR_TO_DATE(#{workBgnDt},'%d/%m/%Y'),
+				#{recrumtDiffcltYn},
+				#{diffcltReason},
+				#{employFormCd},
+				#{employCtrctCd},
+				CASE WHEN #{employCtrctDura} = '' OR #{employCtrctDura} = NULL THEN null ELSE #{employCtrctDura} END,
+				#{employCtrctTypeCd},
+				#{workHourCd},
+				CASE WHEN #{workMornBgnTime} = '' OR #{workMornBgnTime} = NULL THEN null ELSE #{workMornBgnTime} END,
+				CASE WHEN #{workMornEndTime} = '' OR #{workMornEndTime} = NULL THEN null ELSE #{workMornEndTime} END,
+				CASE WHEN #{workAfternnBgnTime} = '' OR #{workAfternnBgnTime} = NULL THEN null ELSE #{workAfternnBgnTime} END,
+				CASE WHEN #{workAfternnEndTime} = '' OR #{workAfternnEndTime} = NULL THEN null ELSE #{workAfternnEndTime} END,
+				CASE WHEN #{workNightBgnTime} = '' OR #{workNightBgnTime} = NULL THEN null ELSE #{workNightBgnTime} END,
+				CASE WHEN #{workNightEndTime} = '' OR #{workNightEndTime} = NULL THEN null ELSE #{workNightEndTime} END,
+				IF(length(#{dayWorkTime}) = 0,null,#{dayWorkTime}),
+				IF(length(#{weekWorkDay}) = 0,null,#{weekWorkDay}),
+				#{nightWorkYn},
+				#{nightWorkSpec},
+				#{hldayWorkYn},
+				#{overWorkYn},
+				#{flexWorkYn},
+				#{probtYn},
+				CASE WHEN #{probtDura} = '' OR #{probtDura} = NULL THEN null ELSE #{probtDura} END,
+				#{trnngYn},
+				CASE WHEN #{probtDura} = '' OR #{trnngDura} = NULL THEN null ELSE #{trnngDura} END,
+				IF(length(#{minSalaryAmt}) = 0,null,#{minSalaryAmt}),
+				IF(length(#{maxSalaryAmt}) = 0,null,#{maxSalaryAmt}),
+				#{salaryUnitCd},
+				#{nssfYn},
+				#{etcInsuYn},
+				#{etcInsuSpec},
+				#{minEduDegreeCd},
+				#{iscedCd},
+				#{proLicnsYn},
+				#{proLicnsNm},
+				#{minWorkExp},
+				#{isicCd},
+				#{etcWorkExp},
+				#{etcSkillReq},
+				#{etcPref},
+				#{jobDesc},
+				#{recptMethod},
+				#{employerSign},
+				#{vacancyStsCd},
+				#{jcModUserSeq},
+				#{jcModDt},
+				#{regUserSeq},
+				now(),
+				#{modUserSeq},
+				now(),
+				(SELECT COMPNY_SEQ FROM CPES_COMPNY WHERE USER_SEQ = #{regUserSeq}),
+				null,
+				#{videoIntvwYn},
+				#{vacancyCertNo},
+				'N',
+				0,
+				'N',
+				#{bgnDt},
+				IF(length(#{recrumtMemb}) = 0,null,#{recrumtMemb}),
+				#{spot},
+				#{vacancyCloseDt},
+				0,
+				#{workExpln},
+				#{rspnsb},
+				#{duty},
+				'Y',
+				#{vacancyKeyword},
+				#{vacancyTypeCd},
+				#{preferEmploymtTypeCd},
+				#{expctSalaryCd},
+				#{nssfSpec},
+				#{recrumtJobRefKnow},
+				#{recrumtJobRefBasicSkill},
+				#{recrumtJobRefWorkNeedItem},
+				#{etc},
+				#{mngerNm},
+				#{mngerEmail},
+				#{mngerCell},
+				#{imgFileGrpSeq},
+				#{resumeFileGrpSeq},
+				'JAS0000000002',
+				#{jcAgreeDt},
+				#{minEduDegreeYn},
+				#{minWorkExpYn}
+
+			)
+        ]]>
+    </insert>
+
+	<!-- 채용공고  외국어 등록-->
+	<insert id="insertVacancyLangTemp"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyLangBean">
+		/*setCompnyVacancy.insertVacancyLangTemp*/
+		<selectKey resultType="string" keyProperty="vacancyLangSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_VACANCY_LANG_TEMP (
+			VACANCY_LANG_SEQ,
+			LANG_CD,
+			LANG_LVL_CD,
+			REG_USER_SEQ,
+			REG_DT,
+			MOD_USER_SEQ,
+			MOD_DT,
+			VACANCY_SEQ
+		) VALUES (
+			#{vacancyLangSeq},
+			#{langCd},
+			#{langLvlCd},
+			#{regUserSeq},
+			now(),
+			#{modUserSeq},
+			now(),
+			#{vacancySeq}
+		)
+    </insert>
+
+	<!-- 채용공고 우대 등록-->
+	<insert id="insertVacancyPreferntTemp"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyPreferntBean">
+		/*setCompnyVacancy.insertVacancyPreferntTemp*/
+		<selectKey resultType="string" keyProperty="vacancyPreferntCondSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_VACANCY_PREFERNT_COND_TEMP (
+			VACANCY_PREFERNT_COND_SEQ,
+			PREFERNT_COND_CD,
+			REG_USER_SEQ,
+			REG_DT,
+			MOD_USER_SEQ,
+			MOD_DT,
+			VACANCY_SEQ
+		) VALUES (
+			#{vacancyPreferntCondSeq},
+			#{preferntCondCd},
+			#{regUserSeq},
+			now(),
+			#{modUserSeq},
+			now(),
+			#{vacancySeq}
+		)
+    </insert>
+
+
+	<!-- 채용공고  외국어 삭제-->
+	<delete id="deleteVacancyLangTemp"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyBean">
+		/*setCompnyVacancy.deleteVacancyLangTemp*/
+		DELETE FROM  CPES_VACANCY_LANG_TEMP
+		WHERE VACANCY_SEQ = #{tempSeq}
+		AND REG_USER_SEQ = #{regUserSeq}
+    </delete>
+
+	<!-- 채용공고  우대조건 삭제-->
+	<delete id="deleteVacancyPreferntTemp"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyBean">
+		/*setCompnyVacancy.deleteVacancyPreferntTemp*/
+		DELETE FROM  CPES_VACANCY_PREFERNT_COND_TEMP
+		WHERE VACANCY_SEQ = #{tempSeq}
+		AND REG_USER_SEQ = #{regUserSeq}
+    </delete>
+
+
+	<!-- 채용공고  우대조건 삭제-->
+	<delete id="deleteVacancyLocTemp"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyBean">
+		/*setCompnyVacancy.deleteVacancyLocTemp*/
+		DELETE FROM  CPES_VACANCY_LOC_TEMP
+		WHERE VACANCY_SEQ = #{tempSeq}
+		AND REG_USER_SEQ = #{regUserSeq}
+    </delete>
+
+
+ 	<!-- 채용공고  삭제-->
+	<delete id="deleteVacancyTemp"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyBean">
+		/*setCompnyVacancy.deleteVacancyTemp*/
+		DELETE FROM  CPES_VACANCY_TEMP
+		WHERE VACANCY_SEQ = #{tempSeq}
+		AND REG_USER_SEQ = #{regUserSeq}
+    </delete>
+
+
+	<!-- 채용공고 수정-->
+	<update id="updateVacancy"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyBean">
+        <![CDATA[
+        	/*setCompnyVacancy.updateVacancy*/
+			UPDATE CPES_VACANCY SET
+				VACANCY_TITLE = #{vacancyTitle},
+				ISCO_CD = #{iscoCd},
+				END_DT = STR_TO_DATE(#{endDt},'%d/%m/%Y'),
+				WORK_BGN_DT = STR_TO_DATE(#{workBgnDt},'%d/%m/%Y'),
+				RECRUMT_DIFFCLT_YN = #{recrumtDiffcltYn},
+				DIFFCLT_REASON = #{diffcltReason},
+				EMPLOY_FORM_CD = #{employFormCd},
+				EMPLOY_CTRCT_CD = #{employCtrctCd},
+				EMPLOY_CTRCT_DURA = CASE WHEN #{employCtrctDura} = '' OR #{employCtrctDura} = NULL THEN null ELSE #{employCtrctDura} END,
+				EMPLOY_CTRCT_TYPE_CD = #{employCtrctTypeCd},
+				WORK_HOUR_CD = #{workHourCd},
+				WORK_MORN_BGN_TIME = CASE WHEN #{workMornBgnTime} = '' OR #{workMornBgnTime} = NULL THEN null ELSE #{workMornBgnTime} END,
+				WORK_MORN_END_TIME = CASE WHEN #{workMornEndTime} = '' OR #{workMornEndTime} = NULL THEN null ELSE #{workMornEndTime} END,
+				WORK_AFTERNN_BGN_TIME = CASE WHEN #{workAfternnBgnTime} = '' OR #{workAfternnBgnTime} = NULL THEN null ELSE #{workAfternnBgnTime} END,
+				WORK_AFTERNN_END_TIME = CASE WHEN #{workAfternnEndTime} = '' OR #{workAfternnEndTime} = NULL THEN null ELSE #{workAfternnEndTime} END,
+				WORK_NIGHT_BGN_TIME = CASE WHEN #{workNightBgnTime} = '' OR #{workNightBgnTime} = NULL THEN null ELSE #{workNightBgnTime} END,
+				WORK_NIGHT_END_TIME = CASE WHEN #{workNightEndTime} = '' OR #{workNightEndTime} = NULL THEN null ELSE #{workNightEndTime} END,
+				DAY_WORK_TIME = #{dayWorkTime},
+				WEEK_WORK_DAY = #{weekWorkDay},
+				NIGHT_WORK_YN = #{nightWorkYn},
+				NIGHT_WORK_SPEC = #{nightWorkSpec},
+				HLDAY_WORK_YN = #{hldayWorkYn},
+				OVER_WORK_YN = #{overWorkYn},
+				FLEX_WORK_YN = #{flexWorkYn},
+				PROBT_YN = #{probtYn},
+				PROBT_DURA = CASE WHEN #{probtDura} = '' OR #{probtDura} = NULL THEN null ELSE #{probtDura} END,
+				TRNNG_YN = #{trnngYn},
+				TRNNG_DURA = CASE WHEN #{trnngDura} = '' OR #{trnngDura} = NULL THEN null ELSE #{trnngDura} END,
+				MIN_SALARY_AMT = #{minSalaryAmt},
+				MAX_SALARY_AMT = #{maxSalaryAmt},
+				SALARY_UNIT_CD = #{salaryUnitCd},
+				NSSF_YN = #{nssfYn},
+				ETC_INSU_YN = #{etcInsuYn},
+				ETC_INSU_SPEC = #{etcInsuSpec},
+				MIN_EDU_DEGREE_CD = #{minEduDegreeCd},
+				ISCED_CD = #{iscedCd},
+				PRO_LICNS_YN = #{proLicnsYn},
+				PRO_LICNS_NM = #{proLicnsNm},
+				MIN_WORK_EXP = #{minWorkExp},
+				ISIC_CD = #{isicCd},
+				ETC_WORK_EXP = #{etcWorkExp},
+				ETC_SKILL_REQ = #{etcSkillReq},
+				JOB_DESC = #{jobDesc},
+				RECPT_METHOD = #{recptMethod},
+				EMPLOYER_SIGN = #{employerSign},
+				MOD_USER_SEQ = #{modUserSeq},
+				MOD_DT = now(),
+				RECRUMT_MEMB = #{recrumtMemb},
+				SPOT = #{spot},
+				WORK_EXPLN = #{workExpln},
+				RSPNSB = #{rspnsb},
+				VACANCY_KEYWORD = #{vacancyKeyword},
+				VACANCY_TYPE_CD = #{vacancyTypeCd},
+				PREFER_EMPLOYMT_TYPE_CD = #{preferEmploymtTypeCd},
+				NSSF_SPEC = #{nssfSpec},
+				RECRUMT_JOB_REF_KNOW = #{recrumtJobRefKnow},
+				RECRUMT_JOB_REF_BASIC_SKILL = #{recrumtJobRefBasicSkill},
+				RECRUMT_JOB_REF_WORK_NEED_ITEM = #{recrumtJobRefWorkNeedItem},
+				ETC = #{etc},
+				MNGER_NM = #{mngerNm},
+				MNGER_EMAIL = #{mngerEmail},
+				MNGER_CELL = #{mngerCell},
+				IMG_FILE_GRP_SEQ = #{imgFileGrpSeq},
+				RESUME_FILE_GRP_SEQ = #{resumeFileGrpSeq},
+				MIN_EDU_DEGREE_YN = #{minEduDegreeYn},
+				MIN_WORK_EXP_YN = #{minWorkExpYn}
+			WHERE VACANCY_SEQ = #{vacancySeq}
+			AND COMPNY_SEQ = (SELECT A.COMPNY_SEQ FROM CPES_COMPNY A WHERE A.USER_SEQ = #{regUserSeq})
+        ]]>
+    </update>
+
+
+	<!-- 채용공고 수정-->
+	<update id="updateVacancyTemp"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyBean">
+        <![CDATA[
+        	/*setCompnyVacancy.updateVacancyTemp*/
+			UPDATE CPES_VACANCY_TEMP SET
+				VACANCY_TITLE = #{vacancyTitle},
+				ISCO_CD = #{iscoCd},
+				END_DT = STR_TO_DATE(#{endDt},'%d/%m/%Y'),
+				WORK_BGN_DT = STR_TO_DATE(#{workBgnDt},'%d/%m/%Y'),
+				RECRUMT_DIFFCLT_YN = #{recrumtDiffcltYn},
+				DIFFCLT_REASON = #{diffcltReason},
+				EMPLOY_FORM_CD = #{employFormCd},
+				EMPLOY_CTRCT_CD = #{employCtrctCd},
+				EMPLOY_CTRCT_DURA = CASE WHEN #{employCtrctDura} = '' OR #{employCtrctDura} = NULL THEN null ELSE #{employCtrctDura} END,
+				EMPLOY_CTRCT_TYPE_CD = #{employCtrctTypeCd},
+				WORK_HOUR_CD = #{workHourCd},
+				WORK_MORN_BGN_TIME = CASE WHEN #{workMornBgnTime} = '' OR #{workMornBgnTime} = NULL THEN null ELSE #{workMornBgnTime} END,
+				WORK_MORN_END_TIME = CASE WHEN #{workMornEndTime} = '' OR #{workMornEndTime} = NULL THEN null ELSE #{workMornEndTime} END,
+				WORK_AFTERNN_BGN_TIME = CASE WHEN #{workAfternnBgnTime} = '' OR #{workAfternnBgnTime} = NULL THEN null ELSE #{workAfternnBgnTime} END,
+				WORK_AFTERNN_END_TIME = CASE WHEN #{workAfternnEndTime} = '' OR #{workAfternnEndTime} = NULL THEN null ELSE #{workAfternnEndTime} END,
+				WORK_NIGHT_BGN_TIME = CASE WHEN #{workNightBgnTime} = '' OR #{workNightBgnTime} = NULL THEN null ELSE #{workNightBgnTime} END,
+				WORK_NIGHT_END_TIME = CASE WHEN #{workNightEndTime} = '' OR #{workNightEndTime} = NULL THEN null ELSE #{workNightEndTime} END,
+				DAY_WORK_TIME = IF(length(#{dayWorkTime}) = 0,null,#{dayWorkTime}),
+				WEEK_WORK_DAY = IF(length(#{weekWorkDay}) = 0,null,#{weekWorkDay}),
+				NIGHT_WORK_YN = #{nightWorkYn},
+				NIGHT_WORK_SPEC = #{nightWorkSpec},
+				HLDAY_WORK_YN = #{hldayWorkYn},
+				OVER_WORK_YN = #{overWorkYn},
+				FLEX_WORK_YN = #{flexWorkYn},
+				PROBT_YN = #{probtYn},
+				PROBT_DURA = CASE WHEN #{probtDura} = '' OR #{probtDura} = NULL THEN null ELSE #{probtDura} END,
+				TRNNG_YN = #{trnngYn},
+				TRNNG_DURA = CASE WHEN #{trnngDura} = '' OR #{trnngDura} = NULL THEN null ELSE #{trnngDura} END,
+				MIN_SALARY_AMT = IF(length(#{minSalaryAmt}) = 0,null,#{minSalaryAmt}),
+				MAX_SALARY_AMT = IF(length(#{maxSalaryAmt}) = 0,null,#{maxSalaryAmt}),
+				SALARY_UNIT_CD = #{salaryUnitCd},
+				NSSF_YN = #{nssfYn},
+				ETC_INSU_YN = #{etcInsuYn},
+				ETC_INSU_SPEC = #{etcInsuSpec},
+				MIN_EDU_DEGREE_CD = #{minEduDegreeCd},
+				ISCED_CD = #{iscedCd},
+				PRO_LICNS_YN = #{proLicnsYn},
+				PRO_LICNS_NM = #{proLicnsNm},
+				MIN_WORK_EXP = #{minWorkExp},
+				ISIC_CD = #{isicCd},
+				ETC_WORK_EXP = #{etcWorkExp},
+				ETC_SKILL_REQ = #{etcSkillReq},
+				JOB_DESC = #{jobDesc},
+				RECPT_METHOD = #{recptMethod},
+				EMPLOYER_SIGN = #{employerSign},
+				MOD_USER_SEQ = #{modUserSeq},
+				MOD_DT = now(),
+				RECRUMT_MEMB = IF(length(#{recrumtMemb}) = 0,null,#{recrumtMemb}),
+				SPOT = #{spot},
+				WORK_EXPLN = #{workExpln},
+				RSPNSB = #{rspnsb},
+				VACANCY_KEYWORD = #{vacancyKeyword},
+				VACANCY_TYPE_CD = #{vacancyTypeCd},
+				PREFER_EMPLOYMT_TYPE_CD = #{preferEmploymtTypeCd},
+				NSSF_SPEC = #{nssfSpec},
+				RECRUMT_JOB_REF_KNOW = #{recrumtJobRefKnow},
+				RECRUMT_JOB_REF_BASIC_SKILL = #{recrumtJobRefBasicSkill},
+				RECRUMT_JOB_REF_WORK_NEED_ITEM = #{recrumtJobRefWorkNeedItem},
+				ETC = #{etc},
+				MNGER_NM = #{mngerNm},
+				MNGER_EMAIL = #{mngerEmail},
+				MNGER_CELL = #{mngerCell},
+				IMG_FILE_GRP_SEQ = #{imgFileGrpSeq},
+				RESUME_FILE_GRP_SEQ = #{resumeFileGrpSeq},
+				MIN_EDU_DEGREE_YN = #{minEduDegreeYn},
+				MIN_WORK_EXP_YN = #{minWorkExpYn}
+			WHERE VACANCY_SEQ = #{vacancySeq}
+			AND REG_USER_SEQ = #{regUserSeq}
+        ]]>
+    </update>
+
+
+ 	<!-- 채용공고  외국어 삭제-->
+	<delete id="deleteVacancyLang"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyBean">
+		/*setCompnyVacancy.deleteVacancyLang*/
+		DELETE FROM  CPES_VACANCY_LANG
+		WHERE VACANCY_SEQ = #{vacancySeq}
+    </delete>
+
+	<!-- 채용공고  우대조건 삭제-->
+	<delete id="deleteVacancyPrefernt"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyBean">
+		/*setCompnyVacancy.deleteVacancyPrefernt*/
+		DELETE FROM  CPES_VACANCY_PREFERNT_COND
+		WHERE VACANCY_SEQ = #{vacancySeq}
+    </delete>
+
+	<!-- 채용공고  우대조건 삭제-->
+	<delete id="deleteVacancyLoc"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyBean">
+		/*setCompnyVacancy.deleteVacancyLoc*/
+		DELETE FROM  CPES_VACANCY_LOC
+		WHERE VACANCY_SEQ = #{vacancySeq}
+    </delete>
+
+
+
+
+ 	<!-- 채용공고  삭제-->
+	<update id="deleteVacancy"  parameterType="ony.cpes.external.mypage.compny.bean.VacancyBean">
+		/*setCompnyVacancy.deleteVacancy*/
+		UPDATE CPES_VACANCY SET
+			DEL_YN = 'Y',
+			MOD_USER_SEQ = #{modUserSeq},
+			MOD_DT = now()
+		WHERE VACANCY_SEQ = #{vacancySeq}
+		AND COMPNY_SEQ = (SELECT A.COMPNY_SEQ FROM CPES_COMPNY A WHERE A.USER_SEQ = #{regUserSeq})
+    </update>
+
+    <insert id="insertVacancyLoc" parameterType="ony.cpes.external.mypage.compny.bean.VacancyBean">
+    	/*setCompnyVacancy.insertVacancyLoc*/
+		<selectKey resultType="string" keyProperty="vacancyLocSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+    	INSERT INTO CPES_VACANCY_LOC (
+    	VACANCY_LOC_SEQ
+    	, ADDR_CD
+    	<!-- , VACANCY_NO -->
+    	, REG_USER_SEQ
+    	, REG_DT
+    	, MOD_USER_SEQ
+    	, MOD_DT
+    	, VACANCY_SEQ
+    	, ADDR_FULL_CD
+    	, ADDR_FULL_NM
+    	) VALUES (
+    	#{vacancyLocSeq}
+    	, #{addrCd}
+    	<!-- , 0 -->
+    	, #{regUserSeq}
+    	, NOW()
+    	, #{modUserSeq}
+    	, NOW()
+    	, #{vacancySeq}
+    	, #{addrFullCd}
+    	, #{addrFullNm}
+    	)
+    </insert>
+
+    <insert id="insertVacancyLocTemp" parameterType="ony.cpes.external.mypage.compny.bean.VacancyBean">
+    	/*setCompnyVacancy.insertVacancyLoc*/
+		<selectKey resultType="string" keyProperty="vacancyLocSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+    	INSERT INTO CPES_VACANCY_LOC_TEMP (
+    	VACANCY_LOC_SEQ
+    	, ADDR_CD
+    	<!-- , VACANCY_NO -->
+    	, REG_USER_SEQ
+    	, REG_DT
+    	, MOD_USER_SEQ
+    	, MOD_DT
+    	, VACANCY_SEQ
+    	, ADDR_FULL_CD
+    	, ADDR_FULL_NM
+    	) VALUES (
+    	#{vacancyLocSeq}
+    	, #{addrCd}
+    	<!-- , 0 -->
+    	, #{regUserSeq}
+    	, NOW()
+    	, #{modUserSeq}
+    	, NOW()
+    	, #{vacancySeq}
+    	, #{addrFullCd}
+    	, #{addrFullNm}
+    	)
+    </insert>
+
+ 	<!-- 채용공고  마감-->
+	<update id="closeVacancy"  parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
+		/*setCompnyVacancy.closeVacancy*/
+		UPDATE CPES_VACANCY SET
+			VACANCY_STS_CD = 'VCS0000000002',
+			VACANCY_CLOSE_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq},
+			MOD_DT = now()
+		WHERE VACANCY_SEQ = #{condSeq}
+		AND COMPNY_SEQ = (SELECT A.COMPNY_SEQ FROM CPES_COMPNY A WHERE A.USER_SEQ = #{regUserSeq})
+    </update>
+
+</mapper>

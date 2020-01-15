@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jobsk">
+
+	<!-- 구직조회 -->
+	<select id="selectJobskYn" resultType="ony.cpes.external.mypage.privt.bean.JobskBean" parameterType="ony.cpes.external.mypage.privt.bean.CondJobskBean">
+		/*jobsk.selectJobskYn*/
+		SELECT
+			A.RESUME_SEQ,
+			A.USER_SEQ,
+			A.PRI_RESUME_YN,
+			A.JOBSK_REQ_YN,
+			B.JOBSK_REQ_SEQ,
+			B.JOBSK_NUM,
+			B.JC_AGREE_STS_CD,
+ 			FN_GET_COMMON_NM('JC_AGREE_STS_CD', B.JC_AGREE_STS_CD, #{langCd}) AS JC_AGREE_STS_NM,
+			B.JC_CD,
+			FN_GET_JOB_CNTR_NM(B.JC_CD, #{langCd}) AS JC_NM,
+		    (SELECT C.TEL1 FROM CPES_JOB_CENTER C WHERE C.JC_CD = B.JC_CD) AS JC_TEL
+		FROM CPES_RESUME A
+		INNER JOIN CPES_JOBSK_REQ B
+		ON A.RESUME_SEQ = B.RESUME_SEQ
+        WHERE A.USER_SEQ = #{condUserSeq}
+        AND A.PRI_RESUME_YN = 'Y'
+        AND A.JOBSK_REQ_YN = 'Y'
+        AND A.USE_YN = 'Y'
+        AND B.DEL_YN = 'N'
+        AND (B.JOBSK_STS_CD = 'JSC0000000001' OR B.JOBSK_STS_CD = 'JSC0000000002')
+	</select>
+
+
+	<!-- 대표이력서 조회 -->
+	<select id="selectPriResume" resultType="ony.cpes.external.mypage.privt.bean.JobskBean" parameterType="ony.cpes.external.mypage.privt.bean.CondJobskBean">
+		/*jobsk.selectPriResume*/
+		SELECT
+			A.RESUME_SEQ,
+			A.RESUME_TITLE
+		FROM CPES_RESUME A
+        WHERE A.USER_SEQ = #{condUserSeq}
+        AND A.PRI_RESUME_YN = 'Y'
+        AND A.USE_YN = 'Y'
+	</select>
+
+	<!-- 대표이력서 조회 -->
+	<select id="selectJobskNum" resultType="java.lang.String" parameterType="ony.cpes.external.mypage.privt.bean.JobskBean">
+		/*jobsk.selectJobskNum*/
+       	SELECT CONCAT('J',LPAD(IFNULL(SUBSTR(MAX(JOBSK_NUM),2,10)+1,1),10,'0')) AS STR
+        FROM CPES_JOBSK_REQ
+	</select>
+
+
+	<!-- 구직목록조회 -->
+	<select id="selectJobskList" resultType="ony.cpes.external.mypage.privt.bean.JobskBean" parameterType="ony.cpes.external.mypage.privt.bean.CondJobskBean">
+		/*jobsk.selectJobskList*/
+		SELECT A.*
+		FROM (
+			SELECT
+				A.RESUME_SEQ,
+				A.USER_SEQ,
+				A.PRI_RESUME_YN,
+				A.JOBSK_REQ_YN,
+				A.RESUME_TITLE,
+				B.JOBSK_REQ_SEQ,
+				B.JC_AGREE_STS_CD,
+				B.JOBSK_STS_CD,
+			    CASE WHEN B.JOBSK_STS_CD = 'JSC0000000001' THEN 'C' <!-- 구직중 -->
+			         WHEN B.JOBSK_STS_CD = 'JSC0000000003' THEN 'E' <!-- 종료 -->
+			         ELSE 'W' <!-- 대기중 -->
+			    END AS JOBSK_STS_NM, <!-- 상태값 -->
+			    A.URGENT_JOBSEEK_YN,
+			    CASE WHEN B.JOBSK_STS_CD = 'JSC0000000001' OR B.JOBSK_STS_CD = 'JSC0000000002' THEN 1
+			     	 ELSE 2
+			    END AS SORT,
+			    FN_GET_BASE_DATE_CHAR(B.REG_DT, #{langCd}) AS REG_DT,
+			    FN_GET_BASE_DATE_CHAR(B.JOBSK_END_DT, #{langCd}) AS JOBSK_END_DT,
+			    FN_GET_NEW_YN(B.REG_DT) AS NEW_YN
+			FROM CPES_RESUME A
+			INNER JOIN CPES_JOBSK_REQ B
+			ON A.RESUME_SEQ = B.RESUME_SEQ
+	        WHERE A.USER_SEQ = #{condUserSeq}
+	        AND A.USE_YN = 'Y'
+	        AND B.DEL_YN = 'N'
+        ) A
+        ORDER BY A.SORT,A.REG_DT DESC
+
+	</select>
+
+
+	<!-- 구직상세조회 -->
+	<select id="selectJobsk" resultType="ony.cpes.external.mypage.privt.bean.JobskBean" parameterType="ony.cpes.external.mypage.privt.bean.CondJobskBean">
+		/*jobsk.selectJobsk*/
+		SELECT
+			A.RESUME_SEQ,
+			A.USER_SEQ,
+			A.PRI_RESUME_YN,
+			A.JOBSK_REQ_YN,
+			A.URGENT_JOBSEEK_YN,
+			A.NOW_WORK_YN,
+			A.RESUME_TITLE,
+			B.JOBSK_STS_CD,
+			CASE WHEN B.JOBSK_STS_CD = 'JSC0000000001' THEN 'C' <!-- 구직중 -->
+			     WHEN B.JOBSK_STS_CD = 'JSC0000000003' THEN 'E' <!-- 종료 -->
+			     ELSE 'W' <!-- 대기중 -->
+			END AS JOBSK_STS_NM, <!-- 상태값 -->
+			B.JOBSK_REQ_SEQ,
+			B.JC_AGREE_STS_CD,
+			B.JC_CD,
+			FN_GET_JOB_CNTR_NM(B.JC_CD, #{langCd}) AS JC_NM,
+		    (SELECT C.TEL1 FROM CPES_JOB_CENTER C WHERE C.JC_CD = B.JC_CD) AS JC_TEL,
+		    FN_GET_USER_NM_BY_USER_SEQ(B.JC_USER_SEQ, #{langCd}) AS JC_USER_NM,
+			FN_GET_BASE_DATE_CHAR(B.REG_DT, #{langCd}) AS REG_DT,
+			FN_GET_BASE_DATE_CHAR(B.JOBSK_END_DT, #{langCd}) AS JOBSK_END_DT
+		FROM CPES_RESUME A
+		INNER JOIN CPES_JOBSK_REQ B
+		ON A.RESUME_SEQ = B.RESUME_SEQ
+        WHERE A.USER_SEQ = #{condUserSeq}
+        AND B.JOBSK_REQ_SEQ = #{condSeq}
+        AND A.USE_YN = 'Y'
+        AND B.DEL_YN = 'N'
+	</select>
+
+</mapper>

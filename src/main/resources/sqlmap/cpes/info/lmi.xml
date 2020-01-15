@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="lmi">
+
+	<!-- 노동시장 지표 조회 -->
+	<select id="selectLmi" resultType="ony.cpes.external.info.bean.LmiIndicYearBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+		/*lmi."selectLmi"*/
+		SELECT A.INDIC_ITEM_NM
+		     , A.DEPTH
+		     , B.CONTENT
+		  FROM CPES_LMI_YEAR_BASE_INDIC A
+		       LEFT OUTER JOIN
+		       CPES_LMI_INDIC_DATA B
+		          ON B.LMI_YEAR_BASE_INDIC_SEQ = A.LMI_YEAR_BASE_INDIC_SEQ
+		 WHERE A.YEAR = #{year}
+		   AND A.VIEW_YN = 'Y'
+		 ORDER BY A.SORT
+	</select>
+
+</mapper>

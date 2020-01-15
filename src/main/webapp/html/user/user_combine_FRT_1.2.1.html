@@ -1,0 +1,241 @@
+<html lang="ko">
+
+<head>
+<meta charset="utf-8">
+<title>통합관리시스템 - 사용자페이지</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<!-- css -->
+<link rel="stylesheet" href="../../css/vendor/bootstrap.css">
+<link rel="stylesheet" href="../../css/vendor/bootstrap-datepicker.css">
+<link rel="stylesheet" href="../../css/vendor/messagebox.css">
+<link rel="stylesheet" href="../../css/common.css">
+<!-- js -->
+<script src="../../js/vendor/jquery.js"></script>
+<script src="../../js/vendor/bootstrap.min.js"></script>
+<script src="../../js/vendor/bootstrap-datepicker.js"></script>
+<script src="../../js/vendor/bootstrap-datepicker.kr.js"></script>
+<script src="../../js/vendor/messagebox.js"></script>
+<script>
+	$(document).ready(function(){
+
+			/* 탭 active 표현 */
+		$('div.tabWrap>ul>li').on('click',function(){
+			$('div.tabWrap>ul>li').removeClass('active');
+			$(this).addClass('active');
+		});
+
+
+	});
+
+
+</script>
+</head>
+
+<body>
+
+	<div class="wrap container-fluid">
+
+		<header>
+			<div class="inner">
+				<h1 class="hTxt"><span>도&middot;시&middot;군 일자리 지원시스템</span></h1>
+			</div>
+		</header>
+		<main>
+			<div class="inner">
+				<div class="hasH2 row">
+					<div class="col-md-6">
+						<h2>사업현황</h2>
+					</div>
+					<div class="col-md-6 tAR">
+						<button type="button" class="btn icon_list"><span>사업현황 전체보기</span></button>
+					</div>
+				</div>
+
+<!-- TAB -->
+				<div class="tabWrap threeTab">
+					<ul>
+						<li class=""><a href="#none"><h3>사업정보</h3></a></li>
+						<li class="active"><a href="#none"><h3>Q&A</h3></a></li>
+						<li class=""><a href="#none"><h3>설문조사</h3></a></li>
+					</ul>
+				</div>
+<!-- //TAB -->				
+		
+
+<!-- Q&A -->
+				<div class="tabContent mb50">
+					
+<!-- 검색 -->
+					<div class="row search">
+						<div class="w86p">
+							<table class="table">
+								<caption>검색조건</caption>
+								<colgroup>
+									<col width="9%">
+									<col width="40%">
+									<col width="5%">
+									<col width="21%">
+									<col width="*">
+								</colgroup>
+								<tbody>
+									<tr>
+										<th><label for="">등록일</label></th>
+										<td>
+											<div class="row">
+												<div class="col-md-5">
+													<input type="text" class="form-control date-picker" value="">
+												</div>
+												<div class="col-md-1 tAC"><span>~</span></div>
+												<div class="col-md-5">
+													<input type="text" class="form-control date-picker" value="">
+												</div>
+											</div>
+										</td>
+										<th><label for="">답변상태</label></th>
+										<td>
+											<select title="대상" class="form-control">
+												<option>전체</option>
+											</select>
+										</td>
+										<td></td>
+									</tr>
+									<tr>
+										<th><label for="">제목+내용</label></th>
+										<td colspan="4">
+											<input type="text" class="form-control" value="" placeholder="">
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="w14p btnWrap">
+							<button type="button" class="btn icon_search"><span>검색</span></button>
+						</div>					
+					</div>
+<!-- //검색 -->					
+
+<!-- 목록 -->
+					<div class="grid">
+						<table class="table">
+							<caption>목록</caption>
+							<colgroup>
+								<col width="7%">
+								<col width="*">
+								<col width="12%">
+								<col width="12%">
+								<col width="12%">
+							</colgroup>
+							<thead>
+								<tr>
+									<th>No</th>
+									<th>제목</th>
+									<th>등록일</th>
+									<th>작성자</th>
+									<th>답변상태</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>10</td>
+									<td class="tAL pl10">복지관련 질문있습니다.</td>
+									<td>2019.01.21</td>
+									<td>김잡아</td>
+									<td><span class="c-blue">답변대기</span></td>
+								</tr>
+								<tr>
+									<td>10</td>
+									<td class="tAL pl10">복지관련 질문있습니다.</td>
+									<td>2019.01.21</td>
+									<td>김잡아</td>
+									<td><span class="c-blue">답변대기</span></td>
+								</tr>
+								<tr>
+									<td>10</td>
+									<td class="tAL pl10">복지관련 질문있습니다.</td>
+									<td>2019.01.21</td>
+									<td>김잡아</td>
+									<td><span class="c-blue">답변대기</span></td>
+								</tr>
+								<tr>
+									<td>10</td>
+									<td class="tAL pl10">복지관련 질문있습니다.</td>
+									<td>2019.01.21</td>
+									<td>김잡아</td>
+									<td><span class="c-grey">답변완료</span></td>
+								</tr>
+								<tr>
+									<td>10</td>
+									<td class="tAL pl10">복지관련 질문있습니다.</td>
+									<td>2019.01.21</td>
+									<td>김잡아</td>
+									<td><span class="c-grey">답변완료</span></td>
+								</tr>
+								<tr>
+									<td>10</td>
+									<td class="tAL pl10">복지관련 질문있습니다.</td>
+									<td>2019.01.21</td>
+									<td>김잡아</td>
+									<td><span class="c-grey">답변완료</span></td>
+								</tr>
+								<tr>
+									<td>10</td>
+									<td class="tAL pl10">복지관련 질문있습니다.</td>
+									<td>2019.01.21</td>
+									<td>김잡아</td>
+									<td><span class="c-grey">답변완료</span></td>
+								</tr>
+								<tr>
+									<td>10</td>
+									<td class="tAL pl10">복지관련 질문있습니다.</td>
+									<td>2019.01.21</td>
+									<td>김잡아</td>
+									<td><span class="c-grey">답변완료</span></td>
+								</tr>
+
+							</tbody>
+						</table>
+						
+						<div class="paging hasBtn">
+							<ul>
+								<li class="hasBGC"><a href="#none">&lt;&lt;</a></li>
+								<li class="hasBGC"><a href="#none">&lt;</a></li>
+								<li><a class="active">1</a></li>
+								<li><a href="#none">2</a></li>
+								<li><a href="#none">3</a></li>
+								<li><a href="#none">4</a></li>
+								<li><a href="#none">5</a></li>
+								<li><a href="#none">6</a></li>
+								<li><a href="#none">7</a></li>
+								<li><a href="#none">8</a></li>
+								<li><a href="#none">9</a></li>
+								<li><a href="#none">10</a></li>
+								<li class="hasBGC"><a href="#none">&gt;</a></li>
+								<li class="hasBGC"><a href="#none">&gt;&gt;</a></li>
+							</ul>
+							<button type="button" class="btn blue icon_write"><span>글쓰기</span></button>
+						</div>
+					</div>
+<!-- //목록 -->		
+
+
+				</div><!-- //tabContent -->
+<!-- //Q&A -->
+				
+
+			</div><!-- //inner -->
+		</main>
+		<footer>
+			<div class="inner">
+				<strong>경기도 일자리재단</strong>
+				<address>&#40;14566&#41; 경기도 부천시 부천로 136번길 27 원미어울마당&#40;구 원미구청&#41; 3층   /  전화번호 : 1577-0014</address>
+				<span class="copy">Copyright &copy; 2019 Gyeonggido Job Foundation all rights reserved.</span>
+			</div>
+		</footer>
+
+	</div><!-- //wrap -->
+
+
+</body>
+</html>

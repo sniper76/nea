@@ -1,0 +1,299 @@
+<html lang="ko">
+
+<head>
+<meta charset="utf-8">
+<title>통합관리시스템 - 사용자페이지</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<!-- css -->
+<link rel="stylesheet" href="../../css/vendor/bootstrap.css">
+<link rel="stylesheet" href="../../css/vendor/bootstrap-datepicker.css">
+<link rel="stylesheet" href="../../css/vendor/messagebox.css">
+<link rel="stylesheet" href="../../css/common.css">
+<!-- js -->
+<script src="../../js/vendor/jquery.js"></script>
+<script src="../../js/vendor/bootstrap.min.js"></script>
+<script src="../../js/vendor/bootstrap-datepicker.js"></script>
+<script src="../../js/vendor/bootstrap-datepicker.kr.js"></script>
+<script src="../../js/vendor/messagebox.js"></script>
+<script>
+	$(document).ready(function(){
+
+			/* 탭 active 표현 */
+		$('div.tabWrap>ul>li').on('click',function(){
+			$('div.tabWrap>ul>li').removeClass('active');
+			$(this).addClass('active');
+		});
+
+
+
+			/* table accordion 열고 닫기 */
+		$('.que').on('click',function(){
+			$(this).toggleClass('on');
+			$(this).next('tr.ans').toggleClass('on');
+		});
+
+
+
+	});
+
+
+</script>
+</head>
+
+<body>
+
+	<div class="wrap container-fluid">
+
+		<header>
+			<div class="inner">
+				<h1 class="hTxt"><span>도&middot;시&middot;군 일자리 지원시스템</span></h1>
+			</div>
+		</header>
+		<main>
+			<div class="inner">
+				<div class="hasH2 row">
+					<div class="col-md-6">
+						<h2>사업현황</h2>
+					</div>
+					<div class="col-md-6 tAR">
+						<button type="button" class="btn icon_list"><span>사업현황 전체보기</span></button>
+					</div>
+				</div>
+
+<!-- TAB -->
+				<div class="tabWrap fourTab">
+					<ul>
+						<li class=""><a href="#none"><h3>사업정보</h3></a></li>
+						<li class=""><a href="#none"><h3>Q&A</h3></a></li>
+						<li class=""><a href="#none"><h3>설문조사</h3></a></li>
+						<li class="active"><a href="#none"><h3>FAQ</h3></a></li>
+					</ul>
+				</div>
+<!-- //TAB -->				
+		
+
+				<div class="tabContent mb50">
+<!-- 검색 -->		
+					<div class="row search">
+						<div class="w86p">
+							<table class="table">
+								<caption>검색조건</caption>
+								<colgroup>
+									<col width="9%">
+									<col width="40%">
+									<col width="*">
+								</colgroup>
+								<tbody>
+									<tr>
+										<th><label for="">등록일</label></th>
+										<td>
+											<div class="row">
+												<div class="col-md-5">
+													<input type="text" class="form-control date-picker" value="">
+												</div>
+												<div class="col-md-1 tAC"><span>~</span></div>
+												<div class="col-md-5">
+													<input type="text" class="form-control date-picker" value="">
+												</div>
+											</div>
+										</td>
+										<td></td>
+									</tr>
+									<tr>
+										<th><label for="">제목+내용</label></th>
+										<td colspan="2">
+											<input type="text" class="form-control" value="" placeholder="">
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="w14p btnWrap">
+							<button type="button" class="btn icon_search"><span>검색</span></button>
+						</div>					
+					</div>
+<!-- //검색 -->
+
+
+<!-- 목록 -->
+					<div class="grid">
+						<table class="table hasAccordion">
+							<caption>목록</caption>
+							<colgroup>
+								<col width="10%">
+								<col width="*">
+								<col width="15%">
+							</colgroup>
+							<thead>
+								<tr>
+									<th>No</th>
+									<th>FAQ명</th>
+									<th>등록일</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="que">
+									<td>10</td>
+									<td class="tAL pl10">
+										<p class="">사업대상은 어떤 사람만 가능한가요? 지원대상을 알고 싶습니다.</p>
+									</td>
+									<td>2019.01.21</td>
+								</tr>
+								<tr class="ans">
+									<td class="tAL" colspan="3">
+										<p>
+											<strong>답변</strong><br/>
+											<span>answer answeransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweranswer</span>
+										</p>
+									</td>
+								</tr>
+								<tr class="que on">
+									<td>10</td>
+									<td class="tAL pl10">
+										<p class="on">사업대상은 어떤 사람만 가능한가요? 지원대상을 알고 싶습니다.</p>
+									</td>
+									<td>2019.01.21</td>
+								</tr>
+								<tr class="ans on">
+									<td class="tAL" colspan="3">
+										<p>
+											<strong>답변</strong><br/>
+											<span>answeranswer answeransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweransweranswer</span>
+										</p>
+									</td>
+								</tr>
+								<tr class="que">
+									<td>10</td>
+									<td class="tAL pl10">
+										<p class="">사업대상은 어떤 사람만 가능한가요? 지원대상을 알고 싶습니다.</p>
+									</td>
+									<td>2019.01.21</td>
+								</tr>
+								<tr class="ans">
+									<td class="tAL" colspan="3">
+										<p>
+											<strong>답변</strong><br/>
+											<span>answer</span>
+										</p>
+									</td>
+								</tr>
+								<tr class="que">
+									<td>10</td>
+									<td class="tAL pl10">
+										<p class="">사업대상은 어떤 사람만 가능한가요? 지원대상을 알고 싶습니다.</p>
+									</td>
+									<td>2019.01.21</td>
+								</tr>
+								<tr class="ans">
+									<td class="tAL" colspan="3">
+										<p>
+											<strong>답변</strong><br/>
+											<span>answer</span>
+										</p>
+									</td>
+								</tr>
+								<tr class="que">
+									<td>10</td>
+									<td class="tAL pl10">
+										<p class="">사업대상은 어떤 사람만 가능한가요? 지원대상을 알고 싶습니다.</p>
+									</td>
+									<td>2019.01.21</td>
+								</tr>
+								<tr class="ans">
+									<td class="tAL" colspan="3">
+										<p>
+											<strong>답변</strong><br/>
+											<span>answer</span>
+										</p>
+									</td>
+								</tr>
+								<tr class="que">
+									<td>10</td>
+									<td class="tAL pl10">
+										<p class="">사업대상은 어떤 사람만 가능한가요? 지원대상을 알고 싶습니다.</p>
+									</td>
+									<td>2019.01.21</td>
+								</tr>
+								<tr class="ans">
+									<td class="tAL" colspan="3">
+										<p>
+											<strong>답변</strong><br/>
+											<span>answer</span>
+										</p>
+									</td>
+								</tr>
+								<tr class="que">
+									<td>10</td>
+									<td class="tAL pl10">
+										<p class="">사업대상은 어떤 사람만 가능한가요? 지원대상을 알고 싶습니다.</p>
+									</td>
+									<td>2019.01.21</td>
+								</tr>
+								<tr class="ans">
+									<td class="tAL" colspan="3">
+										<p>
+											<strong>답변</strong><br/>
+											<span>answer</span>
+										</p>
+									</td>
+								</tr>
+								<tr class="que">
+									<td>10</td>
+									<td class="tAL pl10">
+										<p class="">사업대상은 어떤 사람만 가능한가요? 지원대상을 알고 싶습니다.</p>
+									</td>
+									<td>2019.01.21</td>
+								</tr>
+								<tr class="ans">
+									<td class="tAL" colspan="3">
+										<p>
+											<strong>답변</strong><br/>
+											<span>answer</span>
+										</p>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						
+						<div class="paging">
+							<ul>
+								<li class="hasBGC"><a href="#none">&lt;&lt;</a></li>
+								<li class="hasBGC"><a href="#none">&lt;</a></li>
+								<li><a class="active">1</a></li>
+								<li><a href="#none">2</a></li>
+								<li><a href="#none">3</a></li>
+								<li><a href="#none">4</a></li>
+								<li><a href="#none">5</a></li>
+								<li><a href="#none">6</a></li>
+								<li><a href="#none">7</a></li>
+								<li><a href="#none">8</a></li>
+								<li><a href="#none">9</a></li>
+								<li><a href="#none">10</a></li>
+								<li class="hasBGC"><a href="#none">&gt;</a></li>
+								<li class="hasBGC"><a href="#none">&gt;&gt;</a></li>
+							</ul>
+						</div>
+					</div>
+<!-- //목록 -->
+
+
+				</div><!-- //tabContent -->
+
+
+			</div><!-- //inner -->
+		</main>
+		<footer>
+			<div class="inner">
+				<strong>경기도 일자리재단</strong>
+				<address>&#40;14566&#41; 경기도 부천시 부천로 136번길 27 원미어울마당&#40;구 원미구청&#41; 3층   /  전화번호 : 1577-0014</address>
+				<span class="copy">Copyright &copy; 2019 Gyeonggido Job Foundation all rights reserved.</span>
+			</div>
+		</footer>
+
+	</div><!-- //wrap -->
+
+
+</body>
+</html>

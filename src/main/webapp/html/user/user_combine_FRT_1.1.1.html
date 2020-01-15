@@ -1,0 +1,223 @@
+<html lang="ko">
+
+<head>
+<meta charset="utf-8">
+<title>통합관리시스템 - 사용자페이지</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<!-- css -->
+<link rel="stylesheet" href="../../css/vendor/bootstrap.css">
+<link rel="stylesheet" href="../../css/vendor/bootstrap-datepicker.css">
+<link rel="stylesheet" href="../../css/vendor/messagebox.css">
+<link rel="stylesheet" href="../../css/common.css">
+<!-- js -->
+<script src="../../js/vendor/jquery.js"></script>
+<script src="../../js/vendor/bootstrap.min.js"></script>
+<script src="../../js/vendor/bootstrap-datepicker.js"></script>
+<script src="../../js/vendor/bootstrap-datepicker.kr.js"></script>
+<script src="../../js/vendor/messagebox.js"></script>
+<script>
+	$(document).ready(function(){
+
+			/* 탭 active 표현 */
+		$('div.tabWrap>ul>li').on('click',function(){
+			$('div.tabWrap>ul>li').removeClass('active');
+			$(this).addClass('active');
+		});
+
+
+	});
+
+
+</script>
+</head>
+
+<body>
+
+	<div class="wrap container-fluid">
+
+		<header>
+			<div class="inner">
+				<h1 class="hTxt"><span>도&middot;시&middot;군 일자리 지원시스템</span></h1>
+			</div>
+		</header>
+		<main>
+			<div class="inner">
+				<h2>사업현황</h2>
+
+<!-- TAB -->
+				<div class="tabWrap hasCheck sixTab">
+					<ul>
+						<li class="active"><a href="#none">전체 <span class="num">9999</span></a></li>
+						<li class=""><a href="#none">지원 <span class="num">9999</span></a></li>
+						<li class=""><a href="#none">고용 <span class="num">9999</span></a></li>
+						<li class=""><a href="#none">창업 <span class="num">9999</span></a></li>
+						<li class=""><a href="#none">정책 <span class="num">9999</span></a></li>
+						<li class=""><a href="#none">교육 <span class="num">9999</span></a></li>
+					</ul>
+				</div>
+<!-- //TAB -->				
+		
+<!-- 검색 -->		
+				<div class="row search">
+					<div class="w86p">
+						<table class="table">
+							<caption>검색조건</caption>
+							<colgroup>
+								<col width="7%">
+								<col width="*">
+								<col width="5%">
+								<col width="21%">
+								<col width="8%">
+								<col width="20%">
+							</colgroup>
+							<tbody>
+								<tr>
+									<th><label for="">등록일</label></th>
+									<td>
+										<div class="row">
+											<div class="col-md-5">
+												<input type="text" class="form-control date-picker" value="">
+											</div>
+											<div class="col-md-1 tAC"><span>~</span></div>
+											<div class="col-md-5">
+												<input type="text" class="form-control date-picker" value="">
+											</div>
+										</div>
+									</td>
+									<th><label for="">유형</label></th>
+									<td>
+										<select title="대상" class="form-control">
+											<option>전체</option>
+										</select>
+									</td>
+									<th><label for="">진행상태</label></th>
+									<td>
+										<select title="대상" class="form-control">
+											<option>전체</option>
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<th><label for="">사업명</label></th>
+									<td colspan="5">
+										<input type="text" class="form-control" value="" placeholder="사업명을 입력하세요">
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="w14p btnWrap">
+						<button type="button" class="btn icon_search"><span>검색</span></button>
+					</div>					
+				</div>
+<!-- //검색 -->		
+
+
+<!-- 사업리스트 -->
+				<div class="listWrap">
+					<ul class="big">
+						<li>							
+							<ul class="small">
+								<li class="img">
+									<a href="#none"><img src="../../images/sample01.jpg" alt="" /><span class="ing">진행중</span></a>
+								</li>
+								<li class="title">[경기복지재단]<br/>	복지트리오 1번가 긴급지원사업</li>
+								<li class="txt"><strong>유형 </strong>교육>창업교육</li>
+								<li class="txt"><strong>기간 </strong>2018-11-11~2018-12-31</li>
+							</ul>
+						</li>
+						<li>							
+							<ul class="small">
+								<li class="img">
+									<a href="#none"><img src="../../images/denied.jpg" alt="" /><span class="expected">진행예정</span></a>
+								</li>
+								<li class="title">[경기복지재단]<br/>	복지트리오 1번가 긴급지원사업</li>
+								<li class="txt"><strong>유형 </strong>교육>창업교육</li>
+								<li class="txt"><strong>기간 </strong>2018-11-11~2018-12-31</li>
+							</ul>
+						</li>
+						<li>							
+							<ul class="small">
+								<li class="img">
+									<a href="#none"><img src="" onerror="this.src='../../images/noimg.png';" alt="" /><span class="ing">진행중</span></a>
+								</li>
+								<li class="title">[경기복지재단]<br/>	복지트리오 1번가 긴급지원사업</li>
+								<li class="txt"><strong>유형 </strong>교육>창업교육</li>
+								<li class="txt"><strong>기간 </strong>2018-11-11~2018-12-31</li>
+							</ul>
+						</li>
+						<li>							
+							<ul class="small">
+								<li class="img">
+									<a href="#none"><img src="../../images/sample01.jpg" alt="" /><span class="expected">진행예정</span></a>
+								</li>
+								<li class="title">[경기복지재단]<br/>	복지트리오 1번가 긴급지원사업</li>
+								<li class="txt"><strong>유형 </strong>교육>창업교육</li>
+								<li class="txt"><strong>기간 </strong>2018-11-11~2018-12-31</li>
+							</ul>
+						</li>
+					</ul>
+					<ul class="big">
+						<li>							
+							<ul class="small">
+								<li class="img">
+									<a href="#none"><img src="../../images/sample01.jpg" alt="" /><span class="expected">진행예정</span></a>
+								</li>
+								<li class="title">[경기복지재단]<br/>	복지트리오 1번가 긴급지원사업</li>
+								<li class="txt"><strong>유형 </strong>교육>창업교육</li>
+								<li class="txt"><strong>기간 </strong>2018-11-11~2018-12-31</li>
+							</ul>
+						</li>
+						<li>							
+							<ul class="small">
+								<li class="img">
+									<a href="#none"><img src="../../images/sample01.jpg" alt="" /><span class="ing">진행중</span></a>
+								</li>
+								<li class="title">[경기복지재단]<br/>	복지트리오 1번가 긴급지원사업</li>
+								<li class="txt"><strong>유형 </strong>교육>창업교육</li>
+								<li class="txt"><strong>기간 </strong>2018-11-11~2018-12-31</li>
+							</ul>
+						</li>
+						<li>							
+							<ul class="small">
+								<li class="img">
+									<a href="#none"><img src="../../images/sample01.jpg" alt="" /><span class="ing">진행중</span></a>
+								</li>
+								<li class="title">[경기복지재단]<br/>	복지트리오 1번가 긴급지원사업</li>
+								<li class="txt"><strong>유형 </strong>교육>창업교육</li>
+								<li class="txt"><strong>기간 </strong>2018-11-11~2018-12-31</li>
+							</ul>
+						</li>
+						<li>							
+							<ul class="small">
+								<li class="img">
+									<a href="#none"><img src="../../images/sample01.jpg" alt="" /><span class="ing">진행중</span></a>
+								</li>
+								<li class="title">[경기복지재단]<br/>	복지트리오 1번가 긴급지원사업</li>
+								<li class="txt"><strong>유형 </strong>교육>창업교육</li>
+								<li class="txt"><strong>기간 </strong>2018-11-11~2018-12-31</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+<!-- //사업리스트 -->
+
+
+
+			</div><!-- //inner -->
+		</main>
+		<footer>
+			<div class="inner">
+				<strong>경기도 일자리재단</strong>
+				<address>&#40;14566&#41; 경기도 부천시 부천로 136번길 27 원미어울마당&#40;구 원미구청&#41; 3층   /  전화번호 : 1577-0014</address>
+				<span class="copy">Copyright &copy; 2019 Gyeonggido Job Foundation all rights reserved.</span>
+			</div>
+		</footer>
+
+	</div><!-- //wrap -->
+
+
+</body>
+</html>

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="compny">
+
+	<sql id="whereVacancyCond">
+		<!-- 검색조건,search condition -->
+		AND A.VACANCY_STS_CD = 'VCS0000000001'
+		AND A.USE_YN = 'Y'
+		AND A.DEL_YN = 'N'
+		AND B.USE_YN = 'Y'
+		AND B.DEL_YN = 'N'
+
+
+	</sql>
+
+	<!-- 기업 회원정보 조회 -->
+	<select id="selectCompnyInfo" resultType="ony.cpes.external.mypage.compny.bean.CompnyMemBean" parameterType="ony.cpes.external.mypage.compny.bean.CondCompnyMemBean">
+		/*compny.selectCompnyInfo*/
+		SELECT
+			  A.USER_SEQ
+			, FN_GET_COMPNY_NM(B.COMPNY_SEQ, #{langCd}) AS COMPNY_NM
+			, B.COMPNY_SEQ
+			, B.COMPNY_TYPE_CD
+			, FN_GET_COMMON_NM('COMPNY_TYPE_CD', B.COMPNY_TYPE_CD, #{langCd}) AS COMPNY_TYPE_NM
+			, B.REG_NUM
+			, B.PATENT_NUM
+			, B.OWNER_NATION_CD
+			, B.ADDR_CD
+			, B.ADDR_DTL
+			, B.ADDR_FULL_CD
+			, B.ADDR_FULL_NM
+			, B.MAIN_JOB_PERCENT
+			, B.MNGER_NM
+			, B.MNGER_POSITION
+			, B.MNGER_CELL
+			, B.MNGER_EMAIL
+			, B.MNGER_TEL
+			, B.COMPNY_FAX
+			, B.COMPNY_WEBSITE
+			, B.COMPNY_FACEBOOK
+			, B.PROFILE
+			, B.DISABL_EMPLOYEE_TOT_CNT
+			, B.EMPLOYEE_TOT_CNT
+			, B.EXE_EMPLOYEE_TOT_CNT
+			, B.FEMALE_EMPLOYEE_TOT_CNT
+			, B.FORGNER_TOT_CNT
+			, B.GOOGLE_MAP_LINK
+			, B.FILE_GRP_SEQ
+			, B.LOGO_FILE_GRP_SEQ
+			, FN_GET_FILE_PATH(B.LOGO_FILE_GRP_SEQ) AS FILE_PATH
+			, B.BKMK_CNT
+			, B.ISIC_CD
+			, FN_GET_ISIC_NM(B.ISIC_CD, #{langCd}) AS ISIC_NM
+          	, (
+          	 	SELECT BKMK_SEQ
+          	 	FROM CPES_BKMK F
+          	 	WHERE F.CATE_CD = 'BCT0000000001'
+          	 	AND F.TABLE_KEY_SEQ = B.COMPNY_SEQ
+          	 	AND F.USER_SEQ = #{condUserSeq}
+          	 ) AS BKMK_SEQ
+		FROM CPES_USER A
+		INNER JOIN CPES_COMPNY B
+		ON A.USER_SEQ = B.USER_SEQ
+        WHERE B.COMPNY_SEQ = #{condSeq}
+      	AND A.DEL_YN = 'N'
+        AND A.USE_YN = 'Y'
+        AND B.DEL_YN = 'N'
+        AND B.USE_YN = 'Y'
+	</select>
+
+
+	<!-- 채용공고 목록,vacancy list -->
+	<select id="selectVacancyContinueListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
+        <![CDATA[
+        	/*compny.selectVacancyContinueListCnt*/
+            SELECT
+                 COUNT(1) AS CNT
+            FROM CPES_VACANCY A
+            INNER JOIN CPES_COMPNY B
+            ON A.COMPNY_SEQ = B.COMPNY_SEQ
+            WHERE B.COMPNY_SEQ = #{condSeq}
+       ]]>
+            <include refid="whereVacancyCond"/>
+
+    </select>
+
+	<!-- 채용공고 목록,vacancy list -->
+	<select id="selectVacancyContinueList" resultType="ony.cpes.external.mypage.compny.bean.VacancyBean" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
+        <![CDATA[
+        	/*compny.selectVacancyContinueList*/
+            SELECT
+                    A.VACANCY_SEQ
+                  , A.COMPNY_SEQ
+                  , A.VACANCY_TITLE
+                  , A.VACANCY_STS_CD
+                  , FN_GET_COMMON_NM('EMPLOY_FORM_CD', A.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_NM
+                  , A.RECRUMT_MEMB
+                  , A.MIN_SALARY_AMT
+                  , A.MAX_SALARY_AMT
+                  , A.BKMK_CNT
+				  , FN_GET_REMAIN_CNT(A.END_DT) REMAIN_DT
+                  , FN_GET_REMAIN_DIV(A.END_DT) REMAIN_DIV
+				  , (
+				 	SELECT 	F.ADDR_FULL_NM
+				 	FROM CPES_VACANCY_LOC F
+				 	WHERE F.VACANCY_SEQ = A.VACANCY_SEQ
+				 	LIMIT 1
+				  ) AS ADDR_NM
+	          	 , (
+	          	 	SELECT BKMK_SEQ
+	          	 	FROM CPES_BKMK F
+	          	 	WHERE F.CATE_CD = 'BCT0000000003'
+	          	 	AND F.TABLE_KEY_SEQ = A.VACANCY_SEQ
+	          	 	AND F.USER_SEQ = #{condUserSeq}
+	          	 	LIMIT 1
+	          	 ) AS BKMK_SEQ
+                 , FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+            FROM CPES_VACANCY A
+            INNER JOIN CPES_COMPNY B
+            ON A.COMPNY_SEQ = B.COMPNY_SEQ
+            WHERE B.COMPNY_SEQ = #{condSeq}
+
+       ]]>
+            <include refid="whereVacancyCond"/>
+			ORDER BY A.REG_DT DESC
+
+            LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+
+    </select>
+
+	<select id="selectCompnyByUserSeq" resultType="ony.cpes.external.mypage.compny.bean.CompnyMemBean" parameterType="hashmap">
+		/*compny.selectCompnyByUserSeq*/
+		SELECT COMPNY_SEQ
+		     , COMPNY_NM_KH
+		     , COMPNY_TYPE_CD
+		     , USER_ID
+		     , JC_CD
+		     , REG_NUM
+		     , PATENT_NUM
+		     , OWNER_NATION_CD
+		     , EMPLOYEE_TOT_CNT
+		     , FEMALE_EMPLOYEE_TOT_CNT
+		     , DISABL_EMPLOYEE_TOT_CNT
+		     , FORGNER_TOT_CNT
+		     , MAIN_JOB_NM
+		     , MAIN_JOB_PERCENT
+		     , ADDR_DTL
+		     , ADDR_CD
+		     , LNGTD
+		     , LATTD
+		     , PROFILE
+		     , REG_USER_SEQ
+		     , REG_DT
+		     , MOD_USER_SEQ
+		     , MOD_DT
+		     , COMPNY_ID
+		     , USER_SEQ
+		     , ISIC_CD
+		     , FILE_GRP_SEQ
+		     , ISCO_CD
+		     , BKMK_CNT
+		     , JC_USER_SEQ
+		     , LIKE_CNT
+		     , MNGER_NM
+		     , MNGER_POSITION
+		     , MNGER_CELL
+		     , MNGER_EMAIL
+		     , MNGER_TEL
+		     , COMPNY_FAX
+		     , COMPNY_WEBSITE
+		     , COMPNY_FACEBOOK
+		     , USE_YN
+		     , COMPNY_NM_EN
+		     , DEL_YN
+		     , ADDR_FULL_CD
+		     , ADDR_FULL_NM
+		     , EXE_EMPLOYEE_TOT_CNT
+		     , COMPNY_HIS
+		     , LOGO_FILE_GRP_SEQ
+		     , GOOGLE_MAP_LINK
+		     , SUB_MNGER_NM
+		     , SUB_MNGER_POSITION
+		     , SUB_MNGER_CELL
+		     , SUB_MNGER_EMAIL
+		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN COMPNY_NM_KH ELSE COMPNY_NM_EN END AS COMPNY_NM
+		  FROM CPES_COMPNY A
+		 WHERE USER_SEQ = #{userSeq}
+		 LIMIT 1
+    </select>
+
+</mapper>

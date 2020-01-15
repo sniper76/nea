@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setJobsk">
+
+	<!-- 구직신청 취소-->
+	<update id="updateCancelJobskReq"  parameterType="ony.cpes.external.mypage.privt.bean.CondJobskBean">
+		/*setJobsk.updateCancelJobskReq*/
+		UPDATE CPES_JOBSK_REQ SET
+			JOBSK_STS_CD = 'JSC0000000003',
+			JOBSK_END_DT = now(),
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE RESUME_SEQ = #{condSeq}
+		AND (JOBSK_STS_CD = 'JSC0000000001' OR JOBSK_STS_CD = 'JSC0000000002')
+	</update>
+
+
+	<!-- 대표이력서 구직신청 N -->
+	<update id="updateResumeJobskYn"  parameterType="ony.cpes.external.mypage.privt.bean.CondJobskBean">
+		/*setJobsk.updateResumeJobskYn*/
+		UPDATE CPES_RESUME SET
+			JOBSK_REQ_YN = 'N',
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE RESUME_SEQ = #{condSeq}
+	</update>
+
+	<!-- 사용자 구직신청 N -->
+	<update id="updateUserJobskYn"  parameterType="ony.cpes.external.mypage.privt.bean.CondJobskBean">
+		/*setJobsk.updateUserJobskYn*/
+		UPDATE CPES_USER SET
+			JOBSK_STS_CD = #{condStatCd},
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE USER_SEQ = #{condUserSeq}
+	</update>
+
+	<!-- 대표이력서 수정 -->
+	<update id="updateJobskResume"  parameterType="ony.cpes.external.mypage.privt.bean.JobskBean">
+		/*setJobsk.updateJobskResume*/
+		UPDATE CPES_RESUME SET
+			JOBSK_REQ_YN = 'Y',
+			URGENT_JOBSEEK_YN = #{urgentJobseekYn},
+			NOW_WORK_YN = #{nowWorkYn},
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE RESUME_SEQ = #{resumeSeq}
+	</update>
+
+	<!-- 구직신청 등록 -->
+	<insert id="insertJobsk"  parameterType="ony.cpes.external.mypage.privt.bean.JobskBean">
+		/*setJobsk.insertJobsk*/
+		<selectKey resultType="string" keyProperty="jobskReqSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_JOBSK_REQ (
+			JOBSK_REQ_SEQ,
+			RESUME_SEQ,
+			JC_CD,
+			JC_USER_SEQ,
+			REG_USER_SEQ,
+			REG_DT,
+			MOD_USER_SEQ,
+			MOD_DT,
+			JOBSK_NUM,
+			JC_AGREE_STS_CD,
+			JC_AGREE_DT,
+			RESUME_OPEN_DT,
+			DEL_YN,
+			DEL_DT,
+			JOBSK_STS_CD,
+			RESUME_TITLE,
+			JOBSK_END_DT,
+			JOBSK_REG_DT
+		) VALUES (
+			#{jobskReqSeq},
+			#{resumeSeq},
+			#{jcCd},
+			#{jcUserSeq},
+			#{regUserSeq},
+			now(),
+			#{modUserSeq},
+			now(),
+			#{jobskNum},
+			'JAS0000000002',
+			#{jcAgreeDt},
+			#{resumeOpenDt},
+			'N',
+			#{delDt},
+			'JSC0000000002',
+			#{resumeTitle},
+			#{jobskEndDt},
+			now()
+		)
+
+	</insert>
+
+	<!-- 구직신청 삭제 -->
+	<update id="deleteJobsk"  parameterType="ony.cpes.external.mypage.privt.bean.CondJobskBean">
+		/*setJobsk.updateUserJobskYn*/
+		UPDATE CPES_JOBSK_REQ SET
+			JOBSK_STS_CD = 'JSC0000000003',
+			DEL_YN = 'Y',
+			DEL_DT = now(),
+			JOBSK_END_DT = now(),
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq},
+			JOBSK_REG_DT = now()
+		WHERE JOBSK_REQ_SEQ = #{condSeq}
+		AND RESUME_SEQ IN (SELECT RESUME_SEQ FROM CPES_RESUME WHERE USER_SEQ = #{condUserSeq})
+	</update>
+
+	<!-- 대표이력서 수정 -->
+	<update id="updateUrgencyResume"  parameterType="ony.cpes.external.mypage.privt.bean.CondJobskBean">
+		/*setJobsk.updateUrgencyResume*/
+		UPDATE CPES_RESUME SET
+			URGENT_JOBSEEK_YN = 'Y',
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE RESUME_SEQ = #{condSeq}
+		AND USER_SEQ = #{condUserSeq}
+	</update>
+
+</mapper>

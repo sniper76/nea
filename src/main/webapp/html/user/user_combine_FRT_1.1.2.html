@@ -1,0 +1,143 @@
+<html lang="ko">
+
+<head>
+<meta charset="utf-8">
+<title>통합관리시스템 - 사용자페이지</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<!-- css -->
+<link rel="stylesheet" href="../../css/vendor/bootstrap.css">
+<link rel="stylesheet" href="../../css/vendor/bootstrap-datepicker.css">
+<link rel="stylesheet" href="../../css/vendor/messagebox.css">
+<link rel="stylesheet" href="../../css/common.css">
+<!-- js -->
+<script src="../../js/vendor/jquery.js"></script>
+<script src="../../js/vendor/bootstrap.min.js"></script>
+<script src="../../js/vendor/bootstrap-datepicker.js"></script>
+<script src="../../js/vendor/bootstrap-datepicker.kr.js"></script>
+<script src="../../js/vendor/messagebox.js"></script>
+<script>
+	$(document).ready(function(){
+
+			/* 탭 active 표현 */
+		$('div.tabWrap>ul>li').on('click',function(){
+			$('div.tabWrap>ul>li').removeClass('active');
+			$(this).addClass('active');
+		});
+
+
+	});
+
+
+</script>
+</head>
+
+<body>
+
+	<div class="wrap container-fluid">
+
+		<header>
+			<div class="inner">
+				<h1 class="hTxt"><span>도&middot;시&middot;군 일자리 지원시스템</span></h1>
+			</div>
+		</header>
+		<main>
+			<div class="inner">
+				<div class="hasH2 row">
+					<div class="col-md-6">
+						<h2>사업현황</h2>
+					</div>
+					<div class="col-md-6 tAR">
+						<button type="button" class="btn icon_list"><span>사업현황 전체보기</span></button>
+					</div>
+				</div>
+
+<!-- TAB -->
+				<div class="tabWrap threeTab">
+					<ul>
+						<li class="active"><a href="#none"><h3>사업정보</h3></a></li>
+						<li class=""><a href="#none"><h3>Q&A</h3></a></li>
+						<li class=""><a href="#none"><h3>설문조사</h3></a></li>
+					</ul>
+				</div>
+<!-- //TAB -->				
+		
+
+<!-- 사업정보 -->
+				<div class="tabContent mb50">
+					<div class="borderBox">
+
+						<section class="busiInfo row">
+							<div class="col-md-9">
+								<ul class="info">
+									<li class="title">
+										<h4>[경기복지재단]	복지트리오 1번가 긴급지원사업</h4>
+										<span class="ing">진행중</span>
+									</li>
+									<li class="txt type"><strong>유형 : </strong>교육>창업교육</li>
+									<li class="txt term"><strong>기간 : </strong>2018-11-11~2018-12-31</li>
+									<li class="txt file"><strong>첨부파일 : </strong>
+										<a href="#none">복지트리오1번가긴급지원사업.hwp</a><i class="icon_down"></i></li>
+								</ul>
+								<button type="button" class="btn icon_apply"><span>사업신청하기</span></button>
+							</div>
+							<div class="col-md-3">
+								<img src="../../images/sample01.jpg" alt="" />
+							</div>
+						</section>
+
+						<hr class="dashed" />
+
+						<section>
+							<h4>사업개요</h4>
+							<p>- 일시 : 2018년 8월 ~ 11월<br/>
+								- 목적 : 재해 및 재난, 공공부조 제도의 사각지대에 노출되어 일상생활에 심각한 어려움을 겪고 있는 취약계측 및 돌봄 수요자에게 일시적으로 긴급 지원을 하여
+								위급 상황을 신속하게 극복할 수 있도록 함<br/><br/></p>
+
+							<h4>내용 <em>: 생계지원, 의료지원, 주거환경개선지원, 재해·재난 긴급 지원, 지역사회정착 지원</em></h4>
+							<p>
+							<br/>
+							- 취약계층 및 돌봄수요자 긴급지원 사업<br/>
+							   ① 생계지원 : 생계비, 주거비, 교육비<br/>
+							   ② 의료지원 : 수술비, 치료비, 간병비, 의료기구 구입 및 대여비 등<br/>
+							   ③ 주거환경개선지원<br/>
+							   ④ 재해·재난 긴급지원<br/>
+							   ⑤ 지역사회정착지원(탈시설, 병원퇴원 등) <br/>
+							   ※ 지원규모 : 개인 또는 가구별 50만원 이내 현금 또는 현물 지원<br/><br/>
+							 </p>
+
+							 <h4>예산 : 15,000,000 원</h4>
+							<br/><br/>
+	 
+							<h4>구비서류</h4>
+							<p>
+							  - 신청기관 접수 공문 1부<br/>
+							  - 긴급지원사업 신청서 1부<br/>
+							  - 지원대상별 증빙자료 1부.<br/>
+							  - 주민등록등본 1부<br/>
+							  - 개인정보 수집 이용 동의서 1부<br/>
+							  - 지원내용별 구비서류</p>
+						</section>
+
+
+					</div>
+				</div><!-- //tabContent -->
+<!-- //사업정보 -->
+				
+
+			</div><!-- //inner -->
+		</main>
+		<footer>
+			<div class="inner">
+				<strong>경기도 일자리재단</strong>
+				<address>&#40;14566&#41; 경기도 부천시 부천로 136번길 27 원미어울마당&#40;구 원미구청&#41; 3층   /  전화번호 : 1577-0014</address>
+				<span class="copy">Copyright &copy; 2019 Gyeonggido Job Foundation all rights reserved.</span>
+			</div>
+		</footer>
+
+	</div><!-- //wrap -->
+
+
+</body>
+</html>

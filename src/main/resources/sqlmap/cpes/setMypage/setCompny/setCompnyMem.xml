@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setCompnyMem">
+
+
+ 	<!-- 회원정보 수정-->
+	<update id="updateMember"  parameterType="ony.cpes.external.mypage.compny.bean.CompnyMemBean">
+		/*setCompnyMem.updateMember*/
+		UPDATE CPES_COMPNY SET
+			  COMPNY_TYPE_CD = #{compnyTypeCd}
+			, REG_NUM = #{regNum}
+			, PATENT_NUM = #{patentNum}
+			, OWNER_NATION_CD = #{ownerNationCd}
+			, ADDR_CD = #{addrCd}
+			, ADDR_DTL = #{addrDtl}
+			, ADDR_FULL_CD = #{addrFullCd}
+			, ADDR_FULL_NM = #{addrFullNm}
+			, MAIN_JOB_PERCENT = #{mainJobPercent}
+			, MNGER_NM = #{mngerNm}
+			, MNGER_POSITION = #{mngerPosition}
+			, MNGER_TEL = #{mngerTel}
+			, COMPNY_FAX = #{compnyFax}
+			, COMPNY_WEBSITE = #{compnyWebsite}
+			, COMPNY_FACEBOOK = #{compnyFacebook}
+			, MOD_USER_SEQ = #{modUserSeq}
+			, MOD_DT = now()
+			, SUB_MNGER_NM= #{subMngerNm}
+			, SUB_MNGER_POSITION= #{subMngerPosition}
+			, SUB_MNGER_CELL= #{subMngerCell}
+			, SUB_MNGER_EMAIL= #{subMngerEmail}
+		WHERE USER_SEQ = #{userSeq}
+    </update>
+
+
+ 	<!-- 기업 프로필정보 수정-->
+	<update id="updateProfile"  parameterType="ony.cpes.external.mypage.compny.bean.CompnyMemBean">
+		/*setCompnyMem.updateProfile*/
+		UPDATE CPES_COMPNY SET
+			  PROFILE = #{profile}
+			, DISABL_EMPLOYEE_TOT_CNT = #{disablEmployeeTotCnt}
+			, EMPLOYEE_TOT_CNT = #{employeeTotCnt}
+			, FEMALE_EMPLOYEE_TOT_CNT = #{femaleEmployeeTotCnt}
+			, FORGNER_TOT_CNT = #{forgnerTotCnt}
+			, GOOGLE_MAP_LINK = #{googleMapLink}
+			, FILE_GRP_SEQ = #{fileGrpSeq}
+			, MOD_USER_SEQ = #{modUserSeq}
+			, MOD_DT = now()
+		WHERE USER_SEQ = #{userSeq}
+    </update>
+
+    <update id="updateCompanyLogoImg" parameterType="ony.cpes.external.mypage.compny.bean.CompnyMemBean">
+    	/*setCompnyMem.updateCompanyLogoImg*/
+		UPDATE CPES_COMPNY SET
+			LOGO_FILE_GRP_SEQ = #{logoFileGrpSeq}
+			, MOD_USER_SEQ = #{userSeq}
+			, MOD_DT = now()
+		WHERE USER_SEQ = #{userSeq}
+    </update>
+
+</mapper>

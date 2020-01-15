@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setInsttFair">
+
+	<!-- 채용행사 초대 신청-->
+	<update id="updateInviteOk"  parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+		/*setInsttFair.updateInviteOk*/
+		UPDATE CPES_FAIR_PATCPTN_INSTT SET
+			INSTT_RESP_YN = 'Y',
+			REQ_DT = now(),
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE INSTT_SEQ = (
+			SELECT G.INSTT_SEQ
+			FROM CPES_INSTT G
+			WHERE G.INSTT_SEQ = #{condSeq}
+			AND G.USER_SEQ = #{condUserSeq}
+		)
+		AND FAIR_SEQ = #{condSeq2}
+
+	</update>
+
+	<!-- 채용행사 초대 삭제-->
+	<update id="deleteInvite"  parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+		/*setInsttFair.deleteInvite*/
+		UPDATE CPES_FAIR_PATCPTN_INSTT SET
+			DEL_YN = 'Y',
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE INSTT_SEQ = (
+			SELECT G.INSTT_SEQ
+			FROM CPES_INSTT G
+			WHERE G.INSTT_SEQ = #{condSeq}
+			AND G.USER_SEQ = #{condUserSeq}
+		)
+		AND FAIR_SEQ = #{condSeq2}
+	</update>
+
+	<!-- 채용행사 부스 취소-->
+	<update id="updateBoothCancel"  parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+		/*setInsttFair.updateBoothCancel*/
+		UPDATE CPES_FAIR_BOOTH_HIST SET
+			BOOTH_CANCEL_REQ_DT = now(),
+			RESV_STS_CD = 'RSV0000000001'
+		WHERE BOOTH_RESV_HIST_SEQ = #{condSeq}
+		AND COMPNY_INSTT_SEQ = (
+			SELECT G.INSTT_SEQ
+			FROM CPES_INSTT G
+			WHERE G.USER_SEQ = #{condUserSeq}
+		)
+
+	</update>
+
+
+
+
+</mapper>

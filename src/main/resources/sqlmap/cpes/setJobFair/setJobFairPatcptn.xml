@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setJobFairPatcptn">
+
+	<!-- Job Fair 참여 저장 (online) -->
+	<insert id="insertJobFairPatcptnOnline" parameterType="ony.cpes.external.jobfair.bean.JobFairPatcptnBean">
+		/*setJobFairPatcptn.insertJobFairPatcptnOnline*/
+		INSERT INTO CPES_FAIR_ONLINE_PATCPTN(
+		       FAIR_SEQ, USER_SEQ
+			 , PATCPTN_YN, DEL_YN, CANCEL_YN
+			 , REG_USER_SEQ, REG_DT, MOD_USER_SEQ, MOD_DT
+		) VALUES(
+		       #{fairSeq}
+		     , #{userSeq}
+		     , 'Y'
+		     , 'N'
+		     , 'N'
+		     , #{userSeq}
+		     , now()
+		     , #{userSeq}
+		     , now()
+		)
+	</insert>
+
+	<!-- Job Fair 참여 저장 (company) -->
+	<insert id="insertJobFairPatcptnCompny"  parameterType="ony.cpes.external.jobfair.bean.JobFairPatcptnBean">
+		/*setJobFairPatcptn.insertJobFairPatcptnCompny*/
+		INSERT INTO CPES_FAIR_PATCPTN_COMPNY(
+		       FAIR_SEQ, COMPNY_SEQ
+			 , REQ_DT, DEL_YN
+			 , REG_USER_SEQ, REG_DT, MOD_USER_SEQ, MOD_DT
+		) VALUES(
+		       #{fairSeq}
+		     , (SELECT COMPNY_SEQ FROM CPES_COMPNY WHERE USER_SEQ=#{userSeq} LIMIT 1)
+		     , now()
+		     , 'N'
+		     , #{userSeq}
+		     , now()
+		     , #{userSeq}
+		     , now()
+		)
+	</insert>
+
+	<!-- Job Fair 참여 저장 (institute) -->
+	<insert id="insertJobFairPatcptnInstt"  parameterType="ony.cpes.external.jobfair.bean.JobFairPatcptnBean">
+		/*setJobFairPatcptn.insertJobFairPatcptnInstt*/
+		INSERT INTO CPES_FAIR_PATCPTN_INSTT(
+		       FAIR_SEQ, INSTT_SEQ
+			 , REQ_DT, DEL_YN
+			 , REG_USER_SEQ, REG_DT, MOD_USER_SEQ, MOD_DT
+		) VALUES(
+		       #{fairSeq}
+		     , (SELECT INSTT_SEQ FROM CPES_INSTT WHERE USER_SEQ=#{userSeq} LIMIT 1)
+		     , now()
+		     , 'N'
+		     , #{userSeq}
+		     , now()
+		     , #{userSeq}
+		     , now()
+		)
+	</insert>
+
+</mapper>

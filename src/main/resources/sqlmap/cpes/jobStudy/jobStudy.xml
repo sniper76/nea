@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jobStudy">
+
+	<!-- 직업탐구 1레벨 목록 -->
+	<select id="selectJobStudyOneLvlList" resultType="ony.cpes.external.jobstudy.bean.JobStudyBean" parameterType="ony.cpes.external.jobstudy.bean.CondJobStudyBean" >
+		/*jobStudy.selectJobStudyOneLvlList*/
+		<![CDATA[
+		SELECT A.ISCO_CD
+		     , A.ISCO_ID
+			 , CASE WHEN #{langCd} = 'KH' THEN A.KH_NM
+			 		ELSE A.EN_NM
+			   END AS ISCO_NM
+			 , A.CD_LVL
+			 , A.UPPER_CD
+		FROM CPES_ISCO_CD A
+		WHERE A.USE_YN = 'Y'
+		AND A.LVL = '1'
+		]]>
+		<if test="condList != null and condList.size !=0">
+			AND A.ISCO_ID IN
+			<foreach item="item" index="index" collection="condList" open="(" close=")" separator=",">
+	        	#{item}
+	    	</foreach>
+    	</if>
+		ORDER BY A.ISCO_ID
+	</select>
+
+	<!-- 직업탐구 레벨별 목록 -->
+	<select id="selectJobStudyLvlList" resultType="ony.cpes.external.jobstudy.bean.JobStudyBean" parameterType="ony.cpes.external.jobstudy.bean.CondJobStudyBean">
+		/*jobStudy.selectJobStudyLvlList*/
+		<![CDATA[
+			SELECT A.ISCO_CD
+			     , A.ISCO_ID
+				 , CASE WHEN #{langCd} = 'KH' THEN A.KH_NM
+				 		ELSE A.EN_NM
+				   END AS ISCO_NM
+				 , A.CD_LVL
+				 , A.UPPER_CD
+				 , (
+				 		SELECT COUNT(1)
+				 		FROM CPES_ISCO_CD C
+				 		WHERE INSTR(C.CD_LVL, CONCAT(A.CD_LVL, #{condDiv}))  = 1
+				 		AND C.LVL = '4'
+				   ) AS LVL_CNT
+			FROM CPES_ISCO_CD A
+			WHERE A.USE_YN = 'Y'
+			AND A.LVL = #{condLvl}
+			AND INSTR(A.CD_LVL, CONCAT(REPLACE(#{condLvlCd}, '&gt;', '>'), #{condDiv}))  = 1
+			ORDER BY A.ISCO_ID
+ 		]]>
+	</select>
+
+	<!-- 직업탐구 상세 -->
+	<select id="selectJobStudy" resultType="ony.cpes.external.jobstudy.bean.JobStudyBean" parameterType="ony.cpes.external.jobstudy.bean.CondJobStudyBean">
+		/*jobStudy.selectJobStudy*/
+		<![CDATA[
+			SELECT A.ISCO_CD
+			     , A.ISCO_ID
+				 , CASE WHEN #{langCd} = 'KH' THEN A.KH_NM
+				 		ELSE A.EN_NM
+				   END AS ISCO_NM
+				 , A.CD_LVL
+				 , A.UPPER_CD
+				 , A.CATE_NM
+				 , A.EXPLN
+			FROM CPES_ISCO_CD A
+			WHERE A.ISCO_CD = #{condSeq}
+			AND A.USE_YN = 'Y'
+ 		]]>
+	</select>
+
+	<!-- 직업탐구 전체 경로 -->
+	<select id="selectJobStudyFullPath" resultType="ony.cpes.external.jobstudy.bean.JobStudyBean" parameterType="ony.cpes.external.jobstudy.bean.CondJobStudyBean">
+		/*jobStudy.selectJobStudyFullPath*/
+		<![CDATA[
+		SELECT GROUP_CONCAT(TBL.ISCO_NM SEPARATOR ' > ') AS FULL_PATH
+		FROM (
+
+			SELECT
+				   CASE WHEN #{langCd} = 'KH' THEN A.KH_NM
+				 		ELSE A.EN_NM
+				   END AS ISCO_NM
+			FROM CPES_ISCO_CD A
+		]]>
+			WHERE A.ISCO_ID IN
+			<foreach item="item" index="index" collection="condList" open="(" close=")" separator=",">
+            	#{item}
+    		</foreach>
+			AND A.USE_YN = 'Y'
+
+		) TBL
+	</select>
+
+	<!-- 직업탐구 검색조건 처리  -->
+	<select id="selectJobStudySearchList" resultType="ony.cpes.external.jobstudy.bean.JobStudyBean" parameterType="ony.cpes.external.jobstudy.bean.CondJobStudyBean" >
+		/*jobStudy.selectJobStudySearchList*/
+		SELECT TBL.CD_LVL AS ISCO_ID
+		FROM (
+			SELECT A.ISCO_CD
+			     , A.ISCO_ID
+				 , CASE WHEN #{langCd} = 'KH' THEN A.KH_NM
+				 		ELSE A.EN_NM
+				   END AS ISCO_NM
+				, SUBSTRING_INDEX(A.CD_LVL, #{condDiv}, 1) AS CD_LVL
+				, A.CATE_NM
+				, A.EXPLN
+			FROM CPES_ISCO_CD A
+			WHERE A.USE_YN = 'Y'
+		) TBL
+		WHERE
+
+		<choose>
+   			<when test="condType == null or condType.equals('')">
+   				( TBL.ISCO_NM LIKE CONCAT('%',#{condText},'%')
+   				      OR TBL.CATE_NM LIKE CONCAT('%',#{condText},'%')
+   				      OR TBL.EXPLN LIKE CONCAT('%',#{condText},'%')
+   				)
+			</when>
+			<when test="condType != null and condType.equals('TITLE')">
+				 TBL.ISCO_NM LIKE CONCAT('%',#{condText},'%')
+			</when>
+			<when test="condType != null and condType.equals('CONTENT')">
+				 TBL.EXPLN LIKE CONCAT('%',#{condText},'%')
+			</when>
+			<when test="condType != null and condType.equals('CATE')">
+				 TBL.CATE_NM LIKE CONCAT('%',#{condText},'%')
+			</when>
+		</choose>
+		GROUP BY TBL.CD_LVL
+	</select>
+
+</mapper>

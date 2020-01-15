@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="member">
+
+    <!-- get uuid -->
+	<select id="selectUUID" resultType="java.lang.String" parameterType="ony.cmm.common.bean.ConditionBean">
+		/*member.selectUUID*/
+		SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+	</select>
+
+    <!-- user email duplication check -->
+	<select id="selectEmailDupChk" resultType="java.lang.Integer" parameterType="ony.cmm.common.bean.CertifyBean">
+		/*member.selectEmailDupChk*/
+		SELECT
+			COUNT(1) AS CNT
+		FROM CPES_USER A
+        WHERE A.USER_EMAIL = #{userEmail}
+	</select>
+
+
+    <!-- user cell phone duplication check -->
+	<select id="selectCellPhoneDupChk" resultType="java.lang.Integer" parameterType="ony.cmm.common.bean.CertifyBean">
+		/*member.selectCellPhoneDupChk*/
+		SELECT
+			COUNT(1) AS CNT
+		FROM CPES_USER A
+        WHERE A.USER_CELL = #{userCell}
+	</select>
+
+</mapper>

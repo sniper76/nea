@@ -1,0 +1,844 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vacancy">
+
+	<!-- 관심채용공고 조건 -->
+	<sql id="whereVacancyCond">
+		AND A.VACANCY_STS_CD = 'VCS0000000001' /* 진행중 */
+		AND A.JC_AGREE_STS_CD = 'JAS0000000001' /* 승인상태 */
+		AND A.DEL_YN = 'N' /* 채용공고 삭제여부 */
+		AND A.USE_YN = 'Y' /* 채용공고 사용여부 */
+		AND B.DEL_YN = 'N' /* 기업 삭제여부 */
+		AND B.USE_YN = 'Y' /* 기업 사용여부 */
+
+		<choose>
+			<when test="condDiv != null and condDiv.equals('SEARCH_DTL')"><!-- 상세검색 -->
+
+				<!-- KEYWORD -->
+				<if test="condDtlText != null and !condDtlText.equals('')">
+					AND (
+							A.VACANCY_KEYWORD LIKE CONCAT('%',#{condDtlText},'%') OR
+							A.VACANCY_TITLE LIKE CONCAT('%',#{condDtlText},'%') OR
+							B.COMPNY_NM_EN LIKE CONCAT('%',#{condDtlText},'%') OR
+						 	B.COMPNY_NM_KH LIKE CONCAT('%',#{condDtlText},'%')
+					)
+				</if>
+
+
+				<choose><!-- VACANCY ISCO_CD  직종 -->
+					<when test="condIscoLvlFour != null and !condIscoLvlFour.equals('')">
+						AND LEFT(A.ISCO_CD, 4) = #{condIscoLvlFour}
+					</when>
+					<when test="condIscoLvlThree != null and !condIscoLvlThree.equals('')">
+						AND LEFT(A.ISCO_CD, 3) = #{condIscoLvlThree}
+					</when>
+					<when test="condIscoLvlTwo != null and !condIscoLvlTwo.equals('')">
+						AND LEFT(A.ISCO_CD, 2) = #{condIscoLvlTwo}
+					</when>
+					<when test="condIscoLvlOne != null and !condIscoLvlOne.equals('')">
+						AND LEFT(A.ISCO_CD, 1) = #{condIscoLvlOne}
+					</when>
+				</choose>
+
+				<choose><!-- VACANCY LOC 지역 -->
+					<when test="condAreaCdLvlTwo != null and !condAreaCdLvlTwo.equals('')">
+						AND EXISTS (
+							SELECT G.VACANCY_LOC_SEQ
+							FROM CPES_VACANCY_LOC G
+							WHERE G.VACANCY_SEQ = A.VACANCY_SEQ
+							AND SUBSTRING(G.FULL_ADDR_CD, 5, 5) = #{condAreaCdLvlTwo}
+						)
+					</when>
+					<when test="condAreaCdLvlOne != null and !condAreaCdLvlOne.equals('')">
+						AND EXISTS (
+							SELECT G.VACANCY_LOC_SEQ
+							FROM CPES_VACANCY_LOC G
+							WHERE G.VACANCY_SEQ = A.VACANCY_SEQ
+							AND LEFT(G.ADDR_FULL_CD, 3) = #{condAreaCdLvlOne}
+						)
+					</when>
+				</choose>
+
+				<!-- 공고 구분 -->
+				<if test="condVacancyTypeCd != null and condVacancyTypeCd.size !=0">
+					AND A.EMPLOY_FORM_CD IN
+					<foreach item="item" index="index" collection="condVacancyTypeCd" open="(" close=")" separator=",">
+			        	#{item}
+			    	</foreach>
+		    	</if>
+
+		    	<!-- 희망급여 -->
+		    	<if test="condSalAmt != null and !condSalAmt.equals('')">
+		    		<![CDATA[
+		    		AND A.MIN_SALARY_AMT <= #{condSalAmt}
+		    		AND A.MAX_SALARY_AMT >= #{condSalAmt}
+		    		]]>
+		    	</if>
+
+
+				<!-- 고용 유형 -->
+				<if test="condPreferEmploymtTypeCd != null and condPreferEmploymtTypeCd.size !=0">
+					AND A.PREFER_EMPLOYMT_TYPE_CD IN
+					<foreach item="item" index="index" collection="condPreferEmploymtTypeCd" open="(" close=")" separator=",">
+			        	#{item}
+			    	</foreach>
+		    	</if>
+
+				<!-- 고용 계약조건 -->
+				<if test="condEmployCtrctCd != null and condEmployCtrctCd.size !=0">
+					AND A.EMPLOY_CTRCT_CD IN
+					<foreach item="item" index="index" collection="condEmployCtrctCd" open="(" close=")" separator=",">
+			        	#{item}
+			    	</foreach>
+		    	</if>
+
+				<!-- 최소필수 교육 -->
+				<if test="condMinEduDegreeCd != null and condMinEduDegreeCd.size !=0">
+					AND A.MIN_EDU_DEGREE_CD IN
+					<foreach item="item" index="index" collection="condMinEduDegreeCd" open="(" close=")" separator=",">
+			        	#{item}
+			    	</foreach>
+		    	</if>
+
+				<!-- 필요한 업무경험  -->
+		    	<if test="condMinWorkExp != null and !condMinWorkExp.equals('')">
+					<choose>
+						<when test="condMinWorkExp.equals('1')">
+							<![CDATA[
+					   		AND A.MIN_WORK_EXP <= 1
+					   		]]>
+						</when>
+						<when test="condMinWorkExp.equals('2')">
+							<![CDATA[
+					   		AND A.MIN_WORK_EXP > 1 AND  <= 2
+					   		]]>
+						</when>
+						<when test="condMinWorkExp.equals('3')">
+							<![CDATA[
+					   		AND A.MIN_WORK_EXP > 2 AND  <= 3
+					   		]]>
+						</when>
+						<when test="condMinWorkExp.equals('4')">
+							<![CDATA[
+					   		AND A.MIN_WORK_EXP > 3 AND  <= 4
+					   		]]>
+						</when>
+						<when test="condMinWorkExp.equals('5')">
+							<![CDATA[
+					   		AND A.MIN_WORK_EXP > 5
+					   		]]>
+						</when>
+
+					</choose>
+		    	</if>
+
+
+				<!-- 우대조건  -->
+				<if test="condPreferntCondCd != null and condPreferntCondCd.size !=0">
+						AND EXISTS (
+							SELECT G.VACANCY_PREFERNT_COND_SEQ
+							FROM CPES_VACANCY_PREFERNT_COND G
+							WHERE G.VACANCY_SEQ = A.VACANCY_SEQ
+							AND G.PREFERNT_COND_CD IN
+							<foreach item="item" index="index" collection="condPreferntCondCd" open="(" close=")" separator=",">
+					        	#{item}
+					    	</foreach>
+						)
+				</if>
+
+				<!-- 외국어  -->
+				<if test="condLangCd != null and condLangCd.size !=0">
+						AND EXISTS (
+							SELECT G.VACANCY_LANG_SEQ
+							FROM CPES_VACANCY_LANG G
+							WHERE G.VACANCY_SEQ = A.VACANCY_SEQ
+							AND G.LANG_CD IN
+							<foreach item="item" index="index" collection="condLangCd" open="(" close=")" separator=",">
+					        	#{item}
+					    	</foreach>
+						)
+				</if>
+			</when>
+			<otherwise>
+				<if test="condAreaCd != null and !condAreaCd.equals('')">
+					AND EXISTS (
+						SELECT G.VACANCY_LOC_SEQ
+						FROM CPES_VACANCY_LOC G
+						WHERE G.VACANCY_SEQ = A.VACANCY_SEQ
+						AND LEFT(G.ADDR_FULL_CD, 3) = #{condAreaCd}
+					)
+				</if>
+				<if test="condText != null and !condText.equals('')">
+					AND (
+							A.VACANCY_KEYWORD LIKE CONCAT('%',#{condText},'%') OR
+							A.VACANCY_TITLE LIKE CONCAT('%',#{condText},'%') OR
+							B.COMPNY_NM_EN LIKE CONCAT('%',#{condText},'%') OR
+						 	B.COMPNY_NM_KH LIKE CONCAT('%',#{condText},'%')
+					)
+				</if>
+
+				<!-- 공고 구분 -->
+				<if test="condVacancyTypeCd != null and condVacancyTypeCd.size !=0">
+					AND A.EMPLOY_FORM_CD IN
+					<foreach item="item" index="index" collection="condVacancyTypeCd" open="(" close=")" separator=",">
+			        	#{item}
+			    	</foreach>
+		    	</if>
+
+
+				<!-- 고용 유형 -->
+				<if test="condPreferEmploymtTypeCd != null and condPreferEmploymtTypeCd.size !=0">
+					AND A.PREFER_EMPLOYMT_TYPE_CD IN
+					<foreach item="item" index="index" collection="condPreferEmploymtTypeCd" open="(" close=")" separator=",">
+			        	#{item}
+			    	</foreach>
+		    	</if>
+			</otherwise>
+		</choose>
+
+	</sql>
+
+
+	<!-- 정렬 조건 -->
+	<sql id="sortVacancyCond">
+		ORDER BY
+		<choose>
+			<when test="condSort != null and condSort.equals('LIKE')">
+				A.BKMK_CNT DESC
+			</when>
+			<when test="condSort != null and condSort.equals('VIEW')">
+				A.VIEW_CNT DESC
+			</when>
+			<otherwise>
+	  			A.REG_DT DESC
+			</otherwise>
+		</choose>
+	</sql>
+
+
+
+	<!-- 채용공고 상세,vacancy detail -->
+	<select id="selectVacancy" resultType="ony.cpes.external.vacancy.bean.VacancyBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+        <![CDATA[
+        	/*vacancy.selectVacancy*/
+            SELECT
+				A.VACANCY_SEQ,
+				A.VACANCY_ID,
+				A.JC_CD,
+				A.JC_USER_SEQ,
+				A.COMPNY_ID,
+				A.VACANCY_TITLE,
+				A.ISCO_CD,
+				FN_GET_ISCO_NM(A.ISCO_CD, #{langCd}) AS ISCO_NM,
+				FN_GET_BASE_DATE_CHAR(A.END_DT,#{langCd}) AS END_DT,
+				FN_GET_BASE_DATE_CHAR(A.WORK_BGN_DT,#{langCd}) AS WORK_BGN_DT,
+				A.RECRUMT_DIFFCLT_YN,
+				A.DIFFCLT_REASON,
+				A.EMPLOY_FORM_CD,
+				FN_GET_COMMON_NM('EMPLOY_FORM_CD', A.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_NM,
+				A.EMPLOY_CTRCT_CD,
+				FN_GET_COMMON_NM('EMPLOY_CTRCT_CD', A.EMPLOY_CTRCT_CD, #{langCd}) AS EMPLOY_CTRCT_NM,
+				A.EMPLOY_CTRCT_DURA,
+				A.EMPLOY_CTRCT_TYPE_CD,
+				FN_GET_COMMON_NM('EMPLOY_CTRCT_TYPE_CD', A.EMPLOY_CTRCT_TYPE_CD, #{langCd}) AS EMPLOY_CTRCT_TYPE_NM,
+				A.WORK_HOUR_CD,
+				FN_GET_COMMON_NM('WORK_HOUR_CD', A.WORK_HOUR_CD, #{langCd}) AS WORK_HOUR_NM,
+				A.WORK_MORN_BGN_TIME,
+				A.WORK_MORN_END_TIME,
+				A.WORK_AFTERNN_BGN_TIME,
+				A.WORK_AFTERNN_END_TIME,
+				A.WORK_NIGHT_BGN_TIME,
+				A.WORK_NIGHT_END_TIME,
+				A.DAY_WORK_TIME,
+				A.WEEK_WORK_DAY,
+				A.NIGHT_WORK_YN,
+				A.NIGHT_WORK_SPEC,
+				A.HLDAY_WORK_YN,
+				A.OVER_WORK_YN,
+				A.FLEX_WORK_YN,
+				A.PROBT_YN,
+				A.PROBT_DURA,
+				A.TRNNG_YN,
+				A.TRNNG_DURA,
+				A.MIN_SALARY_AMT,
+				A.MAX_SALARY_AMT,
+				A.SALARY_UNIT_CD,
+				FN_GET_COMMON_NM('SALARY_UNIT_CD', A.SALARY_UNIT_CD, #{langCd}) AS SALARY_UNIT_NM,
+				A.NSSF_YN,
+				A.ETC_INSU_YN,
+				A.ETC_INSU_SPEC,
+				A.MIN_EDU_DEGREE_CD,
+				FN_GET_COMMON_NM('MIN_EDU_DEGREE_CD', A.MIN_EDU_DEGREE_CD, #{langCd}) AS MIN_EDU_DEGREE_NM,
+				A.ISCED_CD,
+				FN_GET_COMMON_NM('ISCED_CD', A.ISCED_CD, #{langCd}) AS ISCED_NM,
+				A.PRO_LICNS_YN,
+				A.PRO_LICNS_NM,
+				A.MIN_WORK_EXP,
+				A.ISIC_CD,
+				FN_GET_ISIC_NM(A.ISIC_CD, #{langCd}) AS ISIC_NM,
+				A.ETC_WORK_EXP,
+				A.ETC_SKILL_REQ,
+				A.ETC_PREF,
+				A.JOB_DESC,
+				A.RECPT_METHOD,
+				A.EMPLOYER_SIGN,
+				A.VACANCY_STS_CD,
+				FN_GET_COMMON_NM('VACANCY_STS_CD', A.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM,
+				A.JC_MOD_USER_SEQ,
+				A.JC_MOD_DT,
+				A.REG_USER_SEQ,
+				A.REG_DT,
+				A.MOD_USER_SEQ,
+				A.MOD_DT,
+				A.COMPNY_SEQ,
+				A.LANG_CD,
+				A.VIDEO_INTVW_YN,
+				A.VACANCY_CERT_NO,
+				A.INTERN_YN,
+				A.BKMK_CNT,
+				A.JC_AGREE_YN,
+				FN_GET_BASE_DATE_CHAR(A.BGN_DT,#{langCd}) AS BGN_DT,
+				A.RECRUMT_MEMB,
+				A.SPOT,
+				A.VACANCY_CLOSE_DT,
+				A.VIEW_CNT,
+				A.WORK_EXPLN,
+				A.RSPNSB,
+				A.DUTY,
+				A.USE_YN,
+				A.VACANCY_KEYWORD,
+				A.VACANCY_TYPE_CD,
+				FN_GET_COMMON_NM('VACANCY_TYPE_CD', A.VACANCY_TYPE_CD, #{langCd}) AS VACANCY_TYPE_NM,
+				A.PREFER_EMPLOYMT_TYPE_CD,
+				FN_GET_COMMON_NM('PREFER_EMPLOYMT_TYPE_CD', A.PREFER_EMPLOYMT_TYPE_CD, #{langCd}) AS PREFER_EMPLOYMT_TYPE_NM,
+				A.EXPCT_SALARY_CD,
+				FN_GET_COMMON_NM('EXPCT_SALARY_CD', A.EXPCT_SALARY_CD, #{langCd}) AS EXPCT_SALARY_NM,
+				A.NSSF_SPEC,
+				A.RECRUMT_JOB_REF_KNOW,
+				A.RECRUMT_JOB_REF_BASIC_SKILL,
+				A.RECRUMT_JOB_REF_WORK_NEED_ITEM,
+				A.ETC,
+				A.MNGER_NM,
+				A.MNGER_EMAIL,
+				A.MNGER_CELL,
+				A.IMG_FILE_GRP_SEQ,
+				A.RESUME_FILE_GRP_SEQ,
+				A.JC_AGREE_STS_CD,
+				FN_GET_COMMON_NM('JC_AGREE_STS_CD', A.JC_AGREE_STS_CD, #{langCd}) AS JC_AGREE_STS_NM,
+				FN_GET_BASE_DATE_TIME(A.JC_AGREE_DT, 'S', #{langCd}) AS JC_AGREE_DT,
+				A.MIN_EDU_DEGREE_YN,
+				A.MIN_WORK_EXP_YN,
+				FN_GET_REMAIN_CNT(A.END_DT) REMAIN_DT,
+                FN_GET_REMAIN_DIV(A.END_DT) REMAIN_DIV,
+                FN_GET_COMMON_NM('COMPNY_TYPE_CD', B.COMPNY_TYPE_CD, #{langCd}) AS COMPNY_TYPE_NM,
+                FN_GET_COMPNY_NM(B.COMPNY_SEQ, #{langCd}) AS COMPNY_NM,
+                FN_GET_ISCO_NM(B.ISCO_CD, #{langCd}) AS COMPNY_ISCO_NM,
+                B.ADDR_DTL AS COMPNY_ADDR_DTL,
+                B.COMPNY_WEBSITE,
+                FN_GET_ISIC_NM(B.ISIC_CD, #{langCd}) AS COMPNY_ISIC_NM,
+                B.BKMK_CNT AS COMPNY_BMK_CNT,
+	          	(
+	          	 	SELECT F.BKMK_SEQ
+	          	 	FROM CPES_BKMK F
+	          	 	WHERE F.CATE_CD = 'BCT0000000003'
+	          	 	AND F.TABLE_KEY_SEQ = A.VACANCY_SEQ
+	          	 	AND F.USER_SEQ = #{condUserSeq}
+	          	 ) AS BKMK_SEQ,
+	          	(
+	          	 	SELECT F.RESUME_SEQ
+	          	 	FROM CPES_RESUME F
+	          	 	WHERE F.USER_SEQ = #{condUserSeq}
+	          	 	AND F.USE_YN = 'Y'
+	          	 	AND F.PRI_RESUME_YN = 'Y'
+	          	 ) AS RESUME_SEQ,
+	          	 FN_GET_FILE_PATH(B.LOGO_FILE_GRP_SEQ) AS FILE_PATH
+            FROM CPES_VACANCY A
+            INNER JOIN CPES_COMPNY B
+            ON A.COMPNY_SEQ = B.COMPNY_SEQ
+            WHERE A.VACANCY_SEQ =  #{condSeq}
+            AND A.USE_YN = 'Y'
+            AND A.DEL_YN = 'N'
+            AND B.DEL_YN = 'N'
+            AND B.USE_YN = 'Y'
+        ]]>
+    </select>
+
+
+	<!-- 채용공고별 입사지원 -->
+	<select id="selectVacancyApplic" resultType="ony.cpes.external.mypage.privt.bean.ApplicBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+        <![CDATA[
+        	/*vacancy.selectVacancyApplic*/
+            SELECT
+				  A.APPLIC_SEQ
+				, A.APPLIC_PROC_CD
+				, FN_GET_COMMON_NM('APPLIC_PROC_CD', A.APPLIC_PROC_CD, #{langCd}) AS APPLIC_PROC_NM
+				, A.APPLIC_CANCEL_YN
+				, A.RESUME_SEQ
+				, A.VACANCY_SEQ
+				, A.REFERRAL_YN
+            FROM CPES_APPLIC A
+            WHERE A.VACANCY_SEQ =  #{condSeq}
+            AND A.RESUME_SEQ = (
+		 		SELECT G.RESUME_SEQ
+		 		FROM CPES_RESUME G
+		 		WHERE G.USER_SEQ = #{condUserSeq}
+		 		AND G.USE_YN = 'Y'
+		 		AND G.PRI_RESUME_YN = 'Y'
+            )
+        ]]>
+    </select>
+
+
+	<!-- 채용공고별 입사제의 -->
+	<select id="selectVacancyOffer" resultType="ony.cpes.external.mypage.privt.bean.OfferBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+        <![CDATA[
+        	/*vacancy.selectVacancyOffer*/
+            SELECT
+				  A.OFFER_SEQ
+				, A.OFFER_ACPT_YN
+				, A.VACANCY_SEQ
+				, A.RESUME_SEQ
+				, A.OFFER_OPEN_YN
+				, A.OFFER_OPEN_DT
+            FROM CPES_OFFER A
+            WHERE A.VACANCY_SEQ =  #{condSeq}
+            AND A.RESUME_SEQ = (
+		 		SELECT G.RESUME_SEQ
+		 		FROM CPES_RESUME G
+		 		WHERE G.USER_SEQ = #{condUserSeq}
+		 		AND G.USE_YN = 'Y'
+		 		AND G.PRI_RESUME_YN = 'Y'
+            )
+        ]]>
+    </select>
+
+ 	<!-- 입사지원별 인터뷰 -->
+	<select id="selectApplicIntvw" resultType="ony.cpes.external.mypage.privt.bean.IntvwBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+        <![CDATA[
+        	/*vacancy.selectApplicIntvw*/
+            SELECT
+				  A.APPLIC_SEQ
+				, A.INTVW_SEQ
+				, A.INTVW_STS_CD
+				, FN_GET_COMMON_NM('INTVW_STS_CD', A.INTVW_STS_CD, #{langCd}) AS INTVW_STS_NM
+            FROM CPES_INTVW A
+            WHERE A.APPLIC_SEQ = (
+		 		SELECT G.APPLIC_SEQ
+		 		FROM CPES_APPLIC G
+		 		WHERE G.VACANCY_SEQ = #{condSeq}
+		 		AND G.RESUME_SEQ = (
+			 		SELECT G.RESUME_SEQ
+			 		FROM CPES_RESUME G
+			 		WHERE G.USER_SEQ = #{condUserSeq}
+			 		AND G.USE_YN = 'Y'
+			 		AND G.PRI_RESUME_YN = 'Y'
+		 		)
+            )
+            AND A.DEL_YN = 'N'
+        ]]>
+    </select>
+
+	<!-- 채용공고 loc 목록 -->
+	<select id="selectVacancyLocList" resultType="ony.cpes.external.vacancy.bean.VacancyLocBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+        <![CDATA[
+        	/*vacancy.selectVacancyLocList*/
+            SELECT
+				A.ADDR_CD,
+				A.ADDR_FULL_CD,
+				A.ADDR_FULL_NM,
+				A.VACANCY_LOC_SEQ,
+				A.VACANCY_NO,
+				A.VACANCY_SEQ
+            FROM CPES_VACANCY_LOC A
+            WHERE A.VACANCY_SEQ = #{condSeq}
+        ]]>
+    </select>
+
+	<!-- 채용공고 lang 목록 -->
+	<select id="selectVacancyLangList" resultType="ony.cpes.external.vacancy.bean.VacancyLangBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+        <![CDATA[
+        	/*vacancy.selectVacancyLangList*/
+            SELECT
+				A.LANG_CD,
+				FN_GET_COMMON_NM('LANG_CD', A.LANG_CD, #{langCd}) AS LANG_NM,
+				A.LANG_LVL_CD,
+				FN_GET_COMMON_NM('LANG_LVL_CD', A.LANG_LVL_CD, #{langCd}) AS LANG_LVL_NM,
+				A.VACANCY_LANG_SEQ,
+				A.VACANCY_SEQ
+            FROM CPES_VACANCY_LANG A
+            WHERE A.VACANCY_SEQ = #{condSeq}
+        ]]>
+    </select>
+
+	<!-- 채용공고 우대조건 목록 -->
+	<select id="selectVacancyPreferntList" resultType="ony.cpes.external.vacancy.bean.VacancyPreferntBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+        <![CDATA[
+        	/*vacancy.selectVacancyPreferntList*/
+            SELECT
+				A.PREFERNT_COND_CD,
+				FN_GET_COMMON_NM('PREFERNT_COND_CD', A.PREFERNT_COND_CD, #{langCd}) AS PREFERNT_COND_NM,
+				A.VACANCY_PREFERNT_COND_SEQ,
+				A.VACANCY_SEQ
+            FROM CPES_VACANCY_PREFERNT_COND A
+            WHERE A.VACANCY_SEQ = #{condSeq}
+        ]]>
+    </select>
+
+
+
+	<!-- 채용공고 목록,vacancy list count -->
+	<select id="selectSearchListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+        <![CDATA[
+        	/*vacancy.selectSearchListCnt*/
+            SELECT
+                 COUNT(1)
+            FROM CPES_VACANCY A
+            INNER JOIN CPES_COMPNY B
+            ON A.COMPNY_SEQ = B.COMPNY_SEQ
+       ]]>
+            <include refid="whereVacancyCond"/>
+
+    </select>
+
+
+	<!-- 채용공고 검색 목록,vacancy search list -->
+	<select id="selectSearchList" resultType="ony.cpes.external.vacancy.bean.VacancyBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+        <![CDATA[
+        	/*vacancy.selectSearchList*/
+            SELECT
+                 A.VACANCY_SEQ,
+                 A.COMPNY_SEQ,
+                 A.VACANCY_TITLE,
+                 A.EMPLOY_FORM_CD,
+                 FN_GET_COMMON_NM('EMPLOY_FORM_CD', A.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_NM,
+                 A.RECRUMT_MEMB,
+                 A.MIN_SALARY_AMT,
+                 A.MAX_SALARY_AMT,
+                 FN_GET_COMPNY_NM(B.COMPNY_SEQ, #{langCd}) AS COMPNY_NM,
+                 A.VACANCY_STS_CD,
+                 FN_GET_COMMON_NM('VACANCY_STS_CD', A.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM,
+                 FN_GET_REMAIN_CNT(A.END_DT) REMAIN_DT,
+                 FN_GET_REMAIN_DIV(A.END_DT) REMAIN_DIV,
+				 (
+				 	SELECT 	F.ADDR_FULL_NM
+				 	FROM CPES_VACANCY_LOC F
+				 	WHERE F.VACANCY_SEQ = A.VACANCY_SEQ
+				 	LIMIT 1
+				 ) AS ADDR_NM,
+				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN,
+				 FN_GET_FILE_PATH(B.LOGO_FILE_GRP_SEQ) AS FILE_PATH,
+				 FN_GET_BKMK_SEQ(#{condUserSeq}, 'BCT0000000003', A.VACANCY_SEQ) AS BKMK_SEQ
+            FROM CPES_VACANCY A
+            INNER JOIN CPES_COMPNY B
+            ON A.COMPNY_SEQ = B.COMPNY_SEQ
+       ]]>
+            <include refid="whereVacancyCond"/>
+            <include refid="sortVacancyCond"/>
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+
+    </select>
+
+
+ 	<!-- 오늘이 채용공고,today vacancy count -->
+	<select id="selectVacancyTodayCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+        <![CDATA[
+        	/*vacancy.selectVacancyTodayCnt*/
+            SELECT
+                 COUNT(1)
+            FROM CPES_VACANCY A
+            INNER JOIN CPES_COMPNY B
+            ON A.COMPNY_SEQ = B.COMPNY_SEQ
+            AND A.REG_DT < DATE_ADD(NOW(), INTERVAL 1 DAY)
+            AND A.REG_DT > DATE_ADD(NOW(), INTERVAL -1 DAY)
+            AND A.VACANCY_STS_CD = 'VCS0000000001' /* 진행중 */
+			AND A.JC_AGREE_STS_CD = 'JAS0000000001' /* 승인상태 */
+			AND A.DEL_YN = 'N' /* 채용공고 삭제여부 */
+			AND A.USE_YN = 'Y' /* 채용공고 사용여부 */
+			AND B.DEL_YN = 'N' /* 기업 삭제여부 */
+			AND B.USE_YN = 'Y' /* 기업 사용여부 */
+       ]]>
+
+
+    </select>
+
+
+	<!-- 오늘의 인기기업 수 -->
+	<select id="selectVacancyPopulateCompnyTodayListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+		/*vacancy.selectVacancyPopulateCompnyTodayListCnt*/
+		SELECT COUNT(1) AS CNT
+		  FROM CPES_BATCH_TODAY_POPUL_COMPNY A
+		       INNER JOIN
+		       CPES_COMPNY B
+		          ON B.COMPNY_SEQ = A.COMPNY_SEQ
+		  WHERE A.REG_DT <![CDATA[ >= ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL -1 DAY)
+		    AND A.REG_DT <![CDATA[ <  ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL  0 DAY)
+		 <if test="condDiv != null and !condDiv.equals('')">
+		   AND B.ISIC_CD = #{condDiv}
+		 </if>
+		 <if test="condArea != null and !condArea.equals('')">
+		   AND B.ADDR_FULL_CD LIKE CONCAT(#{condArea},'%')
+		 </if>
+	</select>
+
+	<!-- 오늘의 인기기업 목록 -->
+	<select id="selectVacancyPopulateCompnyTodayList" resultType="ony.cpes.external.vacancy.bean.PopulCompnyBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+       	/*vacancy.selectVacancyPopulateCompnyTodayList*/
+		SELECT A.COMPNY_SEQ
+		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.COMPNY_NM_KH ELSE B.COMPNY_NM_EN END AS COMPNY_NM
+		     , A.COMPNY_BKMK_CNT AS BKMK_CNT
+		     , A.RANKING
+		     , B.LOGO_FILE_GRP_SEQ
+		     , FN_GET_ISIC_NM(B.ISIC_CD, #{langCd}) AS ISIC_NM
+		     , FN_GET_ADDR_NM(SUBSTR(B.ADDR_FULL_CD,1,3), '2', #{langCd}) AS LOC_NM
+		     , (
+		        SELECT BKMK_SEQ
+		          FROM CPES_BKMK
+		         WHERE TABLE_KEY_SEQ = B.COMPNY_SEQ
+		           AND USER_SEQ = #{condUserSeq}
+		           AND CATE_CD = 'BCT0000000001'
+		         LIMIT 1
+		       ) AS BKMK_SEQ
+		  FROM CPES_BATCH_TODAY_POPUL_COMPNY A
+		       INNER JOIN
+		       CPES_COMPNY B
+		          ON B.COMPNY_SEQ = A.COMPNY_SEQ
+		  WHERE A.REG_DT <![CDATA[ >= ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL -1 DAY)
+		    AND A.REG_DT <![CDATA[ <  ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL  0 DAY)
+		 <if test="condDiv != null and !condDiv.equals('')">
+		   AND B.ISIC_CD = #{condDiv}
+		 </if>
+		 <if test="condArea != null and !condArea.equals('')">
+		   AND B.ADDR_FULL_CD LIKE CONCAT(#{condArea},'%')
+		 </if>
+		 ORDER BY A.RANKING
+		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+	<!-- 이주의 인기기업 수 -->
+	<select id="selectVacancyPopulateCompnyByWeekListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+		/*vacancy.selectVacancyPopulateCompnyByWeekListCnt*/
+		SELECT COUNT(1) AS CNT
+		  FROM CPES_BATCH_WEEK_POPUL_COMPNY A
+		       INNER JOIN
+		       CPES_COMPNY B
+		          ON B.COMPNY_SEQ = A.COMPNY_SEQ
+		  WHERE A.REG_DT <![CDATA[ >= ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL -7 DAY)
+		    AND A.REG_DT <![CDATA[ <  ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL  0 DAY)
+		 <if test="condDiv != null and !condDiv.equals('')">
+		   AND B.ISIC_CD = #{condDiv}
+		 </if>
+		 <if test="condArea != null and !condArea.equals('')">
+		   AND B.ADDR_FULL_CD LIKE CONCAT(#{condArea},'%')
+		 </if>
+	</select>
+
+	<!-- 이주의 인기기업 목록 -->
+	<select id="selectVacancyPopulateCompnyByWeekList" resultType="ony.cpes.external.vacancy.bean.PopulCompnyBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+       	/*vacancy.selectVacancyPopulateCompnyByWeekList*/
+		SELECT A.COMPNY_SEQ
+		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.COMPNY_NM_KH ELSE B.COMPNY_NM_EN END AS COMPNY_NM
+		     , A.COMPNY_BKMK_CNT AS BKMK_CNT
+		     , A.RANKING
+		     , B.LOGO_FILE_GRP_SEQ
+		     , FN_GET_ISIC_NM(B.ISIC_CD, #{langCd}) AS ISIC_NM
+		     , FN_GET_ADDR_NM(SUBSTR(B.ADDR_FULL_CD,1,3), '2', #{langCd}) AS LOC_NM
+		     , (
+		        SELECT BKMK_SEQ
+		          FROM CPES_BKMK
+		         WHERE TABLE_KEY_SEQ = B.COMPNY_SEQ
+		           AND USER_SEQ = #{condUserSeq}
+		           AND CATE_CD = 'BCT0000000001'
+		         LIMIT 1
+		       ) AS BKMK_SEQ
+		  FROM CPES_BATCH_WEEK_POPUL_COMPNY A
+		       INNER JOIN
+		       CPES_COMPNY B
+		          ON B.COMPNY_SEQ = A.COMPNY_SEQ
+		  WHERE A.REG_DT <![CDATA[ >= ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL -7 DAY)
+		    AND A.REG_DT <![CDATA[ <  ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL  0 DAY)
+		 <if test="condDiv != null and !condDiv.equals('')">
+		   AND B.ISIC_CD = #{condDiv}
+		 </if>
+		 <if test="condArea != null and !condArea.equals('')">
+		   AND B.ADDR_FULL_CD LIKE CONCAT(#{condArea},'%')
+		 </if>
+		 ORDER BY A.RANKING
+		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+
+	<!-- 이달의 인기기업 수 -->
+	<select id="selectVacancyPopulateCompnyByMonthListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+		/*vacancy.selectVacancyPopulateCompnyByMonthListCnt*/
+		SELECT COUNT(1) AS CNT
+		  FROM CPES_BATCH_MONTH_POPUL_COMPNY A
+		       INNER JOIN
+		       CPES_COMPNY B
+		          ON B.COMPNY_SEQ = A.COMPNY_SEQ
+		  WHERE A.REG_DT <![CDATA[ >= ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL -30 DAY)
+		    AND A.REG_DT <![CDATA[ <  ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL   0 DAY)
+		 <if test="condDiv != null and !condDiv.equals('')">
+		   AND B.ISIC_CD = #{condDiv}
+		 </if>
+		 <if test="condArea != null and !condArea.equals('')">
+		   AND B.ADDR_CD = #{condArea}
+		 </if>
+	</select>
+
+	<!-- 이달의 인기기업 목록 -->
+	<select id="selectVacancyPopulateCompnyByMonthList" resultType="ony.cpes.external.vacancy.bean.PopulCompnyBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+       	/*vacancy.selectVacancyPopulateCompnyByMonthList*/
+		SELECT A.COMPNY_SEQ
+		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.COMPNY_NM_KH ELSE B.COMPNY_NM_EN END AS COMPNY_NM
+		     , A.COMPNY_BKMK_CNT AS BKMK_CNT
+		     , A.RANKING
+		     , B.LOGO_FILE_GRP_SEQ
+		     , FN_GET_ISIC_NM(B.ISIC_CD, #{langCd}) AS ISIC_NM
+		     , FN_GET_ADDR_NM(SUBSTR(B.ADDR_FULL_CD,1,3), '2', #{langCd}) AS LOC_NM
+		     , (
+		        SELECT BKMK_SEQ
+		          FROM CPES_BKMK
+		         WHERE TABLE_KEY_SEQ = B.COMPNY_SEQ
+		           AND USER_SEQ = #{condUserSeq}
+		           AND CATE_CD = 'BCT0000000001'
+		         LIMIT 1
+		       ) AS BKMK_SEQ
+		  FROM CPES_BATCH_MONTH_POPUL_COMPNY A
+		       INNER JOIN
+		       CPES_COMPNY B
+		          ON B.COMPNY_SEQ = A.COMPNY_SEQ
+		  WHERE A.REG_DT <![CDATA[ >= ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL -30 DAY)
+		    AND A.REG_DT <![CDATA[ <  ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL   0 DAY)
+		 <if test="condDiv != null and !condDiv.equals('')">
+		   AND B.ISIC_CD = #{condDiv}
+		 </if>
+		 <if test="condArea != null and !condArea.equals('')">
+		   AND B.ADDR_CD = #{condArea}
+		 </if>
+		 ORDER BY A.RANKING
+		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+	<!-- 누적 인기기업 수 -->
+	<select id="selectVacancyPopulateCompnyByAccumulateListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+		/*vacancy.selectVacancyPopulateCompnyByAccumulateListCnt*/
+		SELECT COUNT(1) AS CNT
+		  FROM CPES_BATCH_SUM_POPUL_COMPNY A
+		       INNER JOIN
+		       CPES_COMPNY B
+		          ON B.COMPNY_SEQ = A.COMPNY_SEQ
+		  WHERE 1=1
+		 <if test="condDiv != null and !condDiv.equals('')">
+		   AND B.ISIC_CD = #{condDiv}
+		 </if>
+		 <if test="condArea != null and !condArea.equals('')">
+		   AND B.ADDR_CD = #{condArea}
+		 </if>
+	</select>
+
+	<!-- 누적 인기기업 목록 -->
+	<select id="selectVacancyPopulateCompnyByAccumulateList" resultType="ony.cpes.external.vacancy.bean.PopulCompnyBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+       	/*vacancy.selectVacancyPopulateCompnyByAccumulateList*/
+		SELECT A.COMPNY_SEQ
+		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.COMPNY_NM_KH ELSE B.COMPNY_NM_EN END AS COMPNY_NM
+		     , A.COMPNY_BKMK_CNT AS BKMK_CNT
+		     , A.RANKING
+		     , B.LOGO_FILE_GRP_SEQ
+		     , FN_GET_ISIC_NM(B.ISIC_CD, #{langCd}) AS ISIC_NM
+		     , FN_GET_ADDR_NM(SUBSTR(B.ADDR_FULL_CD,1,3), '2', #{langCd}) AS LOC_NM
+		     , (
+		        SELECT BKMK_SEQ
+		          FROM CPES_BKMK
+		         WHERE TABLE_KEY_SEQ = B.COMPNY_SEQ
+		           AND USER_SEQ = #{condUserSeq}
+		           AND CATE_CD = 'BCT0000000001'
+		         LIMIT 1
+		       ) AS BKMK_SEQ
+		     , FN_GET_FILE_PATH(B.LOGO_FILE_GRP_SEQ) AS FILE_PATH
+		  FROM CPES_BATCH_SUM_POPUL_COMPNY A
+		       INNER JOIN
+		       CPES_COMPNY B
+		          ON B.COMPNY_SEQ = A.COMPNY_SEQ
+		  WHERE 1=1
+		 <if test="condDiv != null and !condDiv.equals('')">
+		   AND B.ISIC_CD = #{condDiv}
+		 </if>
+		 <if test="condArea != null and !condArea.equals('')">
+		   AND B.ADDR_CD = #{condArea}
+		 </if>
+		 ORDER BY A.RANKING
+		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+	<!-- 인기채용공고 목록 -->
+	<select id="selectVacancyPopulateList" resultType="ony.cpes.external.vacancy.bean.PopulVacancyBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+       	/*vacancy.selectVacancyPopulateList*/
+		SELECT A.VACANCY_SEQ
+		     , A.RANKING
+		     , A.VACANCY_BKMK_CNT AS BKMK_CNT
+		     , FN_GET_BKMK_SEQ(#{condUserSeq}, 'BCT0000000003', B.VACANCY_SEQ) AS BKMK_SEQ
+		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN C.COMPNY_NM_KH ELSE C.COMPNY_NM_EN END AS COMPNY_NM
+		     , C.LOGO_FILE_GRP_SEQ
+		     , FN_GET_FILE_PATH(C.LOGO_FILE_GRP_SEQ) AS LOGO_FILE_PATH
+		     , B.VACANCY_TITLE
+		     , B.RECRUMT_MEMB
+		     , B.MIN_SALARY_AMT
+		     , B.MAX_SALARY_AMT
+		     , B.VACANCY_STS_CD
+		     , FN_GET_COMMON_NM('PREFER_EMPLOYMT_TYPE_CD', B.PREFER_EMPLOYMT_TYPE_CD, #{langCd}) AS PREFER_EMPLOYMT_TYPE_NM
+		     , FN_GET_COMMON_NM('EMPLOY_FORM_CD', B.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_NM
+		     , FN_GET_COMMON_NM('VACANCY_STS_CD', B.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM
+		     , (
+		        SELECT FN_GET_ADDR_NM(SUBSTR(ADDR_CD,1,3), '2', #{langCd}) AS ADDR_FULL_NM
+		          FROM CPES_VACANCY_LOC
+		         WHERE VACANCY_SEQ = B.VACANCY_SEQ
+		         LIMIT 1
+		       ) AS ADDR_FULL_NM
+		     , FN_GET_REMAIN_CNT(B.END_DT) AS REMAIN_DT
+		     , FN_GET_REMAIN_DIV(B.END_DT) AS REMAIN_DIV
+		  FROM CPES_BATCH_TODAY_POPUL_VACANCY A
+		       INNER JOIN
+		       CPES_VACANCY B
+		          ON B.VACANCY_SEQ = A.VACANCY_SEQ
+		         AND B.VACANCY_STS_CD = 'VCS0000000001'
+		         AND B.JC_AGREE_STS_CD = 'JAS0000000001'
+		         AND B.DEL_YN = 'N'
+		         AND B.USE_YN = 'Y'
+		       INNER JOIN
+		       CPES_COMPNY C
+		          ON C.COMPNY_SEQ = B.COMPNY_SEQ
+		         AND C.DEL_YN = 'N'
+		         AND C.USE_YN = 'Y'
+		 WHERE A.REG_DT <![CDATA[ >= ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL -1 DAY)
+		   AND A.REG_DT <![CDATA[ <  ]]> DATE_ADD(NOW(), INTERVAL 0 DAY)
+		<choose>
+			<when test="condDiv != null and !condDiv.equals('')">
+		   AND B.ISCO_CD IN (
+		        SELECT ISCO_CD
+		          FROM CPES_ISCO_CD
+		         WHERE LVL = 2
+		           AND ISCO_CD LIKE CONCAT(#{condIsco},'_')
+		       )
+			</when>
+			<when test="condIsco != null and !condIsco.equals('')">
+		   AND B.ISCO_CD IN (
+		        SELECT ISCO_CD
+		          FROM CPES_ISCO_CD
+		         WHERE LVL = 1
+		           AND ISCO_CD = #{condIsco}
+		       )
+			</when>
+		</choose>
+		<if test="condArea != null and !condArea.equals('')">
+		   AND EXISTS (
+		        SELECT 1
+		          FROM CPES_VACANCY_LOC
+		         WHERE VACANCY_SEQ = B.VACANCY_SEQ
+		           AND ADDR_CD LIKE CONCAT(#{condArea},'%')
+		       )
+		</if>
+		 ORDER BY RANKING
+		 LIMIT 100
+	</select>
+
+</mapper>

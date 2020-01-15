@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="bulletin">
+
+	<sql id="whereCond">
+		<!-- 검색조건,search condition -->
+	    AND A.USE_YN = 'Y'
+	    AND A.DEL_YN = 'N'
+	    AND B.DEL_YN = 'N'
+	    AND C.USE_YN = 'Y'
+	    AND C.DEL_YN = 'N'
+	    AND ((B.AGREE_YN = 'Y' AND B.VIEW_YN = 'Y') OR B.REG_USER_SEQ = #{condUserSeq})
+
+	    <if test="condText != null and !condText.equals('')">
+			<choose>
+	   			<when test="condType == null or condType.equals('')">
+	   				AND ( B.TITLE_EN LIKE CONCAT('%',#{condText},'%') OR
+	   				      B.TITLE_KH LIKE CONCAT('%',#{condText},'%') OR
+	   				      B.CONTENT_EN LIKE CONCAT('%',#{condText},'%') OR
+	   				      B.CONTENT_KH LIKE CONCAT('%',#{condText},'%') OR
+	   				      C.USER_NM_EN LIKE CONCAT('%',#{condText},'%') OR
+	   				      C.USER_NM_KH LIKE CONCAT('%',#{condText},'%')
+	   				)
+				</when>
+				<when test="condType != null and condType.equals('TITLE')">
+					 AND (B.TITLE_EN LIKE CONCAT('%',#{condText},'%') OR B.TITLE_KH LIKE CONCAT('%',#{condText},'%'))
+				</when>
+				<when test="condType != null and condType.equals('CONTENT')">
+					 AND (B.CONTENT_EN LIKE CONCAT('%',#{condText},'%') OR B.CONTENT_KH LIKE CONCAT('%',#{condText},'%'))
+				</when>
+				<when test="condType != null and condType.equals('NAME')">
+					 AND (C.USER_NM_EN LIKE CONCAT('%',#{condText},'%') OR C.USER_NM_KH LIKE CONCAT('%',#{condText},'%'))
+				</when>
+			</choose>
+	    </if>
+
+		<if test="bulletinCateSeq != null and !bulletinCateSeq.equals('')">
+			AND B.BULLETIN_CATE_SEQ = #{bulletinCateSeq}
+		</if>
+	</sql>
+	<sql id="sortCond">
+		ORDER BY B.NTC_YN DESC
+		<choose>
+			<when test="condSort != null and condSort.equals('LATEST')">
+				,B.REG_DT DESC,B.BULLETIN_ID DESC
+			</when>
+			<when test="condSort != null and condSort.equals('LIKE')">
+				,B.LIKE_CNT DESC,B.BULLETIN_ID DESC
+			</when>
+			<when test="condSort != null and condSort.equals('VIEW')">
+				,B.VIEW_CNT DESC,B.BULLETIN_ID DESC
+			</when>
+			<otherwise>
+   				,B.REG_DT DESC,B.BULLETIN_ID DESC
+			</otherwise>
+		</choose>
+	</sql>
+
+	<sql id="sortCond2">
+		ORDER BY
+		<choose>
+			<when test="condSort != null and condSort.equals('LATEST')">
+				B.REG_DT DESC,B.BULLETIN_ID DESC
+			</when>
+			<when test="condSort != null and condSort.equals('LIKE')">
+				B.LIKE_CNT DESC,B.BULLETIN_ID DESC
+			</when>
+			<when test="condSort != null and condSort.equals('VIEW')">
+				B.VIEW_CNT DESC,B.BULLETIN_ID DESC
+			</when>
+			<otherwise>
+   				B.REG_DT DESC,B.BULLETIN_ID DESC
+			</otherwise>
+		</choose>
+	</sql>
+
+
+    <!-- bulletin config  -->
+	<select id="selectBulletinConfig" resultType="ony.cpes.external.bulletin.bean.BulletinConfigBean" parameterType="ony.cpes.external.bulletin.bean.CondBulletinBean">
+		/*bulletin.selectBulletinConfig*/
+		SELECT
+				A.BANNER_USE_YN,
+				A.BULLETIN_MNG_SEQ,
+				A.BULLETIN_NM,
+				A.BULLETIN_RANGE_CD,
+				A.BULLETIN_TYPE_CD,
+				A.CATE_USE_YN,
+				A.COMMENT_YN,
+				A.CONTENT,
+				A.CREATE_DT,
+				A.DEL_YN,
+				A.EMPLOY_YN,
+				A.FILE_GRP_CD,
+				A.FILE_QTY,
+				A.FILE_SIZE,
+				A.FILE_YN,
+				A.JOBSK_YN,
+				A.LIKE_YN,
+				A.MENU_CD,
+				A.MENU_CD_DIV,
+				A.MOD_DT,
+				A.MOD_USER_SEQ,
+				A.REG_DT,
+				A.REG_USER_SEQ,
+				A.STDT_YN,
+				A.TRNNG_INSTT_YN,
+				A.USE_YN,
+				A.USER_AUTH_CD
+		FROM CPES_BULLETIN_MNG A
+        WHERE A.BULLETIN_MNG_SEQ = #{condBulletinMngSeq}
+	    AND A.USE_YN = 'Y'
+	</select>
+
+
+    <!-- bulletin config type  -->
+	<select id="selectBulletinConfigType" resultType="ony.cpes.external.bulletin.bean.BulletinConfigBean" parameterType="ony.cpes.external.bulletin.bean.CondBulletinBean">
+		/*bulletin.selectBulletinConfigType*/
+		SELECT
+				A.BANNER_USE_YN,
+				A.BULLETIN_MNG_SEQ,
+				A.BULLETIN_NM,
+				A.BULLETIN_RANGE_CD,
+				A.BULLETIN_TYPE_CD,
+				A.CATE_USE_YN,
+				A.COMMENT_YN,
+				A.CONTENT,
+				A.CREATE_DT,
+				A.DEL_YN,
+				A.EMPLOY_YN,
+				A.FILE_GRP_CD,
+				A.FILE_QTY,
+				A.FILE_SIZE,
+				A.FILE_YN,
+				A.JOBSK_YN,
+				A.LIKE_YN,
+				A.MENU_CD,
+				A.MENU_CD_DIV,
+				A.MOD_DT,
+				A.MOD_USER_SEQ,
+				A.REG_DT,
+				A.REG_USER_SEQ,
+				A.STDT_YN,
+				A.TRNNG_INSTT_YN,
+				A.USE_YN,
+				A.USER_AUTH_CD
+		FROM CPES_BULLETIN_MNG A
+        WHERE A.BULLETIN_TYPE_CD = #{condBulletinTypeCd}
+	    AND A.USE_YN = 'Y'
+	    ORDER BY A.REG_DT DESC
+	    LIMIT 1
+	</select>
+
+    <!-- bulletin info  -->
+	<select id="selectBulletin" resultType="ony.cpes.external.bulletin.bean.BulletinBean" parameterType="ony.cpes.external.bulletin.bean.CondBulletinBean">
+		/*bulletin.selectBulletin*/
+		SELECT
+				B.AGREE_YN,
+				B.BULLETIN_MNG_SEQ,
+				B.BULLETIN_SEQ,
+				B.BULLETIN_TYPE_CD,
+				B.COMMENT_CNT,
+				CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.CONTENT_KH
+				ELSE B.CONTENT_EN
+				END AS CONTENT,
+				B.CONTENT_EN,
+				B.CONTENT_KH,
+				B.DEPTH,
+				B.FILE_GRP_SEQ,
+				B.JC_CD,
+				B.LIKE_CNT,
+				B.MOD_DT,
+				B.MOD_USER_SEQ,
+				B.NTC_YN,
+				FN_GET_BASE_DATE_CHAR(B.REG_DT,#{langCd}) AS REG_DT,
+				B.REG_USER_SEQ,
+				B.SORT,
+				CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.TITLE_KH
+				ELSE B.TITLE_EN
+				END AS TITLE,
+				B.TITLE_EN,
+				B.TITLE_KH,
+				B.BULLETIN_CATE_SEQ,
+				B.VIEW_CNT,
+				B.VIEW_YN,
+				(SELECT LIKE_SEQ FROM CPES_LIKE WHERE TABLE_KEY_SEQ = B.BULLETIN_SEQ AND USER_SEQ = #{condUserSeq}) AS LIKE_SEQ,
+				FN_GET_LIKE_YN(#{condUserSeq}, #{condLikeCateCd}, B.BULLETIN_SEQ) AS LIKE_YN,
+				B.BULLETIN_ID,
+				FN_GET_USER_NM_BY_USER_SEQ(B.REG_USER_SEQ, #{langCd}) AS REG_NM,
+				CASE WHEN B.REG_USER_SEQ = #{condUserSeq} THEN 'Y'
+				     ELSE 'N'
+				END AS MODIFY_YN
+		FROM CPES_BULLETIN_MNG A
+		INNER JOIN CPES_BULLETIN B
+		ON A.BULLETIN_MNG_SEQ = B.BULLETIN_MNG_SEQ
+		INNER JOIN CPES_USER C
+		ON B.REG_USER_SEQ = C.USER_SEQ
+        WHERE A.BULLETIN_MNG_SEQ = #{condBulletinMngSeq}
+        AND B.BULLETIN_SEQ = #{condSeq}
+	    AND A.USE_YN = 'Y'
+	    AND A.DEL_YN = 'N'
+	    AND B.DEL_YN = 'N'
+	    AND C.DEL_YN = 'N'
+	</select>
+
+    <!-- bulletin list count info  -->
+	<select id="selectBulletinListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.bulletin.bean.CondBulletinBean">
+		/*bulletin.selectListCnt*/
+		SELECT COUNT(1) AS CNT
+		FROM CPES_BULLETIN_MNG A
+		INNER JOIN CPES_BULLETIN B
+		ON A.BULLETIN_MNG_SEQ = B.BULLETIN_MNG_SEQ
+		INNER JOIN CPES_USER C
+		ON B.REG_USER_SEQ = C.USER_SEQ
+        WHERE A.BULLETIN_MNG_SEQ = #{condBulletinMngSeq}
+ 		<include refid="whereCond"/>
+
+	</select>
+
+    <!-- bulletin list info  -->
+	<select id="selectBulletinList" resultType="ony.cpes.external.bulletin.bean.BulletinBean" parameterType="ony.cpes.external.bulletin.bean.CondBulletinBean">
+		/*bulletin.selectBulletinList*/
+		SELECT
+				B.AGREE_YN,
+				B.BULLETIN_MNG_SEQ,
+				B.BULLETIN_SEQ,
+				B.BULLETIN_TYPE_CD,
+				B.COMMENT_CNT,
+				CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.CONTENT_KH
+				ELSE B.CONTENT_EN
+				END AS CONTENT,
+				B.DEPTH,
+				B.FILE_GRP_SEQ,
+				B.LIKE_CNT,
+				B.MOD_DT,
+				B.MOD_USER_SEQ,
+				B.NTC_YN,
+				FN_GET_BASE_DATE_CHAR(B.REG_DT,#{langCd}) AS REG_DT,
+				B.REG_USER_SEQ,
+				B.SORT,
+				CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.TITLE_KH
+				ELSE B.TITLE_EN
+				END AS TITLE,
+				B.VIEW_CNT,
+				B.VIEW_YN,
+				FN_GET_NEW_YN(B.REG_DT) AS NEW_YN,
+				(SELECT LIKE_SEQ FROM CPES_LIKE WHERE TABLE_KEY_SEQ = B.BULLETIN_SEQ AND USER_SEQ = #{condUserSeq}) AS LIKE_SEQ,
+				FN_GET_LIKE_YN(#{condUserSeq}, #{condLikeCateCd}, B.BULLETIN_SEQ) AS LIKE_YN,
+				B.BULLETIN_ID,
+				FN_GET_USER_NM_BY_USER_SEQ(B.REG_USER_SEQ, #{langCd}) AS REG_NM,
+				(SELECT COUNT(1) FROM CPES_COMMENT D WHERE D.BULLETIN_SEQ = B.BULLETIN_SEQ AND D.DEL_YN = 'N') AS COMMENT_CNT
+		FROM CPES_BULLETIN_MNG A
+		INNER JOIN CPES_BULLETIN B
+		ON A.BULLETIN_MNG_SEQ = B.BULLETIN_MNG_SEQ
+		INNER JOIN CPES_USER C
+		ON B.REG_USER_SEQ = C.USER_SEQ
+        WHERE A.BULLETIN_MNG_SEQ = #{condBulletinMngSeq}
+        <include refid="whereCond"/>
+		<include refid="sortCond"/>
+       	LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+
+
+	<!-- bulletin pre next  -->
+	<select id="selectBulletinPreNextList" resultType="ony.cpes.external.bulletin.bean.BulletinBean" parameterType="ony.cpes.external.bulletin.bean.CondBulletinBean">
+		/*bulletin.selectBulletinPreNextList*/
+		SELECT
+		    	A.BULLETIN_SEQ,
+				CASE WHEN UPPER(#{langCd}) = 'KH' THEN A.TITLE_KH
+				ELSE A.TITLE_EN
+				END AS TITLE,
+				A.VIEW_CNT,
+				FN_GET_BASE_DATE_CHAR(A.REG_DT,#{langCd}) AS REG_DT,
+				A.BULLETIN_ID
+		FROM CPES_BULLETIN A
+	    WHERE A.BULLETIN_SEQ IN (
+		    (
+		    	SELECT B.BULLETIN_SEQ
+		     	FROM CPES_BULLETIN B
+		     	WHERE B.BULLETIN_SEQ &lt; #{condBulletinId}
+			    AND B.AGREE_YN = 'Y'
+			    AND B.DEL_YN = 'N'
+			    AND B.VIEW_YN = 'Y'
+		     	<include refid="sortCond"/>
+		     	LIMIT 1
+		     ),
+		    (
+		    	SELECT B.BULLETIN_SEQ
+		    	FROM CPES_BULLETIN B
+		    	WHERE B.BULLETIN_SEQ &gt; #{condBulletinId}
+			    AND B.AGREE_YN = 'Y'
+			    AND B.DEL_YN = 'N'
+			    AND B.VIEW_YN = 'Y'
+		    	<include refid="sortCond"/>
+				LIMIT 1
+			)
+		)
+	</select>
+
+
+    <!-- bulletin category list info  -->
+	<select id="selectBulletinCateList" resultType="ony.cpes.external.bulletin.bean.BulletinCateBean" parameterType="ony.cpes.external.bulletin.bean.CondBulletinBean">
+		/*bulletin.selectBulletinCateList*/
+		SELECT
+			A.BULLETIN_MNG_SEQ,
+			A.BULLETIN_CATE_NM,
+			A.BULLETIN_CATE_SEQ,
+			A.SORT
+		FROM CPES_BULLETIN_CATE A
+        WHERE A.BULLETIN_MNG_SEQ = #{condBulletinMngSeq}
+        ORDER BY A.SORT
+	</select>
+
+
+	<!-- bulletin pre  -->
+	<select id="selectBulletinPre" resultType="ony.cpes.external.bulletin.bean.BulletinBean" parameterType="ony.cpes.external.bulletin.bean.CondBulletinBean">
+		/*bulletin.selectBulletinPre*/
+		SELECT
+		    	B.BULLETIN_SEQ,
+				CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.TITLE_KH
+				ELSE B.TITLE_EN
+				END AS TITLE,
+				B.VIEW_CNT,
+				FN_GET_BASE_DATE_CHAR(B.REG_DT,#{langCd}) AS REG_DT,
+				B.BULLETIN_ID,
+				'Y' AS NEXT_YN
+		FROM CPES_BULLETIN_MNG A
+		INNER JOIN CPES_BULLETIN B
+		ON A.BULLETIN_MNG_SEQ = B.BULLETIN_MNG_SEQ
+		INNER JOIN CPES_USER C
+		ON B.REG_USER_SEQ = C.USER_SEQ
+		WHERE B.BULLETIN_ID &lt; CAST(#{condBulletinId} AS UNSIGNED)
+		AND B.BULLETIN_MNG_SEQ = #{condBulletinMngSeq}
+		<include refid="whereCond"/>
+		<include refid="sortCond2"/>
+		LIMIT 1
+	</select>
+
+	<!-- bulletin next  -->
+	<select id="selectBulletinNext" resultType="ony.cpes.external.bulletin.bean.BulletinBean" parameterType="ony.cpes.external.bulletin.bean.CondBulletinBean">
+		/*bulletin.selectBulletinNext*/
+		SELECT
+		    	B.BULLETIN_SEQ,
+				CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.TITLE_KH
+				ELSE B.TITLE_EN
+				END AS TITLE,
+				B.VIEW_CNT,
+				FN_GET_BASE_DATE_CHAR(B.REG_DT,#{langCd}) AS REG_DT,
+				B.BULLETIN_ID,
+				'Y' AS NEXT_YN
+		FROM CPES_BULLETIN_MNG A
+		INNER JOIN CPES_BULLETIN B
+		ON A.BULLETIN_MNG_SEQ = B.BULLETIN_MNG_SEQ
+		INNER JOIN CPES_USER C
+		ON B.REG_USER_SEQ = C.USER_SEQ
+		WHERE B.BULLETIN_ID &gt; CAST(#{condBulletinId} AS UNSIGNED)
+		AND B.BULLETIN_MNG_SEQ = #{condBulletinMngSeq}
+		<include refid="whereCond"/>
+		<include refid="sortCond2"/>
+		LIMIT 1
+	</select>
+
+
+
+	<!-- comment list count -->
+	<select id="selectCommentListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.bulletin.bean.CondBulletinBean">
+		/*bulletin.selectCommentListCnt*/
+		SELECT
+		    	COUNT(1) AS CNT
+		FROM CPES_COMMENT A
+		WHERE A.BULLETIN_SEQ = #{condSeq}
+		AND A.DEL_YN = 'N'
+		AND A.DEPTH  = #{condDepth}
+	</select>
+
+	<!-- comment list  -->
+	<select id="selectCommentList" resultType="ony.cpes.external.bulletin.bean.CommentBean" parameterType="ony.cpes.external.bulletin.bean.CondBulletinBean">
+		/*bulletin.selectCommentList*/
+		SELECT
+		    	A.BULLETIN_SEQ,
+		    	A.COMMENT_SEQ,
+				A.CONTENT,
+				FN_GET_BASE_DATE_CHAR(A.REG_DT,#{langCd}) AS REG_DT,
+				A.UPPER_COMMENT_SEQ,
+				A.DEPTH,
+				A.SORT,
+				A.COMMENT_ID,
+				FN_GET_USER_NM_BY_USER_SEQ(A.REG_USER_SEQ, #{langCd}) AS REG_NM,
+				(SELECT COUNT(1) FROM CPES_COMMENT C WHERE C.UPPER_COMMENT_SEQ = A.COMMENT_SEQ AND C.DEL_YN = 'N') AS COMMENT_CNT,
+				CASE WHEN A.REG_USER_SEQ = #{condUserSeq} THEN 'Y'
+				     ELSE 'N'
+				END AS MODIFY_YN
+		FROM CPES_COMMENT A
+		WHERE A.BULLETIN_SEQ = #{condSeq}
+		AND A.DEL_YN = 'N'
+		AND ((A.VIEW_YN = 'Y' AND A.AGREE_YN = 'Y') OR A.REG_USER_SEQ = #{condUserSeq})
+		AND A.DEPTH  = #{condDepth}
+		ORDER BY A.COMMENT_ID DESC
+		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+	</select>
+
+	<!-- comment 댓글에 댓글 목록  -->
+	<select id="selectCommentReplyList" resultType="ony.cpes.external.bulletin.bean.CommentBean" parameterType="ony.cpes.external.bulletin.bean.CondBulletinBean">
+		/*bulletin.selectCommentReplyList*/
+		SELECT
+		    	A.BULLETIN_SEQ,
+		    	A.COMMENT_SEQ,
+				A.CONTENT,
+				FN_GET_BASE_DATE_CHAR(A.REG_DT,#{langCd}) AS REG_DT,
+				A.UPPER_COMMENT_SEQ,
+				A.DEPTH,
+				A.SORT,
+				A.COMMENT_ID,
+				FN_GET_USER_NM_BY_USER_SEQ(A.REG_USER_SEQ, #{langCd}) AS REG_NM,
+				CASE WHEN A.REG_USER_SEQ = #{condUserSeq} THEN 'Y'
+				     ELSE 'N'
+				END AS MODIFY_YN
+		FROM CPES_COMMENT A
+		WHERE A.BULLETIN_SEQ = #{condSeq}
+		AND A.UPPER_COMMENT_SEQ = #{condUpperSeq}
+		AND A.DEL_YN = 'N'
+		AND A.DEPTH  = #{condDepth}
+		ORDER BY A.COMMENT_ID DESC
+	</select>
+
+	<!-- comment 댓글에  하위댓글 count  -->
+	<select id="selectCommentChildCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.bulletin.bean.CondBulletinBean">
+		/*bulletin.selectCommentChildCnt*/
+		SELECT
+		    	COUNT(1) AS CNT
+		FROM CPES_COMMENT A
+		WHERE A.BULLETIN_SEQ = #{condSeq}
+		AND A.UPPER_COMMENT_SEQ = #{condUpperSeq}
+		AND A.DEL_YN = 'N'
+	</select>
+
+</mapper>

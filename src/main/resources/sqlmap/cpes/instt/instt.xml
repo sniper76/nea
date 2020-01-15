@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="instt">
+
+	<!-- 교육프로그램 조건 -->
+	<sql id="whereEduTrnngCond">
+		WHERE B.INSTT_SEQ = #{condSeq}
+		AND B.DEL_YN = 'N'	/* 기관 삭제여부 */
+		AND A.RECRUMT_STS_CD = 'RSC0000000002'	/* 모집중 */
+		AND A.DEL_YN = 'N'  /* 교육프로그램 삭제여부 */
+		AND A.USE_YN = 'Y'  /* 교육프로그램 사용여부 */
+	</sql>
+
+	<!-- 기관 회원정보 조회 -->
+	<select id="selectInstt" resultType="ony.cpes.external.mypage.instt.bean.InsttMemBean" parameterType="ony.cpes.external.mypage.instt.bean.CondInsttMemBean">
+		/*instt.selectInstt*/
+		SELECT
+			   B.INSTT_SEQ
+           	 , FN_GET_INSTT_NM(B.INSTT_SEQ, #{langCd}) AS INSTT_NM
+           	 , FN_GET_COMMON_NM('INSTT_OWNER_CD', B.INSTT_OWNER_CD, #{langCd}) AS INSTT_OWNER_NM
+           	 , FN_GET_COMMON_NM('INSTT_TYPE_CD', B.INSTT_TYPE_CD, #{langCd}) AS INSTT_TYPE_NM
+           	 , B.INSTT_ADDR_DTL
+           	 , B.INSTT_OFFICE_TEL
+           	 , B.BKMK_CNT
+           	 , B.INSTT_WEBSITE
+			 , B.GOOGLE_MAP_LINK
+			 , B.INSTT_PROFILE
+			 , FN_GET_BKMK_SEQ(#{condUserSeq}, 'BCT0000000010', B.INSTT_SEQ) AS BKMK_SEQ
+			 , FN_GET_FILE_PATH(B.INSTT_LOGO_FILE_GRP_SEQ) AS FILE_PATH
+			 , B.FILE_GRP_SEQ
+		FROM CPES_USER A
+		INNER JOIN CPES_INSTT B
+		ON A.USER_SEQ = B.USER_SEQ
+        WHERE B.INSTT_SEQ = #{condSeq}
+      	AND A.DEL_YN = 'N'
+        AND A.USE_YN = 'Y'
+        AND B.DEL_YN = 'N'
+	</select>
+
+
+ 	<!-- 교육프로그램 목록 count,education tranning list count -->
+	<select id="selectEduTrnngContinueListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.instt.bean.CondEduTrnngBean">
+        <![CDATA[
+        	/*instt.selectEduTrnngContinueListCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+            FROM CPES_EDU_TRNNG A
+            INNER JOIN CPES_INSTT B
+            ON A.INSTT_SEQ = B.INSTT_SEQ
+			INNER JOIN CPES_EDU_TRNNG_SUB C
+			ON A.EDU_TRNNG_SEQ = C.EDU_TRNNG_SEQ
+
+       ]]>
+            <include refid="whereEduTrnngCond"/>
+
+    </select>
+
+  	<!-- 교육프로그램 목록,education tranning list -->
+	<select id="selectEduTrnngContinueList" resultType="ony.cpes.external.mypage.instt.bean.EduTrnngBean" parameterType="ony.cpes.external.mypage.instt.bean.CondEduTrnngBean">
+        <![CDATA[
+        	/*instt.selectEduTrnngContinueList*/
+         	SELECT
+            	   A.INSTT_SEQ
+            	 , A.EDU_TRNNG_SEQ
+            	 , A.EDU_TRNNG_NM
+            	 , A.RECRUMT_STS_CD
+            	 , FN_GET_COMMON_NM('RECRUMT_STS_CD', A.RECRUMT_STS_CD, #{langCd}) AS RECRUMT_STS_NM
+            	 , FN_GET_BASE_DATE_CHAR(A.RECURMT_BGN_DT, #{langCd}) AS RECURMT_BGN_DT
+            	 , FN_GET_BASE_DATE_CHAR(A.RECURMT_END_DT, #{langCd}) AS RECURMT_END_DT
+            	 , FN_GET_BASE_DATE_CHAR(A.EDU_BGN_DT, #{langCd}) AS EDU_BGN_DT
+            	 , FN_GET_BASE_DATE_CHAR(A.EDU_END_DT, #{langCd}) AS EDU_END_DT
+            	 , A.VIEW_CNT
+            	 , A.BKMK_CNT
+            	 , A.TRNNG_NATNEXP_DIV_CD
+            	 , FN_GET_COMMON_NM('TRNNG_NATNEXP_DIV_CD', A.TRNNG_NATNEXP_DIV_CD, #{langCd}) AS TRNNG_NATNEXP_DIV_NM
+            	 , A.FREE_PAID_YN
+            	 , FN_GET_ADDR_NM(SUBSTR(A.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM
+            	 , A.TUITION
+            	 , A.PROGRAM_CERT_NUM
+            	 , B.USER_SEQ
+            	 , C.SKILL_JOB_PROGRAM_CORS_CD
+            	 , FN_GET_COMMON_NM('SKILL_JOB_PROGRAM_CORS_CD', C.SKILL_JOB_PROGRAM_CORS_CD, #{langCd}) AS SKILL_JOB_PROGRAM_CORS_NM
+	          	 , FN_GET_BKMK_SEQ(#{condUserSeq}, 'BCT0000000004', A.INSTT_SEQ) AS BKMK_SEQ
+	             , FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+            FROM CPES_EDU_TRNNG A
+            INNER JOIN CPES_INSTT B
+            ON A.INSTT_SEQ = B.INSTT_SEQ
+            INNER JOIN CPES_EDU_TRNNG_SUB C
+			ON A.EDU_TRNNG_SEQ = C.EDU_TRNNG_SEQ
+       ]]>
+            <include refid="whereEduTrnngCond"/>
+            ORDER BY A.REG_DT DESC
+
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+    <sql id="whereInsttCond">
+			WHERE A.DEL_YN = 'N'
+		<if test="condAreaCd != null and !condAreaCd.equals('') and condText != null and !condText.equals('')">
+			AND ( A.INSTT_ADDR_CD LIKE CONCAT('%',#{condAreaCd},'%') OR ( A.INSTT_NM_EN LIKE CONCAT('%',#{condText},'%') OR A.INSTT_NM_KH LIKE CONCAT('%',#{condText},'%') ) )
+		</if>
+
+		<if test="condAreaCd != null and !condAreaCd.equals('') and condText.equals('')">
+			AND A.INSTT_ADDR_CD LIKE CONCAT('%',#{condAreaCd},'%')
+		</if>
+
+		<if test="condText != null and !condText.equals('') and condAreaCd.equals('')">
+			AND ( A.INSTT_NM_EN LIKE CONCAT('%',#{condText},'%') OR A.INSTT_NM_KH LIKE CONCAT('%',#{condText},'%') )
+		</if>
+
+		<if test="condText2 != null and !condText2.equals('')">
+			<if test='condKeyword != null and "1".equals(condKeyword)'>
+				AND ( A.INSTT_NM_EN LIKE CONCAT('%',#{condText2},'%') OR A.INSTT_NM_KH LIKE CONCAT('%',#{condText2},'%') )
+			</if>
+
+			<if test='condKeyword != null and "2".equals(condKeyword)'>
+			</if>
+
+			<if test='condKeyword != null and "".equals(condKeyword)'>
+				AND ( A.INSTT_NM_EN LIKE CONCAT('%',#{condText2},'%') OR A.INSTT_NM_KH LIKE CONCAT('%',#{condText2},'%') )
+			</if>
+		</if>
+
+		<if test="condAreaCd2 != null and !condAreaCd2.equals('')">
+			AND A.INSTT_ADDR_CD LIKE CONCAT('%',#{condAreaCd2},'%')
+		</if>
+
+		<if test="condInsttuCd != null and !condInsttuCd.equals('')">
+			AND A.INSTT_TYPE_CD = #{condInsttuCd}
+		</if>
+
+		<if test="condInsttuOwnerCd != null and !condInsttuOwnerCd.equals('')">
+			AND A.INSTT_OWNER_CD = #{condInsttuOwnerCd}
+		</if>
+    </sql>
+
+ 	<!-- 교육프로그램 목록 count,education tranning list count -->
+	<select id="selectInsttListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.instt.bean.CondEduTrnngFreeBean">
+        <![CDATA[
+        	/*instt.selectInsttListCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+            FROM CPES_INSTT A
+       ]]>
+            <include refid="whereInsttCond"/>
+    </select>
+
+  	<!-- 교육프로그램 목록,education tranning list -->
+	<select id="selectInsttList" resultType="ony.cpes.external.mypage.instt.bean.InsttMemBean" parameterType="ony.cpes.external.mypage.instt.bean.CondEduTrnngFreeBean">
+        <![CDATA[
+        	/*instt.selectInsttList*/
+         	SELECT
+            	   A.INSTT_SEQ
+                 , A.INSTT_TYPE_CD
+	           	 , FN_GET_INSTT_NM(A.INSTT_SEQ, #{langCd}) AS INSTT_NM
+	           	 , FN_GET_COMMON_NM('INSTT_OWNER_CD', A.INSTT_OWNER_CD, #{langCd}) AS INSTT_OWNER_NM
+	           	 , FN_GET_COMMON_NM('INSTT_TYPE_CD', A.INSTT_TYPE_CD, #{langCd}) AS INSTT_TYPE_NM
+            	 , A.BKMK_CNT
+                 , A.INSTT_OFFICE_TEL
+            	 , IFNULL(FN_GET_ADDR_NM(SUBSTR(A.INSTT_ADDR_FULL_CD,1,3), '2', #{langCd}), '') AS ADDR_NM
+                 , IFNULL(A.INSTT_ADDR_FULL_NM, '') AS INSTT_ADDR_FULL_NM
+                 , A.INSTT_STS_CD
+	           	 , FN_GET_COMMON_NM('INSTT_STS_CD', A.INSTT_STS_CD, #{langCd}) AS INSTT_STS_NM
+                 , A.INSTT_OWNER_CD
+                 , CASE WHEN A.INSTT_OWNER_CD = 'IOS0000000001' THEN 'private'
+	                 WHEN A.INSTT_OWNER_CD = 'IOS0000000002' THEN 'ngo'
+	                 WHEN A.INSTT_OWNER_CD = 'IOS0000000003' THEN 'government' end AS INSTT_DIV_CLASS
+                 , A.INSTT_LOGO_FILE_GRP_SEQ
+	          	 , FN_GET_BKMK_SEQ(#{condUserSeq}, #{condCateCd}, A.INSTT_SEQ) AS BKMK_SEQ
+	             , FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+			FROM CPES_INSTT A
+       ]]>
+            <include refid="whereInsttCond"/>
+
+		ORDER BY
+		<choose>
+			<when test="condSort != null and condSort.equals('POPULAR')">
+				A.BKMK_CNT DESC
+			</when>
+			<when test="condSort != null and condSort.equals('VIEW')">
+			</when>
+			<otherwise>
+	  			A.REG_DT DESC
+			</otherwise>
+
+		</choose>
+
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+
+	<!-- 교육훈련 이력 목록 조회 -->
+	<select id="selectEduTrnngHistList" resultType="ony.cpes.external.mypage.instt.bean.EduTrnngHistBean" parameterType="ony.cpes.external.mypage.instt.bean.CondInsttMemBean">
+		/*instt.selectEduTrnngHistList*/
+		SELECT
+			  A.EDU_PROGRAM_ID
+			, A.INSTT_SEQ
+			, A.INSTT_TRNNG_HIST_SEQ
+			, FN_GET_BASE_DATE_CHAR(A.TRNNG_DT, #{langCd}) AS TRNNG_DT
+			, A.TRNNG_NM
+		FROM CPES_INSTT_TRNNG_HIST A
+		INNER JOIN CPES_INSTT B
+		ON A.INSTT_SEQ = B.INSTT_SEQ
+		INNER JOIN CPES_USER C
+		ON B.USER_SEQ = C.USER_SEQ
+		WHERE B.INSTT_SEQ = #{condSeq}
+		AND B.DEL_YN = 'N'
+      	AND C.DEL_YN = 'N'
+        AND C.USE_YN = 'Y'
+        ORDER BY A.REG_DT
+
+	</select>
+
+	<!-- 사용자에 따른 기관 정보 조회 -->
+	<select id="selectInsttByUser" resultType="ony.cpes.external.mypage.instt.bean.InsttMemBean" parameterType="hashmap">
+		/*instt.selectInsttByUser*/
+		SELECT INSTT_SEQ
+		     , INSTT_NM_KH
+		     , INSTT_OWNER_NM
+		     , INSTT_TYPE_CD
+		     , INSTT_REG_NUM
+		     , INSTT_ADDR_DTL
+		     , INSTT_CONTENT
+		     , INSTT_MNGER_NM
+		     , INSTT_OFFICE_TEL
+		     , INSTT_CELL
+		     , INSTT_FAX
+		     , INSTT_PROFILE
+		     , INSTT_HIS
+		     , USER_SEQ
+		     , INSTT_EMAIL
+		     , INSTT_WEBSITE
+		     , FILE_GRP_SEQ
+		     , INSTT_STS_CD
+		     , REG_USER_SEQ
+		     , REG_DT
+		     , MOD_USER_SEQ
+		     , MOD_DT
+		     , DEL_YN
+		     , INSTT_OWNER_CD
+		     , INSTT_NM_EN
+		     , INSTT_MAP_LINK
+		     , INSTT_ADDR_CD
+		     , INSTT_ADDR_FULL_CD
+		     , INSTT_ADDR_FULL_NM
+		     , BKMK_CNT
+		     , GOOGLE_MAP_LINK
+		     , INSTT_LOGO_FILE_GRP_SEQ
+		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN INSTT_NM_KH ELSE INSTT_NM_EN END AS INSTT_NM
+		  FROM CPES_INSTT A
+		 WHERE USER_SEQ = #{userSeq}
+		 LIMIT 1
+	</select>
+
+</mapper>

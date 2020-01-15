@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setMatching">
+
+    <insert id="insertMatchingMst" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+		/*setMatching.insertMatchingMst*/
+		<selectKey resultType="string" keyProperty="jobskMatchSetSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	INSERT INTO CPES_JOBSK_MATCH_SET (
+	    	JOBSK_MATCH_SET_SEQ,
+	    	REG_USER_SEQ,
+	    	REG_DT,
+	    	MOD_USER_SEQ,
+	    	MOD_DT,
+	    	USER_SEQ,
+	    	HOPE_SALARY,
+	    	EMPLOY_CTRCT_DECID_CD,
+	    	EMPLOY_CTRCT_UNDECID_CD,
+	    	WORK_TIME_FULL_CD,
+	    	WORK_TIME_PART_CD,
+	    	MIN_WORK_EXP
+		) VALUES (
+	    	#{jobskMatchSetSeq},
+	    	#{regUserSeq},
+	    	NOW(),
+	    	#{modUserSeq},
+	    	NOW(),
+	    	#{userSeq},
+	    	#{hopeSalary},
+	    	#{employCtrctDecidCd},
+	    	#{employCtrctUndecidCd},
+	    	#{workTimeFullCd},
+	    	#{workTimePartCd},
+	    	#{minWorkExp}
+		)
+    </insert>
+
+    <insert id="insertMatchingIsco" parameterType="ony.cpes.external.mypage.privt.bean.MatchingIscoBean">
+		/*setMatching.insertMatchingIsco*/
+		<selectKey resultType="string" keyProperty="jobskMatchSetIscoSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	INSERT INTO CPES_JOBSK_MATCH_SET_ISCO (
+    		JOBSK_MATCH_SET_ISCO_SEQ,
+    		ISCO_CD,
+    		JOBSK_MATCH_SET_SEQ
+		) VALUES (
+			#{jobskMatchSetIscoSeq},
+			#{iscoCd},
+			#{jobskMatchSetSeq}
+		)
+    </insert>
+
+    <insert id="insertMatchingLang" parameterType="ony.cpes.external.mypage.privt.bean.MatchingLangBean">
+		/*setMatching.insertMatchingLang*/
+		<selectKey resultType="string" keyProperty="jobskMatchSetLangSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	INSERT INTO CPES_JOBSK_MATCH_SET_LANG (
+    		JOBSK_MATCH_SET_LANG_SEQ,
+    		LANG_CD,
+    		JOBSK_MATCH_SET_SEQ
+		) VALUES (
+			#{jobskMatchSetLangSeq},
+			#{langCd},
+			#{jobskMatchSetSeq}
+		)
+    </insert>
+
+    <insert id="insertMatchingLoc" parameterType="ony.cpes.external.mypage.privt.bean.MatchingLocBean">
+		/*setMatching.insertMatchingLoc*/
+		<selectKey resultType="string" keyProperty="jobskMatchSetLocSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	INSERT INTO CPES_JOBSK_MATCH_SET_LOC (
+    		JOBSK_MATCH_SET_LOC_SEQ,
+    		JOBSK_MATCH_SET_LOC_CD,
+    		JOBSK_MATCH_SET_SEQ
+		) VALUES (
+			#{jobskMatchSetLocSeq},
+			#{jobskMatchSetLocCd},
+			#{jobskMatchSetSeq}
+		)
+    </insert>
+
+    <insert id="insertMatchingEduDegree" parameterType="ony.cpes.external.mypage.privt.bean.MatchingEduDegreeBean">
+		/*setMatching.insertMatchingEduDegree*/
+		<selectKey resultType="string" keyProperty="jobskMatchSetMinEduDegreeSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	INSERT INTO CPES_JOBSK_MATCH_SET_MIN_EDU_DEGREE (
+    		JOBSK_MATCH_SET_MIN_EDU_DEGREE_SEQ,
+    		MIN_EDU_DEGREE_CD,
+    		JOBSK_MATCH_SET_SEQ
+		) VALUES (
+			#{jobskMatchSetMinEduDegreeSeq},
+			#{minEduDegreeCd},
+			#{jobskMatchSetSeq}
+		)
+    </insert>
+
+    <insert id="insertMatchingPreferntCond" parameterType="ony.cpes.external.mypage.privt.bean.MatchingPrivilegeBean">
+		/*setMatching.insertMatchingPreferntCond*/
+		<selectKey resultType="string" keyProperty="jobskMatchSetPreferntCondSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+
+    	INSERT INTO CPES_JOBSK_MATCH_SET_PREFERNT_COND (
+    		JOBSK_MATCH_SET_PREFERNT_COND_SEQ,
+    		PREFERNT_COND_CD,
+    		JOBSK_MATCH_SET_SEQ
+		) VALUES (
+			#{jobskMatchSetPreferntCondSeq},
+			#{preferntCondCd},
+			#{jobskMatchSetSeq}
+		)
+    </insert>
+
+    <update id="updateMatchingMst" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+		/*setMatching.updateMatchingMst*/
+    	UPDATE CPES_JOBSK_MATCH_SET SET
+	    	MOD_USER_SEQ = #{modUserSeq},
+	    	MOD_DT = NOW(),
+	    	HOPE_SALARY = #{hopeSalary},
+	    	EMPLOY_CTRCT_DECID_CD = #{employCtrctDecidCd},
+	    	EMPLOY_CTRCT_UNDECID_CD = #{employCtrctUndecidCd},
+	    	WORK_TIME_FULL_CD = #{workTimeFullCd},
+	    	WORK_TIME_PART_CD = #{workTimePartCd},
+	    	MIN_WORK_EXP = #{minWorkExp}
+	    WHERE JOBSK_MATCH_SET_SEQ = #{jobskMatchSetSeq}
+    </update>
+
+    <delete id="deleteMatchingIsco" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+		/*setMatching.deleteMatchingIsco*/
+    	DELETE FROM CPES_JOBSK_MATCH_SET_ISCO
+    	WHERE JOBSK_MATCH_SET_SEQ = #{jobskMatchSetSeq}
+    </delete>
+
+    <delete id="deleteMatchingLoc" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+		/*setMatching.deleteMatchingLoc*/
+    	DELETE FROM CPES_JOBSK_MATCH_SET_LOC
+    	WHERE JOBSK_MATCH_SET_SEQ = #{jobskMatchSetSeq}
+    </delete>
+
+    <delete id="deleteMatchingLang" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+		/*setMatching.deleteMatchingLang*/
+    	DELETE FROM CPES_JOBSK_MATCH_SET_LANG
+    	WHERE JOBSK_MATCH_SET_SEQ = #{jobskMatchSetSeq}
+    </delete>
+
+    <delete id="deleteMatchingEduDegree" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+		/*setMatching.deleteMatchingEduDegree*/
+    	DELETE FROM CPES_JOBSK_MATCH_SET_MIN_EDU_DEGREE
+    	WHERE JOBSK_MATCH_SET_SEQ = #{jobskMatchSetSeq}
+    </delete>
+
+    <delete id="deleteMatchingPreferntCond" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+		/*setMatching.deleteMatchingPreferntCond*/
+    	DELETE FROM CPES_JOBSK_MATCH_SET_PREFERNT_COND
+    	WHERE JOBSK_MATCH_SET_SEQ = #{jobskMatchSetSeq}
+    </delete>
+
+</mapper>

@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="insttEduTrnng">
+
+	<!-- 교육프로그램 조건 -->
+	<sql id="whereEduTrnngCond">
+		WHERE B.USER_SEQ = #{condUserSeq}
+		AND B.DEL_YN = 'N'	/* 기관 삭제여부 */
+		AND A.DEL_YN = 'N'  /* 교육프로그램 삭제여부 */
+		AND A.USE_YN = 'Y'  /* 교육프로그램 사용여부 */
+
+
+		<choose>
+			<when test="condStatCd != null and !condStatCd.equals('ALL')">
+				<choose>
+		   			<when test="condStatCd != null and condStatCd.equals('CONTINUE')"><!-- 진행중 -->
+		   				AND A.JC_AGREE_STS_CD = 'JAS0000000001'
+		   				AND A.RECRUMT_STS_CD = 'RSC0000000002'
+					</when>
+					<when test="condStatCd != null and condStatCd.equals('END')"><!-- 마감-->
+						AND A.JC_AGREE_STS_CD = 'JAS0000000001'
+						AND A.RECRUMT_STS_CD = 'RSC0000000003'
+					</when>
+					<when test="condStatCd != null and condStatCd.equals('WAIT')"><!-- 대기중/반려 -->
+						 AND (A.JC_AGREE_STS_CD = 'JAS0000000002' OR A.JC_AGREE_STS_CD = 'JAS0000000003')
+					</when>
+				</choose>
+			</when>
+			<otherwise><!-- 전체 -->
+				AND A.JC_AGREE_STS_CD = 'JAS0000000001'
+				AND (A.RECRUMT_STS_CD = 'RSC0000000002' OR A.RECRUMT_STS_CD = 'RSC0000000003')
+			</otherwise>
+		</choose>
+		<if test="condText != null and !condText.equals('')">
+				AND (
+					A.EDU_TRNNG_NM LIKE CONCAT('%',#{condText},'%') OR
+					A.EDU_TRNNG_KEYWORD LIKE CONCAT('%',#{condText},'%') OR
+					B.INSTT_NM_EN LIKE CONCAT('%',#{condText},'%') OR
+					B.INSTT_NM_KH LIKE CONCAT('%',#{condText},'%')
+				)
+		</if>
+	</sql>
+
+	<sql id="eduTrnngSortCond">
+		ORDER BY
+		<choose>
+			<when test="condSort != null and condSort.equals('END')">
+				A.EDU_END_DT
+			</when>
+			<when test="condSort != null and condSort.equals('VIEW')">
+				A.VIEW_CNT DESC
+			</when>
+			<otherwise>
+	  			A.REG_DT DESC
+			</otherwise>
+
+		</choose>
+	</sql>
+
+
+
+ 	<!-- 기업별 채용공고 count 정보 -->
+	<select id="selectEduTrnngStatCnt" resultType="ony.cpes.external.mypage.instt.bean.EduTrnngBean" parameterType="ony.cpes.external.mypage.instt.bean.CondEduTrnngBean">
+        <![CDATA[
+        	/*insttEduTrnng.selectEduTrnngStatCnt*/
+        	SELECT    TBL.CONTINUE_CNT
+        			, TBL.END_CNT
+        			, TBL.WAIT_CNT
+        			, (TBL.CONTINUE_CNT + END_CNT) AS TOT_CNT
+        	FROM (
+	            SELECT
+	            	(
+	            		SELECT COUNT(1)
+	            		FROM CPES_EDU_TRNNG C
+            			WHERE C.INSTT_SEQ = A.INSTT_SEQ
+	            		AND C.USE_YN = 'Y'
+	            		AND C.DEL_YN = 'N'
+	            		AND C.RECRUMT_STS_CD = 'RSC0000000002' /* 모집중 */
+	            		AND C.JC_AGREE_STS_CD = 'JAS0000000001' /* 승인 */
+	            	) AS CONTINUE_CNT
+	            	, (
+	            		SELECT COUNT(1)
+	            		FROM CPES_EDU_TRNNG C
+            			WHERE C.INSTT_SEQ = A.INSTT_SEQ
+	            		AND C.USE_YN = 'Y'
+	            		AND C.DEL_YN = 'N'
+	            		AND C.RECRUMT_STS_CD = 'RSC0000000003' /* 모집마감 */
+	            		AND C.JC_AGREE_STS_CD = 'JAS0000000001' /* 승인 */
+	            	) AS END_CNT
+	            	, (
+	            		SELECT COUNT(1)
+	            		FROM CPES_EDU_TRNNG C
+            			WHERE C.INSTT_SEQ = A.INSTT_SEQ
+	            		AND C.USE_YN = 'Y'
+	            		AND C.DEL_YN = 'N'
+			   			AND (C.JC_AGREE_STS_CD = 'JAS0000000002' OR C.JC_AGREE_STS_CD = 'JAS0000000003') /* 승인대기,반려 */
+	            	) AS WAIT_CNT
+	            FROM CPES_INSTT A
+	            WHERE A.USER_SEQ = #{condUserSeq}
+	            AND A.DEL_YN = 'N'
+	     	) TBL
+        ]]>
+    </select>
+
+ 	<!-- 교육프로그램 목록 count,education tranning list count -->
+	<select id="selectEduTrnngListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.instt.bean.CondEduTrnngBean">
+        <![CDATA[
+        	/*insttEduTrnng.selectEduTrnngListCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+            FROM CPES_EDU_TRNNG A
+            INNER JOIN CPES_INSTT B
+            ON A.INSTT_SEQ = B.INSTT_SEQ
+			INNER JOIN CPES_EDU_TRNNG_SUB C
+			ON A.EDU_TRNNG_SEQ = C.EDU_TRNNG_SEQ
+
+       ]]>
+            <include refid="whereEduTrnngCond"/>
+
+    </select>
+
+  	<!-- 교육프로그램 목록,education tranning list -->
+	<select id="selectEduTrnngList" resultType="ony.cpes.external.mypage.instt.bean.EduTrnngBean" parameterType="ony.cpes.external.mypage.instt.bean.CondEduTrnngBean">
+        <![CDATA[
+        	/*insttEduTrnng.selectEduTrnngList*/
+         	SELECT
+            	   A.INSTT_SEQ
+            	 , A.EDU_TRNNG_SEQ
+            	 , A.EDU_TRNNG_NM
+            	 , A.RECRUMT_STS_CD
+            	 , FN_GET_COMMON_NM('RECRUMT_STS_CD', A.RECRUMT_STS_CD, #{langCd}) AS RECRUMT_STS_NM
+            	 , FN_GET_BASE_DATE_CHAR(A.RECURMT_BGN_DT, #{langCd}) AS RECURMT_BGN_DT
+            	 , FN_GET_BASE_DATE_CHAR(A.RECURMT_END_DT, #{langCd}) AS RECURMT_END_DT
+            	 , FN_GET_BASE_DATE_CHAR(A.EDU_BGN_DT, #{langCd}) AS EDU_BGN_DT
+            	 , FN_GET_BASE_DATE_CHAR(A.EDU_END_DT, #{langCd}) AS EDU_END_DT
+            	 , A.VIEW_CNT
+            	 , A.BKMK_CNT
+            	 , A.TRNNG_NATNEXP_DIV_CD
+            	 , FN_GET_COMMON_NM('TRNNG_NATNEXP_DIV_CD', A.TRNNG_NATNEXP_DIV_CD, #{langCd}) AS TRNNG_NATNEXP_DIV_NM
+            	 , A.FREE_PAID_YN
+            	 , FN_GET_ADDR_NM_BY_EDU_TRNNG(A.EDU_TRNNG_SEQ, #{langCd}) AS ADDR_NM
+            	 , A.TUITION
+            	 , A.PROGRAM_CERT_NUM
+            	 , B.USER_SEQ
+            	 , C.SKILL_JOB_PROGRAM_CORS_CD
+            	 , FN_GET_COMMON_NM('SKILL_JOB_PROGRAM_CORS_CD', C.SKILL_JOB_PROGRAM_CORS_CD, #{langCd}) AS SKILL_JOB_PROGRAM_CORS_NM
+            	 , A.JC_AGREE_STS_CD
+            	 , FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+            FROM CPES_EDU_TRNNG A
+            INNER JOIN CPES_INSTT B
+            ON A.INSTT_SEQ = B.INSTT_SEQ
+            INNER JOIN CPES_EDU_TRNNG_SUB C
+			ON A.EDU_TRNNG_SEQ = C.EDU_TRNNG_SEQ
+       ]]>
+            <include refid="whereEduTrnngCond"/>
+            <include refid="eduTrnngSortCond"/>
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+
+    </select>
+
+
+
+	<!-- 교육프로그램 number -->
+	<select id="selectEduTrnngNum" resultType="java.lang.String" parameterType="ony.cpes.external.mypage.instt.bean.CondEduTrnngBean">
+		/*insttEduTrnng.selectEduTrnngNum*/
+       	SELECT CONCAT('E',LPAD(IFNULL(SUBSTR(MAX(PROGRAM_CERT_NUM),2,10)+1,1),10,'0')) AS STR
+        FROM CPES_EDU_TRNNG
+	</select>
+
+
+  	<!-- 교육프로그램 상세,education tranning detail -->
+	<select id="selectEduTrnng" resultType="ony.cpes.external.mypage.instt.bean.EduTrnngBean" parameterType="ony.cpes.external.mypage.instt.bean.CondEduTrnngBean">
+        <![CDATA[
+        	/*insttEduTrnng.selectEduTrnng*/
+         	SELECT
+            	   A.INSTT_SEQ
+            	 , A.EDU_TRNNG_SEQ
+            	 , A.EDU_TRNNG_NM
+            	 , A.ISCO_CD
+            	 , FN_GET_ISCO_NM(ISCO_CD, #{langCd}) AS ISCO_NM
+            	 , A.TRNNG_NATNEXP_DIV_CD
+            	 , FN_GET_COMMON_NM('TRNNG_NATNEXP_DIV_CD', A.TRNNG_NATNEXP_DIV_CD, #{langCd}) AS TRNNG_NATNEXP_DIV_NM
+            	 , C.SKILL_JOB_PROGRAM_CORS_CD
+            	 , FN_GET_COMMON_NM('SKILL_JOB_PROGRAM_CORS_CD', C.SKILL_JOB_PROGRAM_CORS_CD, #{langCd}) AS SKILL_JOB_PROGRAM_CORS_NM
+            	 , C.HIGH_GENRL_EDU_CORS_CD
+            	 , FN_GET_COMMON_NM('HIGH_GENRL_EDU_CORS_CD', C.HIGH_GENRL_EDU_CORS_CD, #{langCd}) AS HIGH_GENRL_EDU_CORS_NM
+            	 , A.RECRUMT_STS_CD
+            	 , FN_GET_COMMON_NM('RECRUMT_STS_CD', A.RECRUMT_STS_CD, #{langCd}) AS RECRUMT_STS_NM
+            	 , FN_GET_BASE_DATE_CHAR(A.RECURMT_BGN_DT, #{langCd}) AS RECURMT_BGN_DT
+            	 , FN_GET_BASE_DATE_CHAR(A.RECURMT_END_DT, #{langCd}) AS RECURMT_END_DT
+            	 , DATE_FORMAT(A.RECURMT_BGN_DT, '%d/%m/%Y') AS RECURMT_BGN_DT2
+            	 , DATE_FORMAT(A.RECURMT_END_DT, '%d/%m/%Y') AS RECURMT_END_DT2
+            	 , FN_GET_BASE_DATE_CHAR(A.EDU_BGN_DT, #{langCd}) AS EDU_BGN_DT
+            	 , FN_GET_BASE_DATE_CHAR(A.EDU_END_DT, #{langCd}) AS EDU_END_DT
+            	 , DATE_FORMAT(A.EDU_BGN_DT, '%d/%m/%Y') AS EDU_BGN_DT2
+            	 , DATE_FORMAT(A.EDU_END_DT, '%d/%m/%Y') AS EDU_END_DT2
+            	 , A.EDU_DURA
+            	 , A.VIEW_CNT
+            	 , A.BKMK_CNT
+            	 , C.TEACH_HOUR_WEEK
+            	 , C.PROGRAM_CORS_TYPE_CD
+            	 , FN_GET_COMMON_NM('PROGRAM_CORS_TYPE_CD', C.PROGRAM_CORS_TYPE_CD, #{langCd}) AS PROGRAM_CORS_TYPE_NM
+            	 , C.MAJOR_1DEPTH_CD
+            	 , C.MAJOR_2DEPTH_CD
+            	 , FN_GET_ISCED_NM(C.MAJOR_1DEPTH_CD, #{langCd}) AS MAJOR_1DEPTH_NM
+            	 , FN_GET_ISCED_NM(C.MAJOR_2DEPTH_CD, #{langCd}) AS MAJOR_2DEPTH_NM
+            	 , A.FREE_PAID_YN
+            	 , A.TUITION
+            	 , A.PROGRAM_CERT_NUM
+            	 , C.EDU_TARGET
+            	 , C.ADMSS_CRITERIA
+            	 , C.CONTENT
+            	 , C.ENROL_METHOD
+            	 , A.EDU_TRNNG_KEYWORD
+            	 , B.USER_SEQ
+            	 , A.JC_AGREE_STS_CD
+            	 , C.EDU_TRNNG_SUB_SEQ
+            	 , A.SPONSOR
+            FROM CPES_EDU_TRNNG A
+            INNER JOIN CPES_INSTT B
+            ON A.INSTT_SEQ = B.INSTT_SEQ
+            INNER JOIN CPES_EDU_TRNNG_SUB C
+			ON A.EDU_TRNNG_SEQ = C.EDU_TRNNG_SEQ
+			WHERE A.EDU_TRNNG_SEQ = #{condSeq}
+			AND B.USER_SEQ = #{condUserSeq}
+       ]]>
+    </select>
+
+	<!-- 교육프로그램 주소 목록,education tranning adress list -->
+	<select id="selectEduTrnngAddrList" resultType="ony.cpes.external.mypage.instt.bean.EduTrnngBean" parameterType="ony.cpes.external.mypage.instt.bean.CondEduTrnngBean">
+		/*insttEduTrnng.selectEduTrnngAddrList*/
+		SELECT    A.TEACH_ADDR_SEQ
+				, A.EDU_TRNNG_SEQ
+				, A.ADDR_CD
+				, FN_GET_ADDR_NM(A.ADDR_CD, '2', #{langCd}) AS ADDR_NM
+		FROM CPES_TEACH_ADDR A
+		WHERE A.EDU_TRNNG_SEQ = #{condSeq}
+	</select>
+
+
+</mapper>

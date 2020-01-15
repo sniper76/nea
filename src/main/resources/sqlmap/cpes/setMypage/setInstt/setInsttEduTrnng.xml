@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setInsttEduTrnng">
+
+	<!-- 교육프로그램 등록-->
+	<insert id="insertEduTrnng"  parameterType="ony.cpes.external.mypage.instt.bean.EduTrnngBean">
+		/*setInsttEduTrnng.insertEduTrnng*/
+		INSERT INTO CPES_EDU_TRNNG (
+			  EDU_TRNNG_SEQ
+			, EDU_BGN_DT
+			, EDU_TRNNG_NM
+			, EDU_END_DT
+			, TRNNG_NATNEXP_DIV_CD
+			, SPONSOR
+			, RECURMT_BGN_DT
+			, RECURMT_END_DT
+			, EDU_DIV_CD
+			, EDU_DURA
+			, DAY_TIME
+			, ADDR_CD
+			, PROVC_CD
+			, JC_AGREE_STS_CD
+			, JC_CD
+			, JC_USER_SEQ
+			, INSTT_SEQ
+			, CATE_CD
+			, PROC_PROGRAM_STUDY
+			, DEGREE_AWARDS
+			, PROSPECT_OCCUP_CATE
+			, TUITION
+			, REG_USER_SEQ
+			, REG_DT
+			, MOD_USER_SEQ
+			, MOD_DT
+			, USE_YN
+			, DEL_YN
+			, RECRUMT_STS_CD
+			, JC_AGREE_DT
+			, JC_REJECT_DT
+			, ADDR_DTL
+			, NEA_EDU_DIV_CD
+			, ADDR_FULL_CD
+			, ADDR_FULL_NM
+			, EDU_TRNNG_ID
+			, EDU_CLOSE_YN
+			, EDU_CLOSE_DT
+			, BKMK_CNT
+			, VIEW_CNT
+			, FREE_PAID_YN
+			, PROGRAM_CERT_NUM
+			, EDU_TRNNG_KEYWORD
+			, ISCO_CD
+
+		) VALUES (
+			  #{eduTrnngSeq}
+			, STR_TO_DATE(#{eduBgnDt},'%d/%m/%Y')
+			, #{eduTrnngNm}
+			, STR_TO_DATE(#{eduEndDt},'%d/%m/%Y')
+			, #{trnngNatnexpDivCd}
+			, #{sponsor}
+			, STR_TO_DATE(#{recurmtBgnDt},'%d/%m/%Y')
+			, STR_TO_DATE(#{recurmtEndDt},'%d/%m/%Y')
+			, 'EDC0000000002'
+			, CASE WHEN #{eduDura} = '' OR #{eduDura} = NULL THEN null ELSE #{eduDura} END
+			, #{dayTime}
+			, #{addrCd}
+			, #{provcCd}
+			, 'JAS0000000002'
+			, #{jcCd}
+			, #{jcUserSeq}
+			, (
+				SELECT A.INSTT_SEQ
+				FROM CPES_INSTT A
+				WHERE A.USER_SEQ = #{userSeq}
+			  )
+			, #{cateCd}
+			, #{procProgramStudy}
+			, #{degreeAwards}
+			, #{prospectOccupCate}
+			, #{tuition}
+			, #{regUserSeq}
+			, now()
+			, #{modUserSeq}
+			, now()
+			, 'Y'
+			, 'N'
+			, 'RSC0000000001'
+			, #{jcAgreeDt}
+			, #{jcRejectDt}
+			, #{addrDtl}
+			, #{neaEduDivCd}
+			, #{addrFullCd}
+			, #{addrFullNm}
+			, #{eduTrnngId}
+			, 'N'
+			, #{eduCloseDt}
+			, 0
+			, 0
+			, #{freePaidYn}
+			, #{programCertNum}
+			, #{eduTrnngKeyword}
+			, #{iscoCd}
+		)
+
+	</insert>
+
+	<!-- 교육프로그램 등록 sub-->
+	<insert id="insertEduTrnngSub"  parameterType="ony.cpes.external.mypage.instt.bean.EduTrnngBean">
+		/*setInsttEduTrnng.insertEduTrnngSub*/
+		<selectKey resultType="string" keyProperty="eduTrnngSubSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_EDU_TRNNG_SUB (
+			  EDU_TRNNG_SUB_SEQ
+			, EDU_TRNNG_SEQ
+			, EDU_TARGET
+			, ADMSS_CRITERIA
+			, CONTENT
+			, ENROL_METHOD
+			, PROGRAM_CORS_TYPE_CD
+			, MAJOR_1DEPTH_CD
+			, MAJOR_2DEPTH_CD
+			, SKILL_JOB_PROGRAM_CORS_CD
+			, HIGH_GENRL_EDU_CORS_CD
+			, TEACH_HOUR_WEEK
+
+		) VALUES (
+			  #{eduTrnngSubSeq}
+			, #{eduTrnngSeq}
+			, #{eduTarget}
+			, #{admssCriteria}
+			, #{content}
+			, #{enrolMethod}
+			, #{programCorsTypeCd}
+			, #{major1depthCd}
+			, #{major2depthCd}
+			, #{skillJobProgramCorsCd}
+			, #{highGenrlEduCorsCd}
+			, #{teachHourWeek}
+		)
+
+	</insert>
+
+	<!-- 교육프로그램 등록 주소-->
+	<insert id="insertEduTrnngAddr"  parameterType="ony.cpes.external.mypage.instt.bean.EduTrnngBean">
+		/*setInsttEduTrnng.insertEduTrnngAddr*/
+		<selectKey resultType="string" keyProperty="teachAddrSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_TEACH_ADDR (
+			  TEACH_ADDR_SEQ
+			, EDU_TRNNG_SEQ
+			, ADDR_CD
+			, REG_USER_SEQ
+			, REG_DT
+
+		) VALUES (
+			  #{teachAddrSeq}
+			, #{eduTrnngSeq}
+			, #{addrCd}
+			, #{regUserSeq}
+			, now()
+		)
+
+	</insert>
+
+
+
+	<!-- 교육프로그램 수정-->
+	<update id="updateEduTrnng"  parameterType="ony.cpes.external.mypage.instt.bean.EduTrnngBean">
+		/*setInsttEduTrnng.updateEduTrnng*/
+		UPDATE CPES_EDU_TRNNG SET
+			  EDU_BGN_DT = STR_TO_DATE(#{eduBgnDt},'%d/%m/%Y')
+			, EDU_TRNNG_NM = #{eduTrnngNm}
+			, EDU_END_DT = STR_TO_DATE(#{eduEndDt},'%d/%m/%Y')
+			, TRNNG_NATNEXP_DIV_CD = #{trnngNatnexpDivCd}
+			, RECURMT_BGN_DT = STR_TO_DATE(#{recurmtBgnDt},'%d/%m/%Y')
+			, RECURMT_END_DT = STR_TO_DATE(#{recurmtEndDt},'%d/%m/%Y')
+			, EDU_DURA = #{eduDura}
+			, TUITION = #{tuition}
+			, MOD_USER_SEQ = #{modUserSeq}
+			, MOD_DT = now()
+			, FREE_PAID_YN = #{freePaidYn}
+			, EDU_TRNNG_KEYWORD = #{eduTrnngKeyword}
+			, ISCO_CD = #{iscoCd}
+			, SPONSOR = #{sponsor}
+		WHERE EDU_TRNNG_SEQ = #{eduTrnngSeq}
+		AND INSTT_SEQ = (
+			SELECT INSTT_SEQ
+			FROM CPES_INSTT
+			WHERE USER_SEQ = #{userSeq}
+		)
+	</update>
+
+
+	<!-- 교육프로그램 sub 수정-->
+	<update id="updateEduTrnngSub"  parameterType="ony.cpes.external.mypage.instt.bean.EduTrnngBean">
+		/*setInsttEduTrnng.updateEduTrnngSub*/
+		UPDATE CPES_EDU_TRNNG_SUB SET
+			  EDU_TARGET= #{eduTarget}
+			, ADMSS_CRITERIA= #{admssCriteria}
+			, CONTENT= #{content}
+			, ENROL_METHOD= #{enrolMethod}
+			, PROGRAM_CORS_TYPE_CD= #{programCorsTypeCd}
+			, MAJOR_1DEPTH_CD= #{major1depthCd}
+			, MAJOR_2DEPTH_CD= #{major2depthCd}
+			, SKILL_JOB_PROGRAM_CORS_CD= #{skillJobProgramCorsCd}
+			, HIGH_GENRL_EDU_CORS_CD= #{highGenrlEduCorsCd}
+			, TEACH_HOUR_WEEK= #{teachHourWeek}
+		WHERE EDU_TRNNG_SUB_SEQ = #{eduTrnngSubSeq}
+		AND EDU_TRNNG_SEQ = #{eduTrnngSeq}
+	</update>
+
+
+	<!-- 교육프로그램 주소 삭제-->
+	<delete id="deleteEduTrnngAddrAll"  parameterType="ony.cpes.external.mypage.instt.bean.EduTrnngBean">
+		/*setInsttEduTrnng.deleteEduTrnngAddrAll*/
+		DELETE FROM CPES_TEACH_ADDR
+		WHERE EDU_TRNNG_SEQ = #{eduTrnngSeq}
+	</delete>
+
+
+	<!-- 교육프로그램 삭제-->
+	<update id="deleteEduTrnng"  parameterType="ony.cpes.external.mypage.instt.bean.CondEduTrnngBean">
+		/*setInsttEduTrnng.deleteEduTrnng*/
+		UPDATE CPES_EDU_TRNNG SET
+			  DEL_YN = 'Y'
+			, MOD_USER_SEQ = #{modUserSeq}
+			, MOD_DT = now()
+		WHERE EDU_TRNNG_SEQ = #{condSeq}
+		AND INSTT_SEQ = (
+			SELECT INSTT_SEQ
+			FROM CPES_INSTT
+			WHERE USER_SEQ = #{condUserSeq}
+		)
+	</update>
+
+
+	<!-- 교육프로그램 마감-->
+	<update id="updateEduTrnngClose"  parameterType="ony.cpes.external.mypage.instt.bean.CondEduTrnngBean">
+		/*setInsttEduTrnng.updateEduTrnngClose*/
+		UPDATE CPES_EDU_TRNNG SET
+			  EDU_CLOSE_DT = now()
+			, EDU_CLOSE_YN = 'Y'
+			, RECRUMT_STS_CD = 'RSC0000000003'
+			, MOD_USER_SEQ = #{modUserSeq}
+			, MOD_DT = now()
+		WHERE EDU_TRNNG_SEQ = #{condSeq}
+		AND INSTT_SEQ = (
+			SELECT INSTT_SEQ
+			FROM CPES_INSTT
+			WHERE USER_SEQ = #{condUserSeq}
+		)
+	</update>
+
+</mapper>

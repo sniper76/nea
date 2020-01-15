@@ -1,0 +1,96 @@
+<!DOCTYPE tiles-definitions PUBLIC
+  "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+  "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<tiles-definitions>
+
+    <!-- base layer -->
+    <definition name="base" template="/WEB-INF/jsp/tiles/template.jsp">
+    	<put-attribute name="header" value="/WEB-INF/jsp/tiles/header.jsp" />
+    	<put-attribute name="top" value="/WEB-INF/jsp/tiles/top.jsp" />
+        <put-attribute name="left"   value="/WEB-INF/jsp/tiles/left.jsp" />
+        <put-attribute name="footer" value="/WEB-INF/jsp/tiles/footer.jsp" />
+    </definition>
+
+    <definition name="*.all" extends="base">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}.jsp" />
+    </definition>
+
+     <definition name="*/*.all" extends="base">
+         <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}.jsp" />
+     </definition>
+
+    <definition name="*/*/*.all" extends="base">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}.jsp" />
+    </definition>
+
+    <!--  menu location top -->
+    <definition name="one" template="/WEB-INF/jsp/tiles/templateSubOne.jsp">
+    	<put-attribute name="header" value="/WEB-INF/jsp/tiles/header.jsp" />
+    	<put-attribute name="gnb" value="/WEB-INF/jsp/tiles/gnbTop.jsp" />
+    	<put-attribute name="topMenu" value="/WEB-INF/jsp/tiles/topMenu.jsp" />
+    	<put-attribute name="footer" value="/WEB-INF/jsp/tiles/footer.jsp" />
+    </definition>
+
+    <definition name="*.one" extends="one">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}.jsp" />
+    </definition>
+
+     <definition name="*/*.one" extends="one">
+         <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}.jsp" />
+     </definition>
+
+    <definition name="*/*/*.one" extends="one">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}.jsp" />
+    </definition>
+
+    <definition name="*/*/*/*.one" extends="one">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}.jsp" />
+    </definition>
+
+
+    <!--  menu location left -->
+    <definition name="left" template="/WEB-INF/jsp/tiles/templateSubLeft.jsp">
+    	<put-attribute name="header" value="/WEB-INF/jsp/tiles/header.jsp" />
+    	<put-attribute name="gnb" value="/WEB-INF/jsp/tiles/gnbLeft.jsp" />
+    	<put-attribute name="leftMenu" value="/WEB-INF/jsp/tiles/leftMenu.jsp" />
+    	<put-attribute name="footer" value="/WEB-INF/jsp/tiles/footer.jsp" />
+    </definition>
+
+    <definition name="*.left" extends="left">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}.jsp" />
+    </definition>
+
+     <definition name="*/*.left" extends="left">
+         <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}.jsp" />
+     </definition>
+
+    <definition name="*/*/*.left" extends="left">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}.jsp" />
+    </definition>
+    <definition name="*/*/*/*.left" extends="left">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}.jsp" />
+    </definition>
+
+
+ 	<!-- empty -->
+    <definition name="baseEmpty" template="/WEB-INF/jsp/tiles/templateEmpty.jsp">
+    </definition>
+
+    <definition name="*.empty" extends="baseEmpty">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}.jsp" />
+    </definition>
+
+     <definition name="*/*.empty" extends="baseEmpty">
+         <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}.jsp" />
+     </definition>
+
+    <definition name="*/*/*.empty" extends="baseEmpty">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}.jsp" />
+    </definition>
+
+    <definition name="*/*/*/*.empty" extends="baseEmpty">
+        <put-attribute name="body" value="/WEB-INF/jsp/{1}/{2}/{3}/{4}.jsp" />
+    </definition>
+
+</tiles-definitions>

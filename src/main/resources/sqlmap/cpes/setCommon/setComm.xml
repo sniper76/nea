@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setComm">
+
+
+
+    <!-- insert BookMark  -->
+	<insert id="insertBookMark" parameterType="ony.cmm.common.bean.BookMarkBean">
+		/*setComm.insertBookMark*/
+		INSERT INTO CPES_BKMK (
+			BKMK_SEQ,
+			CATE_CD,
+			REG_DT,
+			REG_USER_SEQ,
+			TABLE_KEY_SEQ,
+			USER_SEQ
+		) VALUES (
+			#{bkmkSeq},
+			#{cateCd},
+			now(),
+			#{regUserSeq},
+			#{tableKeySeq},
+			#{userSeq}
+		)
+	</insert>
+
+	<!-- insert Like  -->
+	<insert id="insertLike" parameterType="ony.cmm.common.bean.LikeBean">
+		/*setComm.insertLike*/
+		<selectKey resultType="string" keyProperty="likeSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_LIKE (
+			LIKE_SEQ,
+			CATE_CD,
+			REG_DT,
+			REG_USER_SEQ,
+			TABLE_KEY_SEQ,
+			USER_SEQ
+		) VALUES (
+			#{likeSeq},
+			#{cateCd},
+			now(),
+			#{regUserSeq},
+			#{tableKeySeq},
+			#{userSeq}
+		)
+	</insert>
+
+	<!-- counsel like cnt update -->
+	<update id="updateCounselLikeCnt" parameterType="ony.cmm.common.bean.LikeBean">
+		/*setComm.updateCounselLikeCnt*/
+		UPDATE CPES_COUNSEL SET LIKE_CNT = IFNULL(LIKE_CNT,0) + 1
+		WHERE COUNSEL_SEQ = #{tableKeySeq}
+	</update>
+
+
+	<!-- counsel like cnt update -->
+	<update id="updateBulletinLikeCnt" parameterType="ony.cmm.common.bean.LikeBean">
+		/*setComm.updateBulletinLikeCnt*/
+		UPDATE CPES_BULLETIN SET LIKE_CNT = IFNULL(LIKE_CNT,0) + 1
+		WHERE BULLETIN_SEQ = #{tableKeySeq}
+	</update>
+
+
+
+	<delete id="deleteBookMark" parameterType="ony.cmm.common.bean.BookMarkBean">
+		/*setComm.deleteBookMark*/
+		DELETE FROM CPES_BKMK
+		WHERE BKMK_SEQ = #{bkmkSeq}
+		AND USER_SEQ = #{userSeq}
+	</delete>
+
+
+	<!-- counsel bookmark cnt update -->
+	<update id="updateCompanyBookMarkCnt" parameterType="ony.cmm.common.bean.BookMarkBean">
+		/*setComm.updateCompanyBookMarkCnt*/
+		UPDATE CPES_COMPNY SET
+		    <choose>
+		   		<when test="div != null and div.equals('DEL')"><!-- 진행중 -->
+		   			BKMK_CNT = BKMK_CNT - 1
+		   		</when>
+		   		<otherwise>
+		   			BKMK_CNT = IFNULL(BKMK_CNT,0) + 1
+		   		</otherwise>
+		   	</choose>
+		WHERE COMPNY_SEQ = #{tableKeySeq}
+	</update>
+
+	<!-- vacancy bookmark cnt update -->
+	<update id="updateVacancyBookMarkCnt" parameterType="ony.cmm.common.bean.BookMarkBean">
+		/*setComm.updateVacancyBookMarkCnt*/
+		UPDATE CPES_VACANCY SET
+		    <choose>
+		   		<when test="div != null and div.equals('DEL')"><!-- 진행중 -->
+		   			BKMK_CNT = BKMK_CNT - 1
+		   		</when>
+		   		<otherwise>
+		   			BKMK_CNT = IFNULL(BKMK_CNT,0) + 1
+		   		</otherwise>
+		   	</choose>
+		WHERE VACANCY_SEQ = #{tableKeySeq}
+	</update>
+
+	<!-- fair bookmark cnt update -->
+	<update id="updateFairBookMarkCnt" parameterType="ony.cmm.common.bean.BookMarkBean">
+		/*setComm.updateFairBookMarkCnt*/
+		UPDATE CPES_FAIR_MST SET
+		    <choose>
+		   		<when test="div != null and div.equals('DEL')"><!-- 진행중 -->
+		   			BKMK_CNT = BKMK_CNT - 1
+		   		</when>
+		   		<otherwise>
+		   			BKMK_CNT = IFNULL(BKMK_CNT,0) + 1
+		   		</otherwise>
+		   	</choose>
+		WHERE FAIR_SEQ = #{tableKeySeq}
+	</update>
+
+	<!-- instt bookmark cnt update -->
+	<update id="updateInsttBookMarkCnt" parameterType="ony.cmm.common.bean.BookMarkBean">
+		/*setComm.updateInsttBookMarkCnt*/
+		UPDATE CPES_INSTT SET
+		    <choose>
+		   		<when test="div != null and div.equals('DEL')"><!-- 진행중 -->
+		   			BKMK_CNT = BKMK_CNT - 1
+		   		</when>
+		   		<otherwise>
+		   			BKMK_CNT = IFNULL(BKMK_CNT,0) + 1
+		   		</otherwise>
+		   	</choose>
+		WHERE INSTT_SEQ = #{tableKeySeq}
+	</update>
+
+	<!-- instt bookmark cnt update -->
+	<update id="updateTrnngBookMarkCnt" parameterType="ony.cmm.common.bean.BookMarkBean">
+		/*setComm.updateTrnngBookMarkCnt*/
+		UPDATE CPES_EDU_TRNNG SET
+		    <choose>
+		   		<when test="div != null and div.equals('DEL')"><!-- 진행중 -->
+		   			BKMK_CNT = BKMK_CNT - 1
+		   		</when>
+		   		<otherwise>
+		   			BKMK_CNT = IFNULL(BKMK_CNT,0) + 1
+		   		</otherwise>
+		   	</choose>
+		WHERE EDU_TRNNG_SEQ = #{tableKeySeq}
+	</update>
+
+	<insert id="insertOffer" parameterType="ony.cpes.external.mypage.privt.bean.OfferBean">
+		/*setComm.insertOffer*/
+		<selectKey resultType="string" keyProperty="offerSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_OFFER (
+		VACANCY_SEQ
+		, CONTENT
+		, REG_USER_SEQ
+		, REG_DT
+		, MOD_USER_SEQ
+		, MOD_DT
+		, RESUME_SEQ
+		, OFFER_OPEN_YN
+		, OFFER_OPEN_DT
+		, OFFER_ACPT_YN
+		, OFFER_ACPT_DT
+		, EMAIL_NTCE_YN
+		, EMAIL_NTCE_DT
+		, REFERRAL_YN
+		, SMS_NTCE_YN
+		, SMS_NTCE_DT
+		, OFFER_SEQ
+		) VALUES (
+		#{vacancySeq}
+		, #{content}
+		, #{regUserSeq}
+		, NOW()
+		, #{modUserSeq}
+		, NOW()
+		, #{resumeSeq}
+		, #{offerOpenYn}
+		, #{offerOpenDt}
+		, #{offerAcptYn}
+		, #{offerAcptDt}
+		, #{emailNtceYn}
+		, #{emailNtceDt}
+		, #{referralYn}
+		, #{smsNtceYn}
+		, #{smsNtceDt}
+		, #{offerSeq}
+		)
+	</insert>
+
+	<delete id="deleteLike" parameterType="ony.cmm.common.bean.LikeBean">
+		/*setComm.deleteLike*/
+		DELETE FROM CPES_LIKE
+		WHERE LIKE_SEQ = #{likeSeq}
+	</delete>
+
+	<!-- counsel like cnt update -->
+	<update id="updateCounselLikeDecreaseCnt" parameterType="ony.cmm.common.bean.LikeBean">
+		/*setComm.updateCounselLikeCnt*/
+		UPDATE CPES_COUNSEL SET LIKE_CNT = LIKE_CNT - 1
+		WHERE COUNSEL_SEQ = #{tableKeySeq}
+	</update>
+
+
+	<!-- counsel like cnt update -->
+	<update id="updateBulletinLikeDecreaseCnt" parameterType="ony.cmm.common.bean.LikeBean">
+		/*setComm.updateBulletinLikeCnt*/
+		UPDATE CPES_BULLETIN SET LIKE_CNT = LIKE_CNT - 1
+		WHERE BULLETIN_SEQ = #{tableKeySeq}
+	</update>
+
+	<insert id="insertAttachFiles" parameterType="ony.cmm.common.bean.FileBean">
+		/*setComm.insertAttachFiles*/
+		<selectKey resultType="string" keyProperty="fileSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_ATTACH_FILES (
+		FILE_SEQ
+		, FILE_GRP_SEQ
+		, ORIGINAL_NM
+		, SAVE_NM
+		, SAVE_FILE_PATH
+		, FILE_EXTENSION
+		, FILE_SIZE
+		, REG_USER_SEQ
+		, REG_DT
+		) VALUES (
+		#{fileSeq}
+		, #{fileGrpSeq}
+		, #{originalNm}
+		, #{saveNm}
+		, #{saveFilePath}
+		, #{fileExtension}
+		, #{fileSize}
+		, #{regUserSeq}
+		, NOW()
+		)
+	</insert>
+
+	<delete id="deleteAttachFiles" parameterType="ony.cmm.common.bean.FileBean">
+		/*setComm.deleteAttachFiles*/
+		DELETE FROM CPES_ATTACH_FILES
+		WHERE FILE_SEQ = #{fileSeq}
+	</delete>
+
+</mapper>

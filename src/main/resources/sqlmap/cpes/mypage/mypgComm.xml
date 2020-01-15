@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mypgComm">
+
+	<select id="selectResumeApplic" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.ApplicBean">
+		SELECT AP.APPLIC_SEQ
+			 , AP.APPLIC_PROC_CD
+		FROM CPES_APPLIC AP
+			LEFT JOIN CPES_VACANCY VAC
+			ON AP.VACANCY_SEQ = VAC.VACANCY_SEQ
+				LEFT JOIN CPES_COMPNY COMPNY
+				ON VAC.COMPNY_SEQ = COMPNY.COMPNY_SEQ
+		WHERE AP.RESUME_SEQ = #{resumeSeq}
+		AND COMPNY.USER_SEQ = #{userSeq}
+		AND VAC.VACANCY_SEQ = #{vacancySeq}
+	</select>
+
+	<select id="selectResumeIntvw" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.IntvwBean">
+		SELECT INTV.INTVW_SEQ
+
+		FROM CPES_INTVW INTV
+			LEFT JOIN CPES_APPLIC AP
+			ON INTV.APPLIC_SEQ = AP.APPLIC_SEQ
+				LEFT JOIN CPES_VACANCY VAC
+				ON AP.VACANCY_SEQ = VAC.VACANCY_SEQ
+					LEFT JOIN CPES_COMPNY COMPNY
+					ON VAC.COMPNY_SEQ = COMPNY.COMPNY_SEQ
+		WHERE AP.RESUME_SEQ = #{resumeSeq}
+		AND COMPNY.USER_SEQ = #{userSeq}
+		AND VAC.VACANCY_SEQ = #{vacancySeq}
+	</select>
+
+	<select id="selectResumeOffer" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.OfferBean">
+		SELECT OFF.OFFER_SEQ
+			 , OFF.OFFER_ACPT_YN
+		FROM CPES_OFFER OFF
+			LEFT JOIN CPES_VACANCY VAC
+			ON OFF.VACANCY_SEQ = VAC.VACANCY_SEQ
+				LEFT JOIN CPES_COMPNY COMPNY
+				ON VAC.COMPNY_SEQ = COMPNY.COMPNY_SEQ
+		WHERE OFF.RESUME_SEQ = #{resumeSeq}
+		AND COMPNY.USER_SEQ = #{userSeq}
+		AND VAC.VACANCY_SEQ = #{vacancySeq}
+	</select>
+
+	<select id="selectVacancycheck" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="int">
+		SELECT COUNT(1) AS CNT
+		FROM CPES_VACANCY VAC
+			LEFT JOIN CPES_COMPNY COMPNY
+			ON VAC.COMPNY_SEQ = COMPNY.COMPNY_SEQ
+		WHERE COMPNY.USER_SEQ = #{userSeq}
+		AND VAC.VACANCY_SEQ = #{vacancySeq}
+	</select>
+
+</mapper>

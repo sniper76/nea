@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setJobFairBooth">
+
+	<!-- Job Fair Booth Apply -->
+	<insert id="insertJobFairBoothHist" parameterType="ony.cpes.external.jobfair.bean.JobFairBoothHistBean">
+		/*setJobFairBooth.insertJobFairBoothHist*/
+		<selectKey resultType="string" keyProperty="boothResvHistSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_FAIR_BOOTH_HIST(
+		       BOOTH_RESV_HIST_SEQ
+		     , BOOTH_SEQ, COMPNY_INSTT_SEQ, COMPNY_INSTT_DIV_CD, MNGER_NM, MNGER_CELL, MNGER_EMAIL, RESV_STS_CD
+			 , REG_USER_SEQ, REG_DT
+		) VALUES(
+		       #{boothResvHistSeq}
+		     , #{boothSeq}
+		     , #{compnyInsttSeq}
+		     , #{compnyInsttDivCd}
+		     , #{mngerNm}
+		     , #{mngerCell}
+		     , #{mngerEmail}
+		     , #{resvStsCd}
+		     , #{regUserSeq}
+		     , now()
+		)
+	</insert>
+
+	<!-- Update Job Fair Booth Status -->
+	<update id="updateJobFairBoothSts" parameterType="ony.cpes.external.jobfair.bean.JobFairBoothBean">
+		/*setJobFairBooth.updateJobFairBoothSts*/
+		UPDATE CPES_FAIR_BOOTH
+		   SET BOOTH_STS_CD = #{boothStsCd}
+		     , BOOTH_REQ_DT = now()
+		 WHERE BOOTH_SEQ    = #{boothSeq}
+		   AND FAIR_SEQ     = #{fairSeq}
+	</update>
+
+	<!-- Job Fair Booth Reservation Waiting -->
+	<insert id="insertJobFairBoothResvWait" parameterType="ony.cpes.external.jobfair.bean.JobFairBoothResvWaitBean">
+		<selectKey resultType="string" keyProperty="fairBoothResvWaitSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_FAIR_BOOTH_RESV_WAIT(
+		       FAIR_BOOTH_RESV_WAIT_SEQ, COMPNY_INSTT_SEQ, COMPNY_INSTT_DIV_CD, FAIR_SEQ, MNGER_NM, MNGER_EMAIL, MNGER_CELL
+			 , REG_USER_SEQ, REG_DT
+		) VALUES(
+		       #{fairBoothResvWaitSeq}
+		     , #{compnyInsttSeq}
+		     , #{compnyInsttDivCd}
+		     , #{fairSeq}
+		     , #{mngerNm}
+		     , #{mngerEmail}
+		     , #{mngerCell}
+		     , #{regUserSeq}
+		     , now()
+		)
+	</insert>
+
+</mapper>

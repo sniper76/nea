@@ -1,0 +1,145 @@
+<html lang="ko">
+
+<head>
+<meta charset="utf-8">
+<title>통합관리시스템 - 사용자페이지</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<!-- css -->
+<link rel="stylesheet" href="../../css/vendor/bootstrap.css">
+<link rel="stylesheet" href="../../css/vendor/bootstrap-datepicker.css">
+<link rel="stylesheet" href="../../css/vendor/messagebox.css">
+<link rel="stylesheet" href="../../css/common.css">
+<!-- js -->
+<script src="../../js/vendor/jquery.js"></script>
+<script src="../../js/vendor/bootstrap.min.js"></script>
+<script src="../../js/vendor/bootstrap-datepicker.js"></script>
+<script src="../../js/vendor/bootstrap-datepicker.kr.js"></script>
+<script src="../../js/vendor/messagebox.js"></script>
+<script>
+	$(document).ready(function(){
+
+			/* 탭 active 표현 */
+		$('div.tabWrap>ul>li').on('click',function(){
+			$('div.tabWrap>ul>li').removeClass('active');
+			$(this).addClass('active');
+		});
+
+
+	});
+
+
+</script>
+</head>
+
+<body>
+
+	<div class="wrap container-fluid">
+
+		<header>
+			<div class="inner">
+				<h1 class="hTxt"><span>도&middot;시&middot;군 일자리 지원시스템</span></h1>
+			</div>
+		</header>
+		<main>
+			<div class="inner">
+				<div class="hasH2 row">
+					<div class="col-md-6">
+						<h2>사업현황</h2>
+					</div>
+					<div class="col-md-6 tAR">
+						<button type="button" class="btn icon_list"><span>사업현황 전체보기</span></button>
+					</div>
+				</div>
+
+<!-- TAB -->
+				<div class="tabWrap threeTab">
+					<ul>
+						<li class=""><a href="#none"><h3>사업정보</h3></a></li>
+						<li class="active"><a href="#none"><h3>Q&A</h3></a></li>
+						<li class=""><a href="#none"><h3>설문조사</h3></a></li>
+					</ul>
+				</div>
+<!-- //TAB -->				
+		
+
+<!-- Q&A -->
+				<div class="tabContent mb50">
+
+<!-- 등록 -->
+					<table class="table hasBorder">
+						<caption>Q&A등록</caption>
+						<colgroup>
+							<col width="16%">
+							<col width="*">
+							<col width="16%">
+							<col width="34%">
+						</colgroup>
+						<tbody>
+							<tr>
+								<th><label for="">성명</label></th>
+								<td>한광희</td>
+								<th><label for="">연락처</label></th>
+								<td><input type="text" class="form-control" value=""></td>
+							</tr>
+							<tr>
+								<th><label>E-mail</label></th>
+								<td>
+									<input type="text" class="form-control" value="" readonly="">	
+								</td>
+								<td colspan="2">
+									<label><input type="checkbox">이메일로 답변받기</label>
+								</td>
+							</tr>
+							<tr>
+								<th><label for="">제목<span class="must"></span></label></th>
+								<td colspan="3"><input type="text" class="form-control" value=""></td>
+							</tr>
+							<tr>
+								<th><label for="">파일첨부</label></th>
+								<td colspan="3">
+									<div class="row">
+										<div class="col-md-11">
+											<input type="text" class="form-control" value="" disabled="disabled">
+										</div>
+										<div class="col-md-1 pl05">
+											<button type="button" class="w100p"><span>첨부파일</span></button>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<th><label for="">내용</label></th>
+								<td colspan="3">
+									<textarea class="form-control w100p" style="height:300px"></textarea>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+<!-- //등록 -->		
+
+					<div class="btnWrap">
+						<button type="button" class="btn blue icon_write"><span>등록</span></button>
+						<button type="button" class="btn grey"><span>목록</span></button>
+					</div>
+
+				</div><!-- //tabContent -->
+<!-- //Q&A -->
+				
+
+			</div><!-- //inner -->
+		</main>
+		<footer>
+			<div class="inner">
+				<strong>경기도 일자리재단</strong>
+				<address>&#40;14566&#41; 경기도 부천시 부천로 136번길 27 원미어울마당&#40;구 원미구청&#41; 3층   /  전화번호 : 1577-0014</address>
+				<span class="copy">Copyright &copy; 2019 Gyeonggido Job Foundation all rights reserved.</span>
+			</div>
+		</footer>
+
+	</div><!-- //wrap -->
+
+
+</body>
+</html>

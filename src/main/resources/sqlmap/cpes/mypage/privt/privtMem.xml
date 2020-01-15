@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="privtMem">
+	<!-- 개인 회원정보 조회 -->
+	<select id="selectMember" resultType="ony.cpes.external.mypage.privt.bean.PrivtMemBean" parameterType="ony.cpes.external.mypage.privt.bean.CondPrivtMemBean">
+		/*privtMem.selectMember*/
+		SELECT
+			A.USER_EMAIL
+		  , A.USER_NM_KH
+		  , A.USER_NM_EN
+		  , FN_GET_USER_NM_BY_USER_SEQ(A.USER_SEQ, #{langCd}) AS USER_NM
+		  , A.USER_SEQ
+          , A.GENDER_CD
+          , FN_GET_COMMON_NM('GENDER_CD', A.GENDER_CD, #{langCd}) AS GENDER_NM
+          , A.USER_CELL
+          , A.BIRTH
+          , DATE_FORMAT(A.BIRTH,'%d') AS BIRTH_DAY
+          , DATE_FORMAT(A.BIRTH,'%m') AS BIRTH_MONTH
+          , DATE_FORMAT(A.BIRTH,'%Y') AS BIRTH_YEAR
+          , A.NID
+          , A.ADDR_CD
+          , A.ADDR_DTL
+          , A.ADDR_FULL_CD
+          , A.ADDR_FULL_NM
+          , A.USER_AUTH_CD
+          , FN_GET_COMMON_NM('USER_AUTH_CD', A.USER_AUTH_CD, #{langCd}) AS USER_AUTH_NM
+          , A.FILE_GRP_SEQ
+		FROM CPES_USER A
+        WHERE A.USER_SEQ = #{condUserSeq}
+	</select>
+
+	<!-- 비밀번호 확인 -->
+	<select id="selectPrivtMemberPwdChk" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.PrivtMemBean">
+		/*privtMem.selectPrivtMemberPwdChk*/
+		SELECT
+			COUNT(1) AS CNT
+		FROM CPES_USER A
+        WHERE A.USER_SEQ = #{userSeq}
+        AND A.USER_PWD = #{userPwd}
+	</select>
+
+	<select id="selectPwd" resultType="ony.cpes.external.mypage.privt.bean.PrivtMemBean" parameterType="ony.cpes.external.mypage.privt.bean.PrivtMemBean">
+		/*privtMem.selectPwd*/
+		SELECT
+			A.USER_PWD
+		FROM CPES_USER A
+        WHERE A.USER_SEQ = #{userSeq}
+	</select>
+
+	<!-- 개인 회원정보 조회 -->
+	<select id="selectMemberChg" resultType="ony.cpes.external.mypage.privt.bean.PrivtMemChgBean" parameterType="ony.cpes.external.mypage.privt.bean.CondPrivtMemBean">
+		/*privtMem.selectMemberChg*/
+		SELECT
+			A.AGREE_REJECT_REASON
+		  , A.CHG_AGREE_STS_CD
+		  , FN_GET_COMMON_NM('CHG_AGREE_STS_CD', A.CHG_AGREE_STS_CD, #{langCd}) AS CHG_AGREE_STS_NM
+		  , A.CHG_NEXT_CD
+		  , A.CHG_PREV_CD
+          , A.CHG_REASON
+          , A.JC_CD
+          , A.JC_USER_SEQ
+          , FN_GET_BASE_DATE_CHAR(A.STS_CHG_DT, #{langCd}) AS STS_CHG_DT
+          , A.USER_CHG_SEQ
+          , A.USER_SEQ
+		FROM CPES_USER_CHG A
+		<choose>
+			<when test="condUserSeq != null and !condUserSeq.equals('')">
+        		WHERE A.USER_SEQ = #{condUserSeq}
+        	</when>
+        	<otherwise>
+        		WHERE A.USER_CHG_SEQ = #{condSeq}
+        	</otherwise>
+        </choose>
+        ORDER BY A.REG_DT DESC
+        LIMIT 1
+	</select>
+
+	<!-- select application summary by status -->
+	<select id="selectApplicSmry2" resultType="hashmap" parameterType="hashmap">
+		SELECT (
+		        SELECT COUNT(1) AS CNT
+		          FROM CPES_RESUME A
+		               INNER JOIN
+		               CPES_APPLIC B
+		                  ON B.RESUME_SEQ = A.RESUME_SEQ
+		                 AND (B.DEL_YN IS NULL OR B.DEL_YN != 'Y')
+		               INNER JOIN
+		               CPES_VACANCY C
+		                  ON C.VACANCY_SEQ = B.VACANCY_SEQ
+		                 AND C.VACANCY_STS_CD = 'VCS0000000001' <!-- 채공공고 진행중 -->
+		                 AND C.USE_YN = 'Y'
+		                 AND C.DEL_YN = 'N'
+		               INNER JOIN
+		               CPES_COMPNY D
+		                  ON D.COMPNY_SEQ = C.COMPNY_SEQ
+		                 AND D.USE_YN = 'Y'
+		                 AND D.DEL_YN = 'N'
+		         WHERE A.USER_SEQ = #{userSeq}
+		           AND A.USE_YN = 'Y'
+		       ) AS CNT_1
+		     , (
+		        SELECT COUNT(1) AS CNT
+		          FROM CPES_RESUME A
+		               INNER JOIN
+		               CPES_RESUME_OPEN_COMPNY B
+		                  ON B.RESUME_SEQ = A.RESUME_SEQ
+		               INNER JOIN
+		               CPES_COMPNY C
+		                  ON C.COMPNY_SEQ = B.COMPNY_SEQ
+		                 AND C.USE_YN = 'Y'
+		                 AND C.DEL_YN = 'N'
+		         WHERE A.USER_SEQ = #{userSeq}
+		           AND A.USE_YN = 'Y'
+		       ) AS CNT_2
+		     , (
+		        SELECT COUNT(1) AS CNT
+		          FROM CPES_RESUME A
+		               INNER JOIN
+		               CPES_OFFER B
+		                  ON B.RESUME_SEQ = A.RESUME_SEQ
+		               INNER JOIN
+		               CPES_VACANCY C
+		                  ON C.VACANCY_SEQ = B.VACANCY_SEQ
+		                 AND C.USE_YN = 'Y'
+		                 AND C.DEL_YN = 'N'
+		               INNER JOIN
+		               CPES_COMPNY D
+		                  ON D.COMPNY_SEQ = C.COMPNY_SEQ
+		                 AND D.USE_YN = 'Y'
+		                 AND D.DEL_YN = 'N'
+		         WHERE A.USER_SEQ = #{userSeq}
+		           AND A.USE_YN = 'Y'
+		       ) AS CNT_3
+		     , (
+		        SELECT COUNT(1) AS CNT
+		          FROM CPES_RESUME A
+		               INNER JOIN
+		               CPES_APPLIC B
+		                  ON B.RESUME_SEQ = A.RESUME_SEQ
+		               INNER JOIN
+		               CPES_VACANCY C
+		                  ON C.VACANCY_SEQ = B.VACANCY_SEQ
+		                 AND C.USE_YN = 'Y'
+		                 AND C.DEL_YN = 'N'
+		               INNER JOIN
+		               CPES_COMPNY D
+		                  ON D.COMPNY_SEQ = C.COMPNY_SEQ
+		                 AND D.USE_YN = 'Y'
+		                 AND D.DEL_YN = 'N'
+		               INNER JOIN
+		               CPES_INTVW E
+		                  ON E.APPLIC_SEQ = B.APPLIC_SEQ
+		         WHERE A.USER_SEQ = #{userSeq}
+		           AND A.USE_YN = 'Y'
+		       ) AS CNT_4
+		     , (
+		        SELECT COUNT(1) AS CNT
+		          FROM CPES_BKMK A
+		               INNER JOIN
+		               CPES_VACANCY C
+		                  ON C.VACANCY_SEQ = A.TABLE_KEY_SEQ
+		                 AND C.USE_YN = 'Y'
+		                 AND C.DEL_YN = 'N'
+		               INNER JOIN
+		               CPES_COMPNY D
+		                  ON D.COMPNY_SEQ = C.COMPNY_SEQ
+		                 AND D.USE_YN = 'Y'
+		                 AND D.DEL_YN = 'N'
+		         WHERE A.USER_SEQ = #{userSeq}
+		           AND A.CATE_CD = 'BCT0000000003'
+		           AND C.USE_YN = 'Y'
+		           AND C.DEL_YN = 'N'
+		       ) AS CNT_5
+	</select>
+
+</mapper>

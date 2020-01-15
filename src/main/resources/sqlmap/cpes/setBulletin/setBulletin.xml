@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setBulletin">
+
+
+
+    <!-- bulletin list info  -->
+	<update id="updateViewCnt" parameterType="ony.cpes.external.bulletin.bean.CondBulletinBean">
+		/*setBulletin.updateViewCnt*/
+		UPDATE CPES_BULLETIN SET
+			VIEW_CNT = VIEW_CNT + 1
+        WHERE BULLETIN_SEQ = #{condSeq}
+	</update>
+
+    <!-- bulletin list info  -->
+	<insert id="insertBulletin" parameterType="ony.cpes.external.bulletin.bean.BulletinBean">
+		/*setBulletin.insertBulletin*/
+		<selectKey resultType="string" keyProperty="bulletinSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+    	INSERT INTO CPES_BULLETIN (
+			AGREE_YN,
+			BULLETIN_MNG_SEQ,
+			BULLETIN_SEQ,
+			BULLETIN_TYPE_CD,
+			COMMENT_CNT,
+			CONTENT_EN,
+			CONTENT_KH,
+			DEL_YN,
+			DEPTH,
+			FILE_GRP_SEQ,
+			JC_CD,
+			LIKE_CNT,
+			MOD_DT,
+			MOD_USER_SEQ,
+			NTC_YN,
+			PHOTO_FILE_GRP_SEQ,
+			REG_DT,
+			REG_USER_SEQ,
+			SORT,
+			TITLE_EN,
+			TITLE_KH,
+			BULLETIN_CATE_SEQ,
+			VIEW_CNT,
+			VIEW_YN,
+			WRITE_DT,
+			WRITER_NM,
+			BAN_YN
+    	) VALUES (
+			'N',
+			#{bulletinMngSeq},
+			#{bulletinSeq},
+			#{bulletinTypeCd},
+			0,
+			#{contentEn},
+			#{contentKh},
+			'N',
+			1,
+			#{fileGrpSeq},
+			(SELECT JC_CD FROM CPES_USER WHERE USER_SEQ = #{regUserSeq}),
+			0,
+			now(),
+			#{modUserSeq},
+			'N',
+			#{photoFileGrpSeq},
+			now(),
+			#{regUserSeq},
+			1,
+			#{titleEn},
+			#{titleKh},
+			#{bulletinCateSeq},
+			0,
+			'Y',
+			now(),
+			#{writerNm},
+			#{banYn}
+    	)
+	</insert>
+
+
+    <!-- comment insert  -->
+	<insert id="insertComment" parameterType="ony.cpes.external.bulletin.bean.CommentBean">
+		/*setBulletin.insertComment*/
+		<selectKey resultType="string" keyProperty="commentSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+    	INSERT INTO CPES_COMMENT (
+			BULLETIN_SEQ,
+			COMMENT_ID,
+			COMMENT_SEQ,
+			CONTENT,
+			DEL_YN,
+			DEPTH,
+			MOD_DT,
+			MOD_USER_SEQ,
+			REG_DT,
+			REG_USER_SEQ,
+			SORT,
+			UPPER_COMMENT_SEQ,
+			WRITE_DT,
+			WRITER_NM,
+			VIEW_YN,
+			AGREE_YN,
+			BAN_YN
+    	) VALUES (
+			#{bulletinSeq},
+			(SELECT COALESCE(MAX(C.COMMENT_ID) + 1, 1) FROM CPES_COMMENT C WHERE C.BULLETIN_SEQ = #{bulletinSeq}),
+			#{commentSeq},
+			#{content},
+			'N',
+			#{depth},
+			now(),
+			#{modUserSeq},
+			now(),
+			#{regUserSeq},
+			#{sort},
+			#{upperCommentSeq},
+			now(),
+			#{writerNm},
+			'N',
+			'N',
+			#{banYn}
+    	)
+	</insert>
+
+    <!-- comment delete  -->
+	<update id="deleteComment" parameterType="ony.cpes.external.bulletin.bean.CommentBean">
+		/*setBulletin.deleteComment*/
+		UPDATE CPES_COMMENT SET
+			<choose>
+				<when test='delYn == "Y"'><!-- 정상 삭제처리 -->
+					DEL_YN = 'Y',
+				</when>
+				<otherwise><!-- 하위댓글이 있을경우  삭제문구로변경 -->
+					CONTENT = #{content},
+				</otherwise>
+			</choose>
+			MOD_USER_SEQ = #{modUserSeq},
+			MOD_DT = now()
+        WHERE COMMENT_SEQ = #{commentSeq}
+        AND REG_USER_SEQ = #{regUserSeq}
+	</update>
+
+    <!-- bulletin update  -->
+	<update id="updateBulletin" parameterType="ony.cpes.external.bulletin.bean.BulletinBean">
+		/*setBulletin.updateBulletin*/
+		UPDATE CPES_BULLETIN SET
+			TITLE_EN = #{titleEn},
+			TITLE_KH = #{titleKh},
+			CONTENT_EN = #{contentEn},
+			CONTENT_KH = #{contentKh},
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq},
+			AGREE_YN = 'N',
+			VIEW_YN = 'N',
+			BAN_YN = #{banYn}
+		WHERE BULLETIN_SEQ = #{bulletinSeq}
+		AND REG_USER_SEQ = #{regUserSeq}
+	</update>
+
+
+    <!-- bulletin delete  -->
+	<update id="deleteBulletin" parameterType="ony.cpes.external.bulletin.bean.BulletinBean">
+		/*setBulletin.deleteBulletin*/
+		UPDATE CPES_BULLETIN SET
+			DEL_YN = 'Y',
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE BULLETIN_SEQ = #{bulletinSeq}
+		AND REG_USER_SEQ = #{regUserSeq}
+	</update>
+
+    <!-- comment count update  -->
+	<update id="updateCommentCnt" parameterType="ony.cpes.external.bulletin.bean.CommentBean">
+		/*setBulletin.updateCommentCnt*/
+		UPDATE CPES_BULLETIN SET
+			<choose>
+				<when test='commentDelYn == "Y"'><!-- 코멘트 삭제일경우 -->
+					COMMENT_CNT = COMMENT_CNT - 1
+				</when>
+				<otherwise><!-- 코멘트 등록일 경우 -->
+					COMMENT_CNT = COMMENT_CNT + 1
+				</otherwise>
+			</choose>
+
+        WHERE BULLETIN_SEQ = #{bulletinSeq}
+	</update>
+
+</mapper>

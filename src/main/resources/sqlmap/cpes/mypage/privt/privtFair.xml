@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="privtFair">
+
+	<!-- 관심채용행사 조건 -->
+	<sql id="whereFairCond">
+		WHERE A.USER_SEQ = #{condUserSeq}
+		AND A.DEL_YN = 'N'
+		AND B.USE_YN = 'Y'
+		AND B.FAIR_VIEW_YN = 'Y'
+		AND B.DEL_YN = 'N'
+	</sql>
+
+	<sql id="sortCond">
+		ORDER BY
+		<choose>
+			<when test="condSort != null and condSort.equals('LIKE')">
+				B.BKMK_CNT
+			</when>
+			<otherwise>
+	  			A.REG_DT DESC
+			</otherwise>
+		</choose>
+	</sql>
+
+ 	<!-- 채용행사 목록 count,fair list count -->
+	<select id="selectFairListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+        <![CDATA[
+        	/*privtFair.selectFairListCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+            FROM CPES_FAIR_ONLINE_PATCPTN A
+            INNER JOIN CPES_FAIR_MST B
+			ON A.FAIR_SEQ = B.FAIR_SEQ
+
+       ]]>
+            <include refid="whereFairCond"/>
+
+    </select>
+
+
+  	<!-- 행사 목록 ,fair list  -->
+	<select id="selectFairList" resultType="ony.cpes.external.mypage.privt.bean.FairBean" parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+        <![CDATA[
+        	/*privtFair.selectFairList*/
+            SELECT
+            	 A.FAIR_SEQ,
+            	 A.CANCEL_YN,
+            	 A.JC_AGREE_STS_CD,
+            	 FN_GET_COMMON_NM('JC_AGREE_STS_CD', A.JC_AGREE_STS_CD, #{langCd}) AS JC_AGREE_STS_NM,
+            	 A.PATCPTN_YN,
+ 				 FN_GET_ADDR_NM(SUBSTR(B.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM,
+				 FN_GET_FAIR_NM(B.FAIR_SEQ, #{langCd}) AS FAIR_NM,
+				 B.FAIR_DIV_CD,
+				 FN_GET_COMMON_NM('FAIR_DIV_CD', B.FAIR_DIV_CD, #{langCd}) AS FAIR_DIV_NM,
+				 CONCAT(FN_GET_BASE_DATE_CHAR(B.FAIR_BGN_DT, #{langCd}), ' ', B.FAIR_BGN_HOUR, ':', B.FAIR_BGN_MINUTE, ' ', B.FAIR_BGN_AMPM) AS FAIR_BGN_DT,
+				 CONCAT(FN_GET_BASE_DATE_CHAR(B.FAIR_END_DT, #{langCd}), ' ', B.FAIR_END_HOUR, ':', B.FAIR_END_MINUTE, ' ', B.FAIR_END_AMPM) AS FAIR_END_DT,
+				 B.TEL1,
+				 B.TEL2,
+				 B.EMAIL,
+				 B.FAIR_STS_CD,
+				 FN_GET_COMMON_NM('FAIR_STS_CD', B.FAIR_STS_CD, #{langCd}) AS FAIR_STS_NM,
+				 FN_GET_FILE_PATH(B.THUMB_FILE_GRP_SEQ) AS IMAGE_PATH,
+				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+            FROM CPES_FAIR_ONLINE_PATCPTN A
+            INNER JOIN CPES_FAIR_MST B
+			ON A.FAIR_SEQ = B.FAIR_SEQ
+       ]]>
+            <include refid="whereFairCond"/>
+            <include refid="sortCond"/>
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+
+
+</mapper>

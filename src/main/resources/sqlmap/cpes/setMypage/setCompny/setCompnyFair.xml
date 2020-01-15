@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setCompnyFair">
+
+	<!-- 채용행사 초대 신청-->
+	<update id="updateInviteOk"  parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+		/*setCompnyFair.updateInviteOk*/
+		UPDATE CPES_FAIR_PATCPTN_COMPNY SET
+			COMPNY_RESP_YN = 'Y',
+			REQ_DT = now(),
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE COMPNY_SEQ = (
+			SELECT G.COMPNY_SEQ
+			FROM CPES_COMPNY G
+			WHERE G.COMPNY_SEQ = #{condSeq}
+			AND G.USER_SEQ = #{condUserSeq}
+		)
+		AND FAIR_SEQ = #{condSeq2}
+
+	</update>
+
+	<!-- 채용행사 초대 삭제-->
+	<update id="deleteInvite"  parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+		/*setCompnyFair.deleteInvite*/
+		UPDATE CPES_FAIR_PATCPTN_COMPNY SET
+			DEL_YN = 'Y',
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE COMPNY_SEQ = (
+			SELECT G.COMPNY_SEQ
+			FROM CPES_COMPNY G
+			WHERE G.COMPNY_SEQ = #{condSeq}
+			AND G.USER_SEQ = #{condUserSeq}
+		)
+		AND FAIR_SEQ = #{condSeq2}
+	</update>
+
+	<!-- 채용행사 참가취소-->
+	<update id="updateInviteCancel"  parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+		/*setCompnyFair.updateInviteCancel*/
+		UPDATE CPES_FAIR_PATCPTN_COMPNY SET
+			DEL_YN = 'Y',
+			REQ_DT = null,
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE COMPNY_SEQ = (
+			SELECT G.COMPNY_SEQ
+			FROM CPES_COMPNY G
+			WHERE G.COMPNY_SEQ = #{condSeq}
+			AND G.USER_SEQ = #{condUserSeq}
+		)
+		AND FAIR_SEQ = #{condSeq2}
+	</update>
+
+	<!-- 채용행사 채용공고 삭제-->
+	<delete id="deleteFairVacancy"  parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+		/*setCompnyFair.deleteFairVacancy*/
+		DELETE FROM CPES_FAIR_PATCPTN_COMPNY_VACANCY
+		WHERE COMPNY_SEQ = (
+			SELECT G.COMPNY_SEQ
+			FROM CPES_COMPNY G
+			WHERE G.USER_SEQ = #{condUserSeq}
+		)
+		AND VACANCY_SEQ = #{condSeq}
+		AND FAIR_SEQ = #{condSeq2}
+	</delete>
+
+	<!-- 채용행사 부스 취소-->
+	<update id="updateBoothCancel"  parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+		/*setCompnyFair.updateBoothCancel*/
+		UPDATE CPES_FAIR_BOOTH_HIST SET
+			BOOTH_CANCEL_REQ_DT = now(),
+			RESV_STS_CD = 'RSV0000000001'
+		WHERE BOOTH_RESV_HIST_SEQ = #{condSeq}
+		AND COMPNY_INSTT_SEQ = (
+			SELECT G.COMPNY_SEQ
+			FROM CPES_COMPNY G
+			WHERE G.USER_SEQ = #{condUserSeq}
+		)
+
+	</update>
+
+
+</mapper>

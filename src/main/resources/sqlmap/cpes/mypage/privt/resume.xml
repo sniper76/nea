@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="resume">
+
+	<select id="selectResumeTotCnt" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="int">
+		/* resume.selectResumeTotCnt */
+		SELECT CNT + TEMP_CNT AS TOT_CNT
+
+		FROM (SELECT COUNT(1) AS CNT
+				FROM CPES_RESUME
+				WHERE 1=1
+				AND USER_SEQ = #{userSeq}
+				AND USE_YN = 'Y') RE
+
+			LEFT JOIN
+
+			(SELECT COUNT(1) AS TEMP_CNT
+				FROM CPES_RESUME_TEMP
+				WHERE 1=1
+				AND USER_SEQ = #{userSeq}
+				AND USE_YN = 'Y') RE_TEMP
+			ON 1=1
+	</select>
+
+	<select id="selectMyResumeList" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* resume.selectMyResumeList */
+		SELECT RE.RESUME_SEQ
+			 , RE.RESUME_TITLE
+			 , DATE_FORMAT(RE.REG_DT, '%d/%m/%Y') AS REG_DT
+			 , 'N' AS TEMP_FLAG
+			 , RE.PRI_RESUME_YN
+			 , CASE WHEN (SELECT JC_AGREE_STS_CD FROM CPES_JOBSK_REQ WHERE RESUME_SEQ = RE.RESUME_SEQ AND DEL_YN = 'N' LIMIT 1) = 'JSC0000000003' THEN 'true'
+			 		WHEN (SELECT JC_AGREE_STS_CD FROM CPES_JOBSK_REQ WHERE RESUME_SEQ = RE.RESUME_SEQ AND DEL_YN = 'N' LIMIT 1) IS NULL THEN 'true'
+			 		ELSE 'false' END AS UPDATE_FLAG
+			 , FN_GET_NEW_YN(RE.REG_DT) AS NEW_YN
+		FROM CPES_RESUME RE
+		WHERE 1=1
+		AND RE.USE_YN = 'Y'
+		AND RE.USER_SEQ = #{userSeq}
+
+		UNION ALL
+
+		SELECT RE_TEMP.RESUME_SEQ
+			 , RE_TEMP.RESUME_TITLE
+			 , DATE_FORMAT(RE_TEMP.REG_DT, '%d/%m/%Y') AS REG_DT
+			 , 'Y' AS TEMP_FLAG
+			 , RE_TEMP.PRI_RESUME_YN
+			 , 'true' AS UPDATE_FLAG
+			 , FN_GET_NEW_YN(RE_TEMP.REG_DT) AS NEW_YN
+		FROM CPES_RESUME_TEMP RE_TEMP
+		WHERE 1=1
+		AND RE_TEMP.USE_YN = 'Y'
+		AND RE_TEMP.USER_SEQ = #{userSeq}
+	</select>
+
+	<select id="selectDeleteValidation" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="string">
+		/* resume.selectDeleteValidation */
+		SELECT CASE WHEN APPLIC_CNT.CNT <![CDATA[>]]> 0 AND REFERRAL_CNT.CNT <![CDATA[=]]> 0 THEN '10'
+					WHEN APPLIC_CNT.CNT <![CDATA[=]]> 0 AND REFERRAL_CNT.CNT <![CDATA[>]]> 0 THEN '20'
+					WHEN APPLIC_CNT.CNT <![CDATA[=]]> 0 AND REFERRAL_CNT.CNT <![CDATA[=]]> 0 THEN '99'
+					ELSE '30' END AS VALIDATION
+		FROM (SELECT COUNT(1) AS CNT
+				FROM CPES_APPLIC CA
+				WHERE 1=1
+				AND APPLIC_PROC_CD = 'APC0000000001'
+				AND APPLIC_CANCEL_YN = 'N'
+				AND RESUME_SEQ = #{resumeSeq}
+				) APPLIC_CNT
+
+		LEFT JOIN
+
+			(SELECT COUNT(1) AS CNT
+				FROM CPES_REFERRAL CR
+				WHERE 1=1
+				<!-- 코드 확인 필요 -->
+				AND RESUME_SEQ = #{resumeSeq}
+
+				) REFERRAL_CNT
+
+		ON 1=1
+	</select>
+
+	<select id="selectTempResumeCheck" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="string">
+		/* resume.selectTempResumeCheck */
+
+		SELECT CASE WHEN RE.CNT <![CDATA[>]]> 0 AND RE_TEMP.CNT <![CDATA[=]]> 0 THEN '10'
+				WHEN RE.CNT <![CDATA[=]]> 0 AND RE_TEMP.CNT <![CDATA[>]]> 0 THEN '20'
+				ELSE '30' END AS RE_TYPE
+
+		FROM (SELECT COUNT(1) AS CNT
+				FROM CPES_RESUME
+				WHERE 1=1
+				AND RESUME_SEQ = #{resumeSeq}
+				AND USE_YN = 'Y') RE
+
+			LEFT JOIN
+
+			(SELECT COUNT(1) AS CNT
+				FROM CPES_RESUME_TEMP
+				WHERE 1=1
+				AND RESUME_SEQ = #{resumeSeq}
+				AND USE_YN = 'Y') RE_TEMP
+			ON 1=1
+	</select>
+
+	<select id="selectResumeDetail" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.ResumeBean">
+		/* resume.selectResumeDetail */
+		SELECT RE.RESUME_SEQ
+			 , RE.USER_SEQ
+			 , (SELECT BKMK_SEQ FROM CPES_BKMK WHERE USER_SEQ = #{userSeq} AND TABLE_KEY_SEQ = RE.USER_SEQ) AS BKMK_SEQ
+			 , RE.USER_ID
+			 , RE.JC_CD
+			 , RE.CMPLT_USER_NM_KH
+			 , RE.CMPLT_USER_NM_EN
+			 , RE.GENDER_CD
+			 , RE.NATION_CD
+			 , RE.BIRTH
+			 , RE.IDENTI_NO
+			 , RE.BIRTH_LOC_CD
+			 , RE.MARRI_CD
+			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN CD_KH_NM ELSE CD_EN_NM END AS NM FROM CPES_COMM_DTL_CD WHERE DTL_CD = RE.MARRI_CD AND USE_YN = 'Y') AS MARRI_CD_NM
+			 , RE.FAMILY_CNT
+			 , RE.UNDER_AGE15_FAMILY_CNT
+			 , RE.OVER_AGE64_FAMILY_CNT
+			 , RE.ADDR_DTL
+			 , RE.ADDR_CD
+			 , RE.FRSTIME_JOB_SEEKER_YN
+			 , RE.STUDYING_YN
+			 , RE.RET_MIGRAT_YN
+			 , RE.RURAL_LABO_YN
+			 , RE.SRVC_YN
+			 , RE.ETHNIC_MINOR_YN
+			 , RE.DISABL_YN
+			 , RE.DISABL_OPTION_CD
+			 , RE.DISABL_ETC
+			 , RE.NOW_WORK_YN
+			 , RE.BEFORE_WORK_DURA
+			 , RE.SELFEMP_YN
+			 , RE.SELFEMP_CLASS_CD
+			 , RE.URGENT_JOBSEEK_YN
+			 , RE.JOBSEEK_WAIT_DURA
+			 , RE.FILE_GRP_SEQ
+			 , RE.PRO_LICNS_YN
+			 , RE.PRO_LICNS_SPEC
+			 , RE.CAREER_YN
+			 , RE.TOT_CAREER_TERM_YEAR_CNT
+			 , RE.TOT_CAREER_TERM_MONTH_CNT
+			 , RE.JC_USER_MOD_DT
+			 , RE.JC_VERITY_USER_SEQ
+			 , RE.JC_NOTE
+			 , RE.UPLOAD_CV
+			 , RE.STEP_INPUT
+			 , RE.MOBILE_ID
+			 , RE.RESUME_STS_CD
+			 , RE.LAST_MOD_DT
+			 , RE.JC_USER_SEQ
+			 , RE.LANG_USE_CD
+			 , RE.RESUME_TITLE
+			 , RE.PRI_RESUME_YN
+			 , RE.RESUME_KEYWORD
+			 , RE.PREFER_JOB_TITLE
+			 , RE.ISCO_CD
+			 , RE.ISIC_CD
+			 , RE.EMPLOY_FORM_CD
+			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN CD_KH_NM ELSE CD_EN_NM END AS NM FROM CPES_COMM_DTL_CD WHERE DTL_CD = RE.EMPLOY_FORM_CD AND USE_YN = 'Y') AS EMPLOY_FORM_CD_NM
+			 , RE.PREFER_EMPLOY_TYPE_CD
+			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN CD_KH_NM ELSE CD_EN_NM END AS NM FROM CPES_COMM_DTL_CD WHERE DTL_CD = RE.PREFER_EMPLOY_TYPE_CD AND USE_YN = 'Y') AS PREFER_EMPLOY_TYPE_CD_NM
+			 , RE.TYPE_EMPLOY_HOUR_DAY
+			 , RE.TYPE_EMPLOY_DAY_WEEK
+			 , RE.PREFER_CRTCT_TERMS
+			 , RE.PREFER_CRTCT_TERMS_DURA
+			 , RE.PREFER_CRTCT_TYPE
+			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN CD_KH_NM ELSE CD_EN_NM END AS NM FROM CPES_COMM_DTL_CD WHERE DTL_CD = RE.PREFER_CRTCT_TYPE AND USE_YN = 'Y') AS PREFER_CRTCT_TYPE_NM
+			 , RE.NIGHT_WORK_YN
+			 , RE.OVER_TIME_WORK_YN
+			 , RE.HLDAY_WORK_YN
+			 , RE.EXPCT_MIN_SALARY_AMT
+			 , RE.EXPCT_MAX_SALARY_AMT
+			 , RE.EXPCT_SALARY_TYPE_CD
+			 , RE.DIFF_PROVC_WORK_YN
+			 , RE.WORK_BGN_ABLE_YN
+			 , RE.WORK_BGN_ABLE_WITHIN
+			 , RE.JOBSK_REQ_YN
+			 , RE.USE_YN
+			 , RE.BIRTH_ADDR_DTL
+			 , RE.PREFER_DAY_MON
+			 , RE.PREFER_DAY_TUE
+			 , RE.PREFER_DAY_WED
+			 , RE.PREFER_DAY_THU
+			 , RE.PREFER_DAY_FRI
+			 , RE.PREFER_DAY_SAT
+			 , RE.PREFER_DAY_SUN
+			 , RE.PREFER_POSITION
+			 , RE.ADDR_FULL_CD
+			 , RE.ADDR_FULL_NM
+			 , FN_GET_FILE_PATH(RE.FILE_GRP_SEQ) AS FILE_PATH
+		<choose>
+    		<when test="tempFlag == 1">
+    			FROM CPES_RESUME_TEMP RE
+    		</when>
+    		<otherwise>
+    			FROM CPES_RESUME RE
+    		</otherwise>
+    	</choose>
+
+		WHERE 1=1
+		AND RESUME_SEQ = #{resumeSeq}
+	</select>
+
+	<select id="selectResumeHopeWorkLocDetail" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.ResumeHopeWorkLocBean">
+		/* resume.selectResumeHopeWorkLocDetail */
+		SELECT RHWL.RESUME_HOPE_WORK_LOC_SEQ
+			 , RHWL.RESUME_SEQ
+			 , RHWL.ADDR_CD
+			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN NM_KH ELSE NM_EN END AS NM FROM CPES_LOC_CD WHERE LVL_CD = RHWL.ADDR_CD) AS ADDR_CD_NM
+			 , RHWL.ADDR_DTL
+			 , RHWL.ADDR_FULL_CD
+			 , RHWL.ADDR_FULL_NM
+		<choose>
+    		<when test="tempFlag == 1">
+    			FROM CPES_RESUME_HOPE_WORK_LOC_TEMP RHWL
+    		</when>
+    		<otherwise>
+    			FROM CPES_RESUME_HOPE_WORK_LOC RHWL
+    		</otherwise>
+    	</choose>
+		WHERE 1=1
+		AND RESUME_SEQ = #{resumeSeq}
+	</select>
+
+	<select id="selectResumeSpecialStudyDetail" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.ResumeSpecialStudyBean">
+		/* resume.selectResumeSpecialStudyDetail */
+		SELECT RSS.SPECIAL_STUDY_SEQ
+			 , RSS.SPECIAL_STUDY_NM
+			 , RSS.DURA_MONTH_CNT
+			 , RSS.BGN_DT
+			 , DATE_FORMAT(BGN_DT, '%Y') AS BGN_DT_YY
+			 , DATE_FORMAT(BGN_DT, '%m') AS BGN_DT_MM
+			 , RSS.END_DT
+			 , DATE_FORMAT(END_DT, '%Y') AS END_DT_YY
+			 , DATE_FORMAT(END_DT, '%m') AS END_DT_MM
+			 , RSS.INSTT_NM
+			 , RSS.CNTRY_CD
+			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN NM_KH ELSE NM_EN END AS NM FROM CPES_LOC_CD WHERE LVL_CD = RSS.CNTRY_CD) AS CNTRY_CD_NM
+			 , RSS.PROVC_CD
+			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN NM_KH ELSE NM_EN END AS NM FROM CPES_LOC_CD WHERE LVL_CD = RSS.PROVC_CD) AS PROVC_CD_NM
+			 , RSS.RESUME_SEQ
+		<choose>
+    		<when test="tempFlag == 1">
+    			FROM CPES_RESUME_SPECIAL_STUDY_TEMP RSS
+    		</when>
+    		<otherwise>
+    			FROM CPES_RESUME_SPECIAL_STUDY RSS
+    		</otherwise>
+    	</choose>
+		WHERE 1=1
+		AND RESUME_SEQ = #{resumeSeq}
+	</select>
+
+	<select id="selectResumeOtherTrnngDetail" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.ResumeOtherTrnngBean">
+		/* resume.selectResumeOtherTrnngDetail */
+		SELECT ROT.RESUME_OTHER_TRNNG_SEQ
+			 , ROT.RESUME_OTHER_TRNNG_ID
+			 , ROT.BGN_DT
+			 , DATE_FORMAT(ROT.BGN_DT, '%Y') AS BGN_DT_YY
+			 , DATE_FORMAT(ROT.BGN_DT, '%m') AS BGN_DT_MM
+			 , ROT.END_DT
+			 , DATE_FORMAT(ROT.END_DT, '%Y') AS END_DT_YY
+			 , DATE_FORMAT(ROT.END_DT, '%m') AS END_DT_MM
+			 , ROT.TRNNG_EDU_DEGREE_CD
+			 , ROT.INSTT_NM
+			 , ROT.ISCED_CD
+			 , ROT.ADDR_PROVC_CD
+			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN NM_KH ELSE NM_EN END AS NM FROM CPES_LOC_CD WHERE LVL_CD = ROT.ADDR_PROVC_CD) AS ADDR_PROVC_CD_NM
+			 , ROT.RESUME_SEQ
+		<choose>
+    		<when test="tempFlag == 1">
+    			FROM CPES_RESUME_OTHER_TRNNG_TEMP ROT
+    		</when>
+    		<otherwise>
+    			FROM CPES_RESUME_OTHER_TRNNG ROT
+    		</otherwise>
+    	</choose>
+		WHERE 1=1
+		AND RESUME_SEQ = #{resumeSeq}
+	</select>
+
+	<select id="selectResumeLangDetail" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.ResumeLangBean">
+		/* resume.selectResumeLangDetail */
+		SELECT RL.RESUME_LANG_SEQ
+			 , RL.RESUME_LANG_ID
+			 , RL.LANG_CD
+			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN CD_KH_NM ELSE CD_EN_NM END AS NM
+			 	FROM CPES_COMM_DTL_CD WHERE DTL_CD = RL.LANG_CD AND USE_YN = 'Y') AS LANG_CD_NM
+			 , RL.LANG_LVL_CD
+			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN CD_KH_NM ELSE CD_EN_NM END AS NM
+			 	FROM CPES_COMM_DTL_CD WHERE DTL_CD = RL.LANG_LVL_CD AND USE_YN = 'Y') AS LANG_LVL_CD_NM
+			 , RL.LANG_TYPE_CD
+			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN CD_KH_NM ELSE CD_EN_NM END AS NM
+			 	FROM CPES_COMM_DTL_CD WHERE DTL_CD = RL.LANG_TYPE_CD AND USE_YN = 'Y') AS LANG_TYPE_CD_NM
+			 , RL.RESUME_SEQ
+		<choose>
+    		<when test="tempFlag == 1">
+    			FROM CPES_RESUME_LANG_TEMP RL
+    		</when>
+    		<otherwise>
+    			FROM CPES_RESUME_LANG RL
+    		</otherwise>
+    	</choose>
+		WHERE 1=1
+		AND RESUME_SEQ = #{resumeSeq}
+	</select>
+
+	<select id="selectResumeWorkExpDetail" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.ResumeWorkExpBean">
+		/* resume.selectResumeWorkExpDetail */
+		SELECT RWE.RESUME_WORK_EXP_SEQ
+			 , RWE.RESUME_WORK_EXP_ID
+			 , RWE.BGN_DT
+			 , DATE_FORMAT(RWE.BGN_DT, '%Y') AS BGN_DT_YY
+			 , DATE_FORMAT(RWE.BGN_DT, '%m') AS BGN_DT_MM
+			 , RWE.END_DT
+			 , DATE_FORMAT(RWE.END_DT, '%Y') AS END_DT_YY
+			 , DATE_FORMAT(RWE.END_DT, '%m') AS END_DT_MM
+			 , RWE.ISCO_CD
+			 , RWE.ISIC_CD
+			 , RWE.ORGNZ_NM
+			 , RWE.LEAVE_REASON
+			 , RWE.ADDR_PROVC_CD
+			 , RWE.RESUME_SEQ
+			 <!-- 확인 필요 -->
+			 <!-- , RWE.JOB_SECTOR
+			 , RWE.JOB_POSITION -->
+			 , RWE.SELFEMP_YN
+		<choose>
+    		<when test="tempFlag == 1">
+    			FROM CPES_RESUME_WORK_EXP_TEMP RWE
+    		</when>
+    		<otherwise>
+    			FROM CPES_RESUME_WORK_EXP RWE
+    		</otherwise>
+    	</choose>
+		WHERE 1=1
+		AND RESUME_SEQ = #{resumeSeq}
+	</select>
+
+	<select id="selectResumeSkillDetail" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.ResumeSkillBean">
+		/* resume.selectResumeSkillDetail */
+		SELECT RESUME_SKILL_SEQ
+			 , RESUME_SKILL_ID
+			 , SKILL_CD
+			 , RESUME_SEQ
+		<choose>
+    		<when test="tempFlag == 1">
+    			FROM CPES_RESUME_SKILL_TEMP
+    		</when>
+    		<otherwise>
+    			FROM CPES_RESUME_SKILL
+    		</otherwise>
+    	</choose>
+		WHERE 1=1
+		AND RESUME_SEQ = #{resumeSeq}
+	</select>
+
+	<select id="selectResumeRefManDetail" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.ResumeRefManBean">
+		/* resume.selectResumeRefManDetail */
+		SELECT RESUME_REF_MAN_SEQ
+			 , RESUME_REF_MAN_ID
+			 , NM
+			 , ORGNZ_NM
+			 , POSITION
+			 , REF
+			 , CELL
+			 , EMAIL
+			 , ADDR_CD
+			 , RESUME_SEQ
+			 , ADDR_FULL_CD
+			 , ADDR_FULL_NM
+			 , ADDR_DTL
+		<choose>
+    		<when test="tempFlag == 1">
+    			FROM CPES_RESUME_REF_MAN_TEMP
+    		</when>
+    		<otherwise>
+    			FROM CPES_RESUME_REF_MAN
+    		</otherwise>
+    	</choose>
+		WHERE 1=1
+		AND RESUME_SEQ = #{resumeSeq}
+	</select>
+
+	<select id="selectResumeDisableDetail" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.ResumeDisablBean">
+		/* resume.selectResumeDisableDetail */
+		SELECT RD.RESUME_DISABL_SEQ
+			 , RD.RESUME_SEQ
+			 , RD.DISABLE_CD
+			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN CD_KH_NM ELSE CD_EN_NM END AS NM FROM CPES_COMM_DTL_CD WHERE DTL_CD = RD.DISABLE_CD AND USE_YN = 'Y') AS DISABLE_CD_NM
+		<choose>
+    		<when test="tempFlag == 1">
+    			FROM CPES_RESUME_DISABL_TEMP RD
+    		</when>
+    		<otherwise>
+    			FROM CPES_RESUME_DISABL RD
+    		</otherwise>
+    	</choose>
+		WHERE 1=1
+		AND RD.RESUME_SEQ = #{resumeSeq}
+	</select>
+
+	<select id="selectResumeGenrlEduDetail" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.ResumeGenrlEduBean">
+		/* resume.selectResumeGenrlEduDetail */
+		SELECT RGE.RESUME_GENRL_EDU_SEQ
+			 , RGE.RESUME_EDU_ID
+			 , RGE.EDU_DEGREE_CD
+			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN CD_KH_NM ELSE CD_EN_NM END AS NM FROM CPES_COMM_DTL_CD WHERE DTL_CD = RGE.EDU_DEGREE_CD AND USE_YN = 'Y') AS EDU_DEGREE_CD_NM
+			 , RGE.ISCED_CD
+			 , RGE.EDU_DURA
+			 , RGE.BGN_DT
+			 , RGE.END_DT
+			 , RGE.INSTT_NM
+			 , RGE.ADDR_PROVC_CD
+			 , RGE.RESUME_SEQ
+		<choose>
+    		<when test="tempFlag == 1">
+    			FROM CPES_RESUME_GENRL_EDU_TEMP RGE
+    		</when>
+    		<otherwise>
+    			FROM CPES_RESUME_GENRL_EDU RGE
+    		</otherwise>
+    	</choose>
+		WHERE 1=1
+		AND RESUME_SEQ = #{resumeSeq}
+	</select>
+
+	<select id="selectJobskReqDetail" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.JobskReqBean">
+		SELECT JR.JOBSK_REQ_SEQ
+			 , DATE_FORMAT(JR.REG_DT, '%d/%m/%Y') AS REG_DT
+		FROM CPES_JOBSK_REQ JR
+		WHERE 1=1
+		AND JR.RESUME_SEQ = #{resumeSeq}
+		AND JR.JC_AGREE_STS_CD = 'JSC0000000002'
+		AND JR.DEL_YN = 'N'
+	</select>
+
+	<select id="selectResumeIsco" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.ResumeIscoBean">
+		SELECT RI.RESUME_ISCO_SEQ
+			 , RI.ISCO_CD
+			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN KH_NM ELSE EN_NM END AS NM FROM CPES_ISCO_CD WHERE ISCO_CD = RI.ISCO_CD AND USE_YN = 'Y') AS ISCO_CD_NM
+			 , RI.RESUME_SEQ
+		FROM CPES_RESUME_ISCO RI
+		WHERE 1=1
+		AND RI.RESUME_SEQ = #{resumeSeq}
+	</select>
+
+	<select id="selectPriResumeYnValidation" parameterType="string" resultType="int">
+		SELECT A.CNT + B.CNT + C.CNT AS TOT_CNT
+		FROM (SELECT COUNT(1) AS CNT
+			  FROM CPES_APPLIC AP
+			  WHERE AP.APPLIC_CANCEL_YN = 'N'
+			  AND AP.RESUME_SEQ = #{value}) A,
+
+			  (SELECT COUNT(1) AS CNT
+			  FROM CPES_OFFER
+			  WHERE RESUME_SEQ = #{value}) B,
+
+			  (SELECT COUNT(1) AS CNT
+			  FROM CPES_INTVW INTV
+			  LEFT JOIN CPES_APPLIC AP
+			  ON INTV.APPLIC_SEQ = AP.APPLIC_SEQ
+			  WHERE AP.APPLIC_CANCEL_YN = 'N'
+			  AND AP.RESUME_SEQ = #{value}
+			  AND INTV.INTVW_DT <![CDATA[<]]> NOW()) C
+
+	</select>
+
+	<select id="selectPriResumeSeq" parameterType="string" resultType="string">
+		SELECT RESUME_SEQ
+		FROM CPES_RESUME
+		WHERE USER_SEQ = #{value}
+		AND PRI_RESUME_YN = 'Y'
+		AND USE_YN = 'Y'
+	</select>
+
+</mapper>

@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="applic">
+
+	<!-- 입사지원 조건 -->
+	<sql id="whereCond">
+		WHERE D.USER_SEQ = #{condUserSeq}
+		<if test="condBgnDt != null and !condBgnDt.equals('') and condEndDt != null and !condEndDt.equals('')">
+		<![CDATA[
+		AND A.REG_DT > STR_TO_DATE(#{condBgnDt},'%d/%m/%Y') - 1  /* 입사지원 검색시작일자 */
+		AND A.REG_DT < STR_TO_DATE(#{condEndDt},'%d/%m/%Y') + 1  /* 입사지원 검색종료일자 */
+		]]>
+		</if>
+		AND (A.DEL_YN IS NULL OR A.DEL_YN != 'Y')
+		AND B.JC_AGREE_STS_CD = 'JAS0000000001'
+		AND B.USE_YN = 'Y'
+		AND B.DEL_YN = 'N'
+		AND C.USE_YN = 'Y'
+		AND C.DEL_YN = 'N'
+		AND D.USE_YN = 'Y'
+
+		<choose>
+			<when test="condText != null and !condText.equals('')">
+				<choose>
+		   			<when test="condTypeCd != null and condTypeCd.equals('COMPNY')"><!-- 기업명 -->
+		   				AND (C.COMPNY_NM_EN LIKE CONCAT('%',#{condText},'%') OR C.COMPNY_NM_KH LIKE CONCAT('%',#{condText},'%'))
+					</when>
+					<when test="condTypeCd != null and condTypeCd.equals('VACANCY')"><!-- 채용공고명-->
+						AND B.VACANCY_TITLE LIKE CONCAT('%',#{condText},'%')
+					</when>
+					<otherwise>
+						AND (C.COMPNY_NM_EN LIKE CONCAT('%',#{condText},'%') OR C.COMPNY_NM_KH LIKE CONCAT('%',#{condText},'%')) OR B.VACANCY_TITLE LIKE CONCAT('%',#{condText},'%')
+					</otherwise>
+				</choose>
+			</when>
+		</choose>
+
+  		<if test="condOpenTypeCd != null and !condOpenTypeCd.equals('')"><!-- 이력서 열람 -->
+  			AND A.APPLIC_PROC_CD = 'APC0000000001'
+		</if>
+
+
+		<choose>
+   			<when test="condStatTypeCd != null and condStatTypeCd.equals('CONTINUE')"><!-- 채용공고 진행 -->
+   				<![CDATA[
+   				AND B.BGN_DT <= now()  /* 채용공고 시작일 */
+   				AND B.END_DT >= now()  /* 채용공고 종료일 */
+   				]]>
+			</when>
+			<when test="condStatTypeCd != null and condStatTypeCd.equals('END')"><!-- 채용공고 마감-->
+   				<![CDATA[
+   				AND B.END_DT < now()  /* 채용공고 종료일 */
+   				]]>
+			</when>
+		</choose>
+
+		<choose>
+   			<when test="condStatTypeCd2 != null and condStatTypeCd2.equals('CHECK')"><!-- 채용상태 검토중-->
+   				AND A.APPLIC_PROC_CD = 'APC0000000002' /* 채용상태 검토중 */
+			</when>
+			<when test="condStatTypeCd2 != null and condStatTypeCd2.equals('PAPER')"><!-- 서류합격-->
+   				AND A.APPLIC_PROC_CD = 'APC0000000003' /* 서류합격 */
+			</when>
+			<when test="condStatTypeCd2 != null and condStatTypeCd2.equals('NOT_OPEN')"><!-- 미열람-->
+   				AND A.APPLIC_PROC_CD = 'APC0000000001' /* 미열람 */
+			</when>
+			<when test="condStatTypeCd2 != null and condStatTypeCd2.equals('PASS')"><!-- 채용확정-->
+   				AND A.APPLIC_PROC_CD = 'APC0000000004' /* 채용확정 */
+			</when>
+		</choose>
+
+  		<if test="cd != null and !cd.equals('')">
+			<choose>
+	   			<when test="cd != null and cd.equals('A0')"><!-- 전체-->
+	   				AND A.APPLIC_PROC_CD IN ('APC0000000001','APC0000000002','APC0000000003','APC0000000004','APC0000000005')
+				</when>
+				<when test="cd != null and cd.equals('A1')"><!-- 미열람-->
+	   				AND A.APPLIC_PROC_CD = 'APC0000000001'
+				</when>
+				<when test="cd != null and cd.equals('A2')"><!-- 검토중-->
+	   				AND A.APPLIC_PROC_CD IN ('APC0000000002','APC0000000003')
+				</when>
+				<when test="cd != null and cd.equals('A3')"><!-- 면접제의-->
+	   				AND A.APPLIC_PROC_CD = 'APC0000000005'
+				</when>
+				<when test="cd != null and cd.equals('A4')"><!-- 채용확정-->
+	   				AND A.APPLIC_PROC_CD = 'APC0000000004'
+				</when>
+			</choose>
+		</if>
+
+	</sql>
+
+	<sql id="whereCond2">
+		WHERE D.USER_SEQ = #{condUserSeq}
+		AND B.VACANCY_STS_CD = 'VCS0000000001' /* 채공공고 진행중 */
+		AND B.USE_YN = 'Y'
+		AND B.DEL_YN = 'N'
+		AND C.USE_YN = 'Y'
+		AND C.DEL_YN = 'N'
+		AND D.USE_YN = 'Y'
+	</sql>
+
+
+	<!-- 입사제의  조건 -->
+	<sql id="whereOfferCond">
+		WHERE D.RESUME_SEQ = (SELECT RESUME_SEQ FROM CPES_RESUME WHERE RESUME_SEQ = D.RESUME_SEQ AND USER_SEQ = #{condUserSeq})
+		AND C.USE_YN = 'Y'
+		AND C.DEL_YN = 'N'
+	</sql>
+
+	<!-- 면접제의  조건 -->
+	<sql id="whereIntvwCond">
+		WHERE B.RESUME_SEQ IN (SELECT RESUME_SEQ FROM CPES_RESUME WHERE RESUME_SEQ = B.RESUME_SEQ AND USER_SEQ = #{condUserSeq})
+		AND C.USE_YN = 'Y'
+		AND C.DEL_YN = 'N'
+	</sql>
+
+	<!-- 면접제의  조건 -->
+	<sql id="whereResumeOpenCond">
+        WHERE B.USER_SEQ = #{condUserSeq}
+		AND C.USE_YN = 'Y'
+		AND C.DEL_YN = 'N'
+	</sql>
+
+
+	<!-- 정렬 조건 -->
+	<sql id="sortResumeCompnyCond">
+		ORDER BY
+		<choose>
+			<when test="condSort != null and condSort.equals('LIKE')">
+				C.BKMK_CNT DESC
+			</when>
+			<when test="condSort != null and condSort.equals('VIEW')">
+				C.VIEW_CNT DESC
+			</when>
+			<otherwise>
+	  			A.REG_DT DESC
+			</otherwise>
+		</choose>
+	</sql>
+
+
+	<!-- 정렬 조건 -->
+	<sql id="sortOfferCond">
+		ORDER BY
+		<choose>
+			<when test="condSort != null and condSort.equals('LIKE')">
+				B.BKMK_CNT DESC
+			</when>
+			<when test="condSort != null and condSort.equals('VIEW')">
+				B.VIEW_CNT DESC
+			</when>
+			<otherwise>
+	  			A.REG_DT DESC
+			</otherwise>
+		</choose>
+	</sql>
+
+	<!-- 알선  조건 -->
+	<sql id="whereReferralCond">
+		WHERE D.RESUME_SEQ = (
+			SELECT RESUME_SEQ
+			FROM CPES_RESUME
+			WHERE RESUME_SEQ = D.RESUME_SEQ
+			AND USER_SEQ = #{condUserSeq}
+		)
+		AND C.USE_YN = 'Y' /* 기업 사용여부 */
+		AND C.DEL_YN = 'N' /* 기업 삭제여부 */
+		AND A.REFERRAL_TYPE_CD = 'RFT0000000002' /* 구인 알선 */
+		AND A.DEL_YN = 'N'  /* 알선 삭제여부 */
+		AND B.USE_YN = 'Y' /* 채용공고 사용여부 */
+		AND B.DEL_YN = 'N' /* 채용공고 삭제여부 */
+		AND D.USE_YN = 'Y' /* 이력서 사용여부 */
+	</sql>
+
+
+
+
+	<!-- 입사지원 목록 count,applic list count -->
+	<select id="selectApplicListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*applic.selectApplicListCnt*/
+            SELECT
+                 COUNT(1) AS CNT
+            FROM CPES_APPLIC A
+            INNER JOIN CPES_VACANCY B
+            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY C
+            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+            INNER JOIN CPES_RESUME D
+            ON A.RESUME_SEQ = D.RESUME_SEQ
+
+       ]]>
+            <include refid="whereCond"/>
+
+    </select>
+
+	<!-- 입사지원 목록,applic list -->
+	<select id="selectApplicList" resultType="ony.cpes.external.mypage.privt.bean.ApplicBean" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*applic.selectApplicList*/
+            SELECT
+                 A.VACANCY_SEQ,
+                 A.APPLIC_TYPE_CD,
+                 A.APPLIC_CANCEL_YN,
+                 CASE WHEN A.APPLIC_CANCEL_YN = 'Y' THEN FN_GET_BASE_DATE_TIME(A.APPLIC_CANCEL_DT, 'AMPM', #{langCd})
+                      ELSE FN_GET_BASE_DATE_TIME(A.REG_DT, 'AMPM', #{langCd})
+                 END AS REG_DT,
+                 C.COMPNY_SEQ,
+                 FN_GET_COMPNY_NM(C.COMPNY_SEQ, #{langCd}) AS COMPNY_NM,
+                 B.VACANCY_STS_CD,
+                 FN_GET_COMMON_NM('VACANCY_STS_CD', B.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM,
+                 B.VACANCY_TITLE,
+                 A.RESUME_SEQ,
+                 FN_GET_BASE_DATE_TIME(A.RESUME_OPEN_DT, 'AMPM', #{langCd}) AS RESUME_OPEN_DT,
+                 A.APPLIC_PROC_CD,
+                 FN_GET_COMMON_NM('APPLIC_PROC_CD', A.APPLIC_PROC_CD, #{langCd}) AS APPLIC_PROC_NM,
+                 A.APPLIC_SEQ,
+                 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN,
+                 CASE WHEN B.END_DT < NOW() THEN 'Y' END AS VACANCY_CLOSE_YN,
+                 DATEDIFF(B.END_DT, NOW()) AS VACANCY_DAYS_LEFT
+            FROM CPES_APPLIC A
+            INNER JOIN CPES_VACANCY B
+            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY C
+            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+            INNER JOIN CPES_RESUME D
+            ON A.RESUME_SEQ = D.RESUME_SEQ
+
+       ]]>
+            <include refid="whereCond"/>
+            ORDER BY A.REG_DT DESC
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+ 	<!-- 입사지원 목록 count,applic list count -->
+	<select id="selectApplicStatCnt" resultType="ony.cpes.external.mypage.privt.bean.ApplicBean" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        	/*applic.selectApplicStatCnt*/
+            SELECT
+                 (
+                 	SELECT COUNT(1) AS CNT
+                 	FROM CPES_APPLIC A
+		         	INNER JOIN CPES_VACANCY B
+		            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+		            INNER JOIN CPES_COMPNY C
+		            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+		            INNER JOIN CPES_RESUME D
+		            ON A.RESUME_SEQ = D.RESUME_SEQ
+		            <include refid="whereCond2"/>
+                 ) AS TOT_CNT, /* 입사지원 완료 */
+                 (
+                 	SELECT COUNT(1) AS CNT
+                 	FROM CPES_APPLIC A
+		         	INNER JOIN CPES_VACANCY B
+		            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+		            INNER JOIN CPES_COMPNY C
+		            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+		            INNER JOIN CPES_RESUME D
+		            ON A.RESUME_SEQ = D.RESUME_SEQ
+		            <include refid="whereCond2"/>
+		            AND A.APPLIC_PROC_CD = 'APC0000000001'
+                 ) AS OPEN_N_CNT, /* 이력서 미열람 */
+                 (
+                 	SELECT COUNT(1) AS CNT
+                 	FROM CPES_APPLIC A
+		         	INNER JOIN CPES_VACANCY B
+		            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+		            INNER JOIN CPES_COMPNY C
+		            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+		            INNER JOIN CPES_RESUME D
+		            ON A.RESUME_SEQ = D.RESUME_SEQ
+		            <include refid="whereCond2"/>
+		            AND A.APPLIC_CANCEL_YN = 'Y'
+                 ) AS CANCEL_CNT /* 입사지원 취소 */
+            FROM DUAL
+    </select>
+
+
+ 	<!-- 입사제의 목록 count,offer list count -->
+	<select id="selectOfferListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*applic.selectOfferListCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+            FROM CPES_OFFER A
+            INNER JOIN CPES_VACANCY B
+            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY C
+            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+            INNER JOIN CPES_RESUME D
+ 			ON A.RESUME_SEQ = D.RESUME_SEQ
+       ]]>
+            <include refid="whereOfferCond"/>
+
+    </select>
+
+
+  	<!-- 입사제의 목록,offer list -->
+	<select id="selectOfferList" resultType="ony.cpes.external.mypage.privt.bean.OfferBean" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*applic.selectOfferList*/
+            SELECT
+            	 A.OFFER_SEQ,
+            	 A.CONTENT,
+                 B.VACANCY_SEQ,
+                 B.COMPNY_SEQ,
+                 B.VACANCY_TITLE,
+                 B.EMPLOY_FORM_CD,
+                 FN_GET_COMMON_NM('EMPLOY_FORM_CD', B.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_NM,
+                 B.RECRUMT_MEMB,
+                 B.MIN_SALARY_AMT,
+                 B.MAX_SALARY_AMT,
+                 FN_GET_COMPNY_NM(B.COMPNY_SEQ, #{langCd}) AS COMPNY_NM,
+                 A.RESUME_SEQ,
+                 B.VACANCY_STS_CD,
+                 FN_GET_COMMON_NM('VACANCY_STS_CD', B.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM,
+				 FN_GET_REMAIN_CNT(B.END_DT) REMAIN_DT,
+                 FN_GET_REMAIN_DIV(B.END_DT) REMAIN_DIV,
+				 (
+				 	SELECT 	F.ADDR_FULL_NM
+				 	FROM CPES_VACANCY_LOC F
+				 	WHERE F.VACANCY_SEQ = B.VACANCY_SEQ
+				 	LIMIT 1
+				 ) AS ADDR_NM,
+				 (
+				 	SELECT COUNT(1)
+				 	FROM CPES_APPLIC F
+				 	WHERE F.VACANCY_SEQ = A.VACANCY_SEQ
+				 	AND F.RESUME_SEQ = A.RESUME_SEQ
+				 ) AS APPLIC_CNT,
+				 FN_GET_FILE_PATH(C.LOGO_FILE_GRP_SEQ) AS IMAGE_PATH,
+				 A.REFERRAL_YN,
+				 FN_GET_BKMK_SEQ(#{condUserSeq}, 'BCT0000000003', B.VACANCY_SEQ) AS BKMK_SEQ,
+				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+            FROM CPES_OFFER A
+            INNER JOIN CPES_VACANCY B
+            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY C
+            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+ 			INNER JOIN CPES_RESUME D
+ 			ON A.RESUME_SEQ = D.RESUME_SEQ
+       ]]>
+            <include refid="whereOfferCond"/>
+            <include refid="sortOfferCond"/>
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+
+
+ 	<!-- 면접제의 목록 count,interview list count -->
+	<select id="selectIntvwListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*applic.selectIntvwListCnt*/
+            SELECT
+                COUNT(1) AS CNT
+            FROM CPES_INTVW A
+            INNER JOIN CPES_APPLIC B
+            ON A.APPLIC_SEQ = B.APPLIC_SEQ
+            INNER JOIN CPES_VACANCY C
+            ON B.VACANCY_SEQ = C.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY D
+            ON C.COMPNY_SEQ = D.COMPNY_SEQ
+
+
+       ]]>
+            <include refid="whereIntvwCond"/>
+
+    </select>
+
+  	<!-- 면접제의 목록,interview list -->
+	<select id="selectIntvwList" resultType="ony.cpes.external.mypage.privt.bean.IntvwBean" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*applic.selectIntvwList*/
+            SELECT
+                 A.CONTENT,
+                 FN_GET_COMPNY_NM(C.COMPNY_SEQ, #{langCd}) AS COMPNY_NM,
+                 A.INTVW_TYPE_CD,
+                 FN_GET_BASE_DATE_TIME(A.INTVW_DT, 'AMPM', #{langCd}) AS INTVW_DT,
+                 FN_GET_COMMON_NM('INTVW_TYPE_CD', A.INTVW_TYPE_CD, #{langCd}) AS INTVW_TYPE_NM,
+                 A.INTVW_SEQ,
+                 A.APPLIC_SEQ,
+                 A.INTVW_STS_CD,
+                 FN_GET_COMMON_NM('INTVW_STS_CD', A.INTVW_STS_CD, #{langCd}) AS INTVW_STS_NM,
+                 A.INTVW_OPEN_DT,
+                 A.INTVW_OPEN_YN,
+                 A.INTVW_REJECT_CD,
+                 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN,
+                 FN_GET_FILE_PATH(D.LOGO_FILE_GRP_SEQ) AS FILE_PATH,
+                 C.VACANCY_TITLE,
+                 FN_GET_BASE_DATE_CHAR(A.REG_DT, #{langCd}) AS REG_DT,
+                 C.VACANCY_SEQ,
+                 C.VACANCY_STS_CD,
+                 FN_GET_COMMON_NM('VACANCY_STS_CD', C.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM
+            FROM CPES_INTVW A
+            INNER JOIN CPES_APPLIC B
+            ON A.APPLIC_SEQ = B.APPLIC_SEQ
+            INNER JOIN CPES_VACANCY C
+            ON B.VACANCY_SEQ = C.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY D
+            ON C.COMPNY_SEQ = D.COMPNY_SEQ
+
+
+       ]]>
+            <include refid="whereIntvwCond"/>
+            ORDER BY A.REG_DT DESC
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+
+  	<!-- 면접제의 상세,interview detail -->
+	<select id="selectIntvw" resultType="ony.cpes.external.mypage.privt.bean.IntvwBean" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*applic.selectIntvw*/
+            SELECT
+                 C.COMPNY_SEQ,
+                 A.CONTENT,
+                 FN_GET_COMPNY_NM(C.COMPNY_SEQ, #{langCd}) AS COMPNY_NM,
+                 A.INTVW_TYPE_CD,
+                 FN_GET_BASE_DATE_TIME(A.INTVW_DT, 'AMPM', #{langCd}) AS INTVW_DT,
+                 FN_GET_COMMON_NM('INTVW_TYPE_CD', A.INTVW_TYPE_CD, #{langCd}) AS INTVW_TYPE_NM,
+                 D.MNGER_EMAIL,
+                 D.LNGTD,
+                 D.LATTD,
+                 A.INTVW_SEQ,
+                 A.APPLIC_SEQ
+            FROM CPES_INTVW A
+            INNER JOIN CPES_APPLIC B
+            ON A.APPLIC_SEQ = B.APPLIC_SEQ
+            INNER JOIN CPES_VACANCY C
+            ON B.VACANCY_SEQ = C.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY D
+            ON C.COMPNY_SEQ = D.COMPNY_SEQ
+            WHERE A.INTVW_SEQ = #{condSeq}
+			AND D.USE_YN = 'Y'
+			AND D.DEL_YN = 'N'
+       ]]>
+    </select>
+
+
+
+	<select id="selectOpenResumeCompnyListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*applic.selectOpenResumeCompnyListCnt*/
+            SELECT
+                 	COUNT(1) AS CNT
+            FROM CPES_RESUME_OPEN_COMPNY A
+            INNER JOIN CPES_RESUME B
+            ON A.RESUME_SEQ = B.RESUME_SEQ
+           	INNER JOIN CPES_COMPNY C
+            ON A.COMPNY_SEQ = C.COMPNY_SEQ
+      ]]>
+ 			<include refid="whereResumeOpenCond"/>
+
+
+    </select>
+
+	<!-- 이력서 열람기업 목록 -->
+	<select id="selectOpenResumeCompnyList" resultType="ony.cpes.external.mypage.privt.bean.ResumeOpenCompnyBean" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*applic.selectOpenResumeCompnyList*/
+            SELECT
+                 A.COMPNY_SEQ,
+                 A.RESUME_OPEN_COMPNY_SEQ,
+                 A.RESUME_SEQ,
+                 FN_GET_COMPNY_NM(A.COMPNY_SEQ, #{langCd}) AS COMPNY_NM,
+                 C.COMPNY_TYPE_CD,
+                 FN_GET_COMMON_NM('COMPNY_TYPE_CD', C.COMPNY_TYPE_CD, #{langCd}) AS COMPNY_TYPE_NM,
+				 FN_GET_ADDR_NM(SUBSTR(C.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM,
+				 C.ISIC_CD,
+				 FN_GET_ISIC_NM(C.ISIC_CD, #{langCd}) AS ISIC_NM,
+				 (	SELECT COUNT(1)
+				 	FROM CPES_VACANCY F
+				 	WHERE F.COMPNY_SEQ = A.COMPNY_SEQ
+				 	AND F.VACANCY_STS_CD = 'VCS0000000001'
+				 ) AS VACANCY_CNT,
+				 FN_GET_FILE_PATH(C.LOGO_FILE_GRP_SEQ) AS IMAGE_PATH,
+				 FN_GET_BASE_DATE_CHAR(A.REG_DT, #{langCd}) AS REG_DT,
+				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+            FROM CPES_RESUME_OPEN_COMPNY A
+            INNER JOIN CPES_RESUME B
+            ON A.RESUME_SEQ = B.RESUME_SEQ
+           	INNER JOIN CPES_COMPNY C
+            ON A.COMPNY_SEQ = C.COMPNY_SEQ
+      ]]>
+ 			<include refid="whereResumeOpenCond"/>
+ 			<include refid="sortResumeCompnyCond"/>
+
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+
+    </select>
+
+
+ 	<!-- 알선 목록 count,Referral list count -->
+	<select id="selectReferralListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*applic.selectReferralListCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+            FROM CPES_REFERRAL A
+            INNER JOIN CPES_VACANCY B
+            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY C
+            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+            INNER JOIN CPES_RESUME D
+ 			ON A.RESUME_SEQ = D.RESUME_SEQ
+       ]]>
+            <include refid="whereReferralCond"/>
+
+    </select>
+
+  	<!-- 알선 목록,Referral list -->
+	<select id="selectReferralList" resultType="ony.cpes.external.mypage.privt.bean.ReferralBean" parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+        <![CDATA[
+        	/*applic.selectReferralList*/
+            SELECT
+            	 A.EMAIL_NTCE_DT,
+            	 A.EMAIL_NTCE_YN,
+            	 A.JC_CD,
+            	 A.JC_USER_SEQ,
+            	 A.MNGER_OPINION,
+            	 A.REFERRAL_STS_CD,
+            	 A.REFERRAL_TYPE_CD,
+                 B.VACANCY_SEQ,
+                 B.COMPNY_SEQ,
+                 B.VACANCY_TITLE,
+                 B.EMPLOY_FORM_CD,
+                 FN_GET_COMMON_NM('EMPLOY_FORM_CD', B.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_NM,
+                 B.RECRUMT_MEMB,
+                 B.MIN_SALARY_AMT,
+                 B.MAX_SALARY_AMT,
+                 FN_GET_COMPNY_NM(B.COMPNY_SEQ, #{langCd}) AS COMPNY_NM,
+                 A.RESUME_SEQ,
+                 B.VACANCY_STS_CD,
+                 FN_GET_COMMON_NM('VACANCY_STS_CD', B.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM,
+				 FN_GET_REMAIN_CNT(B.END_DT) REMAIN_DT,
+                 FN_GET_REMAIN_DIV(B.END_DT) REMAIN_DIV,
+				 (
+				 	SELECT 	F.ADDR_FULL_NM
+				 	FROM CPES_VACANCY_LOC F
+				 	WHERE F.VACANCY_SEQ = B.VACANCY_SEQ
+				 	LIMIT 1
+				 ) AS ADDR_NM,
+				 (
+				 	SELECT COUNT(1)
+				 	FROM CPES_APPLIC F
+				 	WHERE F.VACANCY_SEQ = A.VACANCY_SEQ
+				 	AND F.RESUME_SEQ = A.RESUME_SEQ
+				 ) AS APPLIC_CNT,
+				 FN_GET_FILE_PATH(C.LOGO_FILE_GRP_SEQ) AS IMAGE_PATH,
+				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+            FROM CPES_REFERRAL A
+            INNER JOIN CPES_VACANCY B
+            ON A.VACANCY_SEQ = B.VACANCY_SEQ
+            INNER JOIN CPES_COMPNY C
+            ON B.COMPNY_SEQ = C.COMPNY_SEQ
+ 			INNER JOIN CPES_RESUME D
+ 			ON A.RESUME_SEQ = D.RESUME_SEQ
+       ]]>
+            <include refid="whereReferralCond"/>
+            <include refid="sortOfferCond"/>
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+	<!-- select application summary by process code -->
+	<select id="selectApplicSmry" resultType="hashmap" parameterType="hashmap">
+		/*applic.selectApplicSmry*/
+		SELECT SUM(CASE WHEN APPLIC_PROC_CD IN ('APC0000000001','APC0000000002','APC0000000003','APC0000000004','APC0000000005') THEN 1 ELSE 0 END) AS CNT_0
+		     , SUM(CASE WHEN APPLIC_PROC_CD = 'APC0000000001' THEN 1 ELSE 0 END) AS CNT_1
+		     , SUM(CASE WHEN APPLIC_PROC_CD IN ('APC0000000002','APC0000000003') THEN 1 ELSE 0 END) AS CNT_2
+		     , SUM(CASE WHEN APPLIC_PROC_CD = 'APC0000000004' THEN 1 ELSE 0 END) AS CNT_4
+		     , SUM(CASE WHEN APPLIC_PROC_CD = 'APC0000000005' THEN 1 ELSE 0 END) AS CNT_5
+		  FROM CPES_RESUME A
+		       INNER JOIN
+		       CPES_APPLIC B
+		          ON B.RESUME_SEQ = A.RESUME_SEQ
+		         AND B.APPLIC_CANCEL_YN = 'N'
+		         AND (B.DEL_YN IS NULL OR B.DEL_YN != 'Y')
+		       INNER JOIN
+		       CPES_VACANCY C
+		          ON C.VACANCY_SEQ = B.VACANCY_SEQ
+		  		   AND C.USE_YN = 'Y'
+		  		   AND C.DEL_YN = 'N'
+		       INNER JOIN
+		       CPES_COMPNY D
+		          ON D.COMPNY_SEQ = C.COMPNY_SEQ
+		  		   AND D.USE_YN = 'Y'
+		 WHERE A.USER_SEQ = #{userSeq}
+	</select>
+
+</mapper>
