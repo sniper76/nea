@@ -97,6 +97,7 @@ public class ResumeBean extends CommonBean {
 	private String preferPosition;
 	private String addrFullCd;
 	private String addrFullNm;
+	private String addrNm;
 
 	private String hopeWorkLocListStr;
 	private String specialStudyListStr;
@@ -122,9 +123,15 @@ public class ResumeBean extends CommonBean {
 	private String preferCrtctTypeNm;
 	private String bkmkSeq;
 
+
 	private String[] proLicnsSpecList;
 
 	private String vacancySeq;
+	private String userNm;
+	private String genderNm;
+	private Integer age;
+	private String eduDegreeNm;
+	private String displayYn;
 
 	public String getVacancySeq() {
 		return vacancySeq;
@@ -756,6 +763,41 @@ public class ResumeBean extends CommonBean {
 	public void setAddrFullNm(String addrFullNm) {
 		this.addrFullNm = addrFullNm;
 	}
-
+	public String getAddrNm() {
+		return addrNm;
+	}
+	public void setAddrNm(String addrNm) {
+		this.addrNm = addrNm;
+	}
+	public String getUserNm() {
+		return userNm;
+	}
+	public void setUserNm(String userNm) {
+		this.userNm = userNm;
+	}
+	public String getGenderNm() {
+		return genderNm;
+	}
+	public void setGenderNm(String genderNm) {
+		this.genderNm = genderNm;
+	}
+	public Integer getAge() {
+		return age;
+	}
+	public void setAge(Integer age) {
+		this.age = age;
+	}
+	public String getEduDegreeNm() {
+		return eduDegreeNm;
+	}
+	public void setEduDegreeNm(String eduDegreeNm) {
+		this.eduDegreeNm = eduDegreeNm;
+	}
+	public String getDisplayYn() {
+		return displayYn;
+	}
+	public void setDisplayYn(String displayYn) {
+		this.displayYn = displayYn;
+	}
 
 }

@@ -49,6 +49,7 @@ public class ReferralBean extends CommonBean{
 	private String remainDiv;
 	private String imagePath;
 	private String genderCd;
+	private String displayYn;
 
 	public String getTotCareerTermYearCnt() {
 		return totCareerTermYearCnt;
@@ -277,6 +278,12 @@ public class ReferralBean extends CommonBean{
 	}
 	public void setGenderCd(String genderCd) {
 		this.genderCd = genderCd;
+	}
+	public String getDisplayYn() {
+		return displayYn;
+	}
+	public void setDisplayYn(String displayYn) {
+		this.displayYn = displayYn;
 	}
 
 

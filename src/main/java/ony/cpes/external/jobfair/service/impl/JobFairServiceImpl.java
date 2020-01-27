@@ -9,9 +9,11 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import ony.cmm.common.ConstVal;
 import ony.cpes.external.compny.dao.CompnyDAO;
 import ony.cpes.external.instt.dao.InsttDAO;
 import ony.cpes.external.jobfair.bean.CondJobFairCenterBean;
+import ony.cpes.external.jobfair.bean.CondWorkShopBean;
 import ony.cpes.external.jobfair.bean.JobFairBoothBean;
 import ony.cpes.external.jobfair.bean.JobFairBoothHistBean;
 import ony.cpes.external.jobfair.bean.JobFairBoothResvWaitBean;
@@ -20,6 +22,7 @@ import ony.cpes.external.jobfair.bean.JobFairPatcptnBean;
 import ony.cpes.external.jobfair.bean.JobFairPatcptnCompnyBean;
 import ony.cpes.external.jobfair.bean.JobFairPatcptnInsttBean;
 import ony.cpes.external.jobfair.bean.JobFairPatcptnOnlineBean;
+import ony.cpes.external.jobfair.bean.WorkShopBean;
 import ony.cpes.external.jobfair.dao.JobFairBoothDAO;
 import ony.cpes.external.jobfair.dao.JobFairDAO;
 import ony.cpes.external.jobfair.dao.JobFairPatcptnDAO;
@@ -27,6 +30,7 @@ import ony.cpes.external.jobfair.service.JobFairService;
 import ony.cpes.external.mypage.compny.bean.CompnyMemBean;
 import ony.cpes.external.mypage.instt.bean.InsttMemBean;
 import ony.cpes.external.mypage.privt.bean.InterestBean;
+import ony.framework.util.StringUtil;
 
 @Service("JobFairService")
 public class JobFairServiceImpl implements JobFairService {
@@ -130,6 +134,26 @@ public class JobFairServiceImpl implements JobFairService {
     	return jobfairDAO.selectJobFairByEduInstts(param);
     }
 
+    /**
+     * jobfair detail by work shop count
+     * @param param
+     * @return int
+     */
+    @Override
+    public int selectJobFairByWorkShopsCnt (CondJobFairCenterBean param) throws Exception {
+    	return jobfairDAO.selectJobFairByWorkShopsCnt(param);
+    }
+
+    /**
+     * jobfair detail by work shop
+     * @param param
+     * @return List<CompanyBean>
+     */
+    @Override
+    public List<InterestBean> selectJobFairByWorkShops (CondJobFairCenterBean param) throws Exception {
+    	return jobfairDAO.selectJobFairByWorkShops(param);
+    }
+
 	/**
 	 * jobfair apply list count
 	 * @param param
@@ -160,6 +184,83 @@ public class JobFairServiceImpl implements JobFairService {
     	return jobfairDAO.selectJobFairApplyInfo(param);
     }
 
+	/**
+	 * jobFair by user workshop count
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+    @Override
+    public int selectJobFairWorkShopCnt(CondWorkShopBean param) throws Exception {
+    	return jobfairDAO.selectJobFairWorkShopCnt(param);
+    }
+
+	/**
+	 * jobFair by workshop detail
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+    @Override
+    public WorkShopBean selectJobFairWorkShop(CondWorkShopBean param) throws Exception {
+    	if(StringUtil.isEmpty(param.getCondFairWorkshopPatcptnSeq())) {
+    		param.setCondFairWorkshopPatcptnSeq(null);
+    	}
+    	return jobfairDAO.selectJobFairWorkShop(param);
+    }
+
+	/**
+	 * jobFair by workshop count
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+    @Override
+    public int selectUserByWorkShopsCnt(CondWorkShopBean param) throws Exception {
+    	return jobfairDAO.selectUserByWorkShopsCnt(param);
+    }
+
+	/**
+	 * user by workshop delete
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+    @Override
+    public int deleteUserByWorkshop(CondWorkShopBean param) throws Exception {
+
+    	String[] temp;
+    	if(param.getCondSeqStr().indexOf(",") > -1) {
+    		temp = param.getCondSeqStr().split(",");
+    	}
+    	else {
+    		temp = new String[] {param.getCondSeqStr()};
+    	}
+
+    	int result = 0;
+    	for (String string : temp) {
+    		WorkShopBean bean = new WorkShopBean();
+    		bean.setFairWorkshopPatcptnSeq(string);
+    		bean.setCancelYn(ConstVal.NO_VAL);
+    		bean.setDelYn(ConstVal.YES_VAL);
+
+			result += jobfairDAO.insertFairWorkshopPatcptn(bean);
+		}
+
+    	return result;
+    }
+
+	/**
+	 * user by workshop list
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+    @Override
+    public List<WorkShopBean> selectUserByWorkShops(CondWorkShopBean param) throws Exception {
+    	return jobfairDAO.selectUserByWorkShops(param);
+    }
+
     /**
 	 * 참가신청 (일반/학생)
 	 * Participate job fair (Online)
@@ -171,6 +272,15 @@ public class JobFairServiceImpl implements JobFairService {
     public int insertJobFairApplyPatcptnOnline(JobFairPatcptnBean param) throws Exception {
 		return jobFairPatcptnDAO.insertJobFairApplyPatcptnOnline(param);
 	}
+
+    @Override
+    public int insertFairWorkshopPatcptn(WorkShopBean param) throws Exception {
+    	if(StringUtil.isEmpty(param.getFairWorkshopPatcptnSeq())) {
+    		param.setFairWorkshopPatcptnSeq(jobfairDAO.selectUniqueSeq());
+    	}
+
+    	return jobfairDAO.insertFairWorkshopPatcptn(param);
+    }
 
 	/**
 	 * Job Fair Participate information (online)
@@ -260,16 +370,16 @@ public class JobFairServiceImpl implements JobFairService {
     	String compnyInsttSeq = "";
     	String userSeq = jobFairBoothHist.getRegUserSeq();
 
-    	if("ROLE_USER".equals(userAuthCd) || "ROLE_STDIT".equals(userAuthCd)) {
-		} else if("ROLE_CMPNY".equals(userAuthCd)) { //Company
-			compnyInsttDivCd = "CIDC000000001";
+    	if(ConstVal.ROLE_USER_VAL.equals(userAuthCd) || ConstVal.ROLE_STDIT_VAL.equals(userAuthCd)) {
+		} else if(ConstVal.ROLE_CMPNY_VAL.equals(userAuthCd)) { //Company
+			compnyInsttDivCd = ConstVal.COMPNY_INSTT_DIV_CD_COMPNY_VAL;
 			CompnyMemBean compnyMemBean = compnyDAO.selectCompnyByUserSeq(userSeq, langCd);
 			if(compnyMemBean != null) {
 				compnyInsttSeq = compnyMemBean.getCompnySeq();
 			}
 
-		} else if("ROLE_TRNCT".equals(userAuthCd)) { //Institute
-			compnyInsttDivCd = "CIDC000000002";
+		} else if(ConstVal.ROLE_TRNCT_VAL.equals(userAuthCd)) { //Institute
+			compnyInsttDivCd = ConstVal.COMPNY_INSTT_DIV_CD_INSTT_VAL;
 			InsttMemBean insttMemBean = insttDAO.selectInsttByUser(userSeq, langCd);
 			if(insttMemBean != null) {
 				compnyInsttSeq = insttMemBean.getInsttSeq();
@@ -280,7 +390,7 @@ public class JobFairServiceImpl implements JobFairService {
     	// insert booth apply history
     	jobFairBoothHist.setCompnyInsttDivCd(compnyInsttDivCd);
     	jobFairBoothHist.setCompnyInsttSeq(compnyInsttSeq);
-    	jobFairBoothHist.setResvStsCd("RSV0000000002"); //입금대기
+    	jobFairBoothHist.setResvStsCd("RSV0000000000"); //예약대기
     	jobfairBoothDAO.insertJobFairBoothHist(jobFairBoothHist);
 
     	// update booth status

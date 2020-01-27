@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setJobFair">
+
+    <insert id="insertFairWorkshopPatcptn" parameterType="ony.cpes.external.jobfair.bean.WorkShopBean">
+		/*setJobFair.insertFairWorkshopPatcptn*/
+
+		INSERT INTO CPES_FAIR_WORKSHOP_PATCPTN (
+			FAIR_WORKSHOP_PATCPTN_SEQ,
+			FAIR_WORKSHOP_SEQ,
+			FAIR_SEQ,
+			USER_SEQ,
+			REG_USER_SEQ,
+			REG_DT,
+			CANCEL_YN,
+			DEL_YN
+		)
+		VALUES (
+			#{fairWorkshopPatcptnSeq},
+			#{fairWorkshopSeq},
+			#{fairSeq},
+			#{userSeq},
+			#{regUserSeq},
+			NOW(),
+			'N',
+			'N'
+		)
+		ON DUPLICATE KEY
+		UPDATE
+		<if test="fairSeq != null">
+			FAIR_SEQ = #{fairSeq},
+		</if>
+		<if test="fairWorkshopSeq != null">
+			FAIR_WORKSHOP_SEQ = #{fairWorkshopSeq},
+		</if>
+			CANCEL_YN = #{cancelYn},
+			DEL_YN = #{delYn}
+    </insert>
+
+    <update id="deleteUserByWorkshop" parameterType="ony.cpes.external.jobfair.bean.CondWorkShopBean">
+    /*setJobFair.deleteUserByWorkshop*/
+    	UPDATE CPES_FAIR_WORKSHOP_PATCPTN SET
+    	DEL_YN = 'Y'
+    	WHERE FAIR_WORKSHOP_PATCPTN_SEQ = #{condFairWorkshopPatcptnSeq}
+    </update>
+
+    <update id="updateUserByWorkshopCancel" parameterType="ony.cpes.external.jobfair.bean.CondWorkShopBean">
+    /*setJobFair.updateUserByWorkshopCancel*/
+    	UPDATE CPES_FAIR_WORKSHOP_PATCPTN SET
+    	CANCEL_YN = 'Y'
+    	WHERE FAIR_WORKSHOP_PATCPTN_SEQ = #{condFairWorkshopPatcptnSeq}
+    </update>
+
+</mapper>

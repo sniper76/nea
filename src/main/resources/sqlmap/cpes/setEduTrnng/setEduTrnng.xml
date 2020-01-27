@@ -3,7 +3,7 @@
 <mapper namespace="setEduTrnng">
 
     <insert id="insertEduTrnngUser" parameterType="ony.cpes.external.mypage.privt.bean.EduTrnngBean">
-		/*setMatching.insertEduTrnngUser*/
+		/*setEduTrnng.insertEduTrnngUser*/
 		INSERT INTO CPES_EDU_TRNNG_USER (
 			USER_SEQ,
 			REG_USER_SEQ,

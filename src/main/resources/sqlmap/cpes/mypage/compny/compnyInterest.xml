@@ -75,7 +75,7 @@
             INNER JOIN CPES_COMPNY C
             ON B.COMPNY_SEQ = C.COMPNY_SEQ
             INNER JOIN CPES_USER D
-            ON D.USER_SEQ = D.USER_SEQ
+            ON A.USER_SEQ = D.USER_SEQ
             INNER JOIN CPES_RESUME E
             ON E.USER_SEQ = D.USER_SEQ
 
@@ -124,14 +124,15 @@
 				 FN_GET_COMMON_NM('GENDER_CD', D.GENDER_CD, #{langCd}) AS GENDER_NM,
 				 FN_GET_BKMK_SEQ(C.USER_SEQ, 'BCT0000000006', E.RESUME_SEQ) AS USER_BKMK_SEQ,
 				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN,
-				 FN_GET_FILE_PATH(E.FILE_GRP_SEQ) AS FILE_PATH
+				 FN_GET_FILE_PATH(E.FILE_GRP_SEQ) AS FILE_PATH,
+				 D.USE_YN
             FROM CPES_BKMK A
             INNER JOIN CPES_VACANCY B
             ON A.TABLE_KEY_SEQ = B.VACANCY_SEQ
             INNER JOIN CPES_COMPNY C
             ON B.COMPNY_SEQ = C.COMPNY_SEQ
             INNER JOIN CPES_USER D
-            ON D.USER_SEQ = D.USER_SEQ
+            ON A.USER_SEQ = D.USER_SEQ
             INNER JOIN CPES_RESUME E
             ON E.USER_SEQ = D.USER_SEQ
        ]]>
@@ -139,7 +140,6 @@
             ORDER BY A.REG_DT DESC
 			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
     </select>
-
 
  	<!-- 관심회사로 등록한 인재 목록 count,interest company list count -->
 	<select id="selectCompnyListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.privt.bean.CondInterestBean">

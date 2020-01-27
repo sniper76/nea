@@ -28,7 +28,7 @@ public class JobStudyServiceImpl implements JobStudyService {
 	 */
 	public List<JobStudyBean> selectJobStudyOneLvlList(CondJobStudyBean param) throws Exception {
 
-		if(!StringUtil.isEmpty(param.getCondText())) {
+		/*if(!StringUtil.isEmpty(param.getCondText())) {
 			List<JobStudyBean> list = jobStudyDAO.selectJobStudySearchList(param);
 			if(!CollectionUtils.isEmpty(list)) {
 				ArrayList<String> condList = new ArrayList<String>();
@@ -42,9 +42,9 @@ public class JobStudyServiceImpl implements JobStudyService {
 
 		} else {
 			return jobStudyDAO.selectJobStudyOneLvlList(param);
-		}
+		}*/
 
-		return null;
+		return jobStudyDAO.selectJobStudyOneLvlList(param);
 
 	}
 
@@ -85,6 +85,18 @@ public class JobStudyServiceImpl implements JobStudyService {
 		}
 
 		return jobStudyBean;
+	}
+
+
+	@Override
+	public JobStudyBean selectJobStudySearch(CondJobStudyBean param) throws Exception {
+		JobStudyBean resultBean = new JobStudyBean();
+		List<JobStudyBean> resultList = jobStudyDAO.selectJobStudySearch(param);
+
+		resultBean.setTotCnt(resultList.size());
+		resultBean.setList(resultList);
+
+		return resultBean;
 	}
 
 }

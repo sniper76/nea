@@ -84,7 +84,7 @@
 							<c:forEach var="data" items="${resultList}" varStatus="status">
 						<li>
 							<div class="contents_wrap">
-								<div class="img_box"><img src="${pageContext.request.contextPath}/images/contents/recruitment_dummy.png" alt="image" /></div>
+								<div class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${data.filePath}" alt="image" onerror="fnNoImage(this)" /></div>
 								<div class="contents_box ${cFun:changeFairDivClass(data.fairDivCd)}">
 									<div class="title_box ${cFun:changeNewClass(data.newYn)}">
 										<a href="javascript:void(0);" onclick="fnGoView('${data.fairSeq}');" class="title"><c:out value="${data.fairNm }" escapeXml="false" /></a>

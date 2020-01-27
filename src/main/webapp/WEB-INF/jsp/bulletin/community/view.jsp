@@ -28,8 +28,6 @@
 			//comment list html
 			fnCommentList("<c:out value="${result2.bulletinSeq}"/>","commentList","1","1");//최최 1페이지
 
-
-
 			$("#frm").ajaxForm({
 				dataType : AJAX_DATA_TYPE_JSON,
 				beforeSubmit : function(formData, $form, options) {
@@ -139,10 +137,10 @@
 					</div>
 					<!-- //bbs_content -->
 
-					<ul class="bbs_attachments">
+					<!-- <ul class="bbs_attachments">
 					<li><a href="">ScreenShot and capture the whole Page.pdf</a></li>
 					<li><a href="">ScreenShot and capture the whole Page.pdf</a></li>
-					</ul>
+					</ul> -->
 					<!-- //bbs_attachments -->
 
 					<!-- comment -->

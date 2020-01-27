@@ -8,6 +8,7 @@ import egovframework.rte.psl.dataaccess.EgovAbstractMapper;
 import ony.cpes.external.vacancy.bean.VacancyLangBean;
 import ony.cpes.external.vacancy.bean.VacancyLocBean;
 import ony.cpes.external.vacancy.bean.VacancyPreferntBean;
+import ony.cpes.external.member.bean.CompanyBean;
 import ony.cpes.external.mypage.privt.bean.ApplicBean;
 import ony.cpes.external.mypage.privt.bean.IntvwBean;
 import ony.cpes.external.mypage.privt.bean.OfferBean;
@@ -215,6 +216,48 @@ public class VacancyDAO  extends EgovAbstractMapper {
 	 */
 	public List<PopulVacancyBean> selectVacancyPopulateList(CondVacancyBean param) {
 		return getSqlSession().selectList("vacancy.selectVacancyPopulateList", param);
+	}
+
+
+	/**
+	 * 채용공고  최신 60개
+	 * vacancy list
+	 * @param param
+	 * @return List<VacancyBean>
+	 */
+	public List<VacancyBean> selectMainVacancyList(CondVacancyBean param) {
+		return getSqlSession().selectList("vacancy.selectMainVacancyList", param);
+	}
+
+	/**
+	 * 이달의 인기기업
+	 * month company list
+	 * @param param
+	 * @return List<PopulCompnyBean>
+	 */
+	public List<PopulCompnyBean> selectMonthCompnyList(CondVacancyBean param) {
+		return getSqlSession().selectList("vacancy.selectMonthCompnyList", param);
+	}
+
+
+	/**
+	 * 오늘의 인기 채용공고
+	 * vacancy today list
+	 * @param param
+	 * @return int
+	 */
+	public int selectTodayVacancyListCnt(CondVacancyBean param) {
+		return getSqlSession().selectOne("vacancy.selectTodayVacancyListCnt", param);
+	}
+
+	/**
+	 * 오늘의 인기 채용공고
+	 * vacancy today list
+	 * @param param
+	 * @return List<PopulVacancyBean>
+	 */
+	public List<PopulVacancyBean> selectTodayVacancyList(CondVacancyBean param) {
+		return getSqlSession().selectList("vacancy.selectTodayVacancyList", param);
 	}
 
 }

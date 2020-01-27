@@ -18,6 +18,7 @@ public class ConditionBean extends CommonBean{
 	private String condUpperCd;
 	private String condInstr;
 	private String condCntryId;
+	private String condSeq2;
 
 	// 지역 및 직종 코드 조회시 사용
 	private String depth;
@@ -97,6 +98,12 @@ public class ConditionBean extends CommonBean{
 	}
 	public void setCondCntryId(String condCntryId) {
 		this.condCntryId = condCntryId;
+	}
+	public String getCondSeq2() {
+		return condSeq2;
+	}
+	public void setCondSeq2(String condSeq2) {
+		this.condSeq2 = condSeq2;
 	}
 
 

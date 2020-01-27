@@ -52,6 +52,22 @@
 	</update>
 
 
+	<!-- 채용행사 참여 취소-->
+	<update id="updateFairCancel"  parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
+		/*setInsttFair.updateFairCancel*/
+		UPDATE CPES_FAIR_PATCPTN_INSTT SET
+			CANCEL_YN = 'Y',
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE INSTT_SEQ = (
+			SELECT G.INSTT_SEQ
+			FROM CPES_INSTT G
+			WHERE G.INSTT_SEQ = #{condSeq}
+			AND G.USER_SEQ = #{condUserSeq}
+		)
+		AND FAIR_SEQ = #{condSeq2}
+	</update>
+
 
 
 </mapper>

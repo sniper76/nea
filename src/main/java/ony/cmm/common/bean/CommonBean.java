@@ -36,6 +36,7 @@ public class CommonBean {
 	// 공통 코드 레이어 관련
 	private String cd;
 	private String cdNm;
+	private String upperCd;
 
 	/** 페이징관련 */
 	/** 페이징 객체 */
@@ -73,6 +74,14 @@ public class CommonBean {
 	private String uploadResult;
 	private String filePath;
 	private List<FileBean> fileList;
+
+	public String getUpperCd() {
+		return upperCd;
+	}
+
+	public void setUpperCd(String upperCd) {
+		this.upperCd = upperCd;
+	}
 
 	public List<FileBean> getFileList() {
 		return fileList;

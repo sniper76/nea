@@ -34,6 +34,7 @@ import ony.cmm.common.util.SessionUtil;
 import ony.cpes.external.compny.service.CompnyService;
 import ony.cpes.external.instt.service.InsttService;
 import ony.cpes.external.jobfair.bean.CondJobFairCenterBean;
+import ony.cpes.external.jobfair.bean.CondWorkShopBean;
 import ony.cpes.external.jobfair.bean.JobFairBoothBean;
 import ony.cpes.external.jobfair.bean.JobFairBoothHistBean;
 import ony.cpes.external.jobfair.bean.JobFairBoothResvWaitBean;
@@ -42,8 +43,12 @@ import ony.cpes.external.jobfair.bean.JobFairPatcptnBean;
 import ony.cpes.external.jobfair.bean.JobFairPatcptnCompnyBean;
 import ony.cpes.external.jobfair.bean.JobFairPatcptnInsttBean;
 import ony.cpes.external.jobfair.bean.JobFairPatcptnOnlineBean;
+import ony.cpes.external.jobfair.bean.WorkShopBean;
 import ony.cpes.external.jobfair.service.JobFairService;
 import ony.cpes.external.mypage.compny.bean.CompnyMemBean;
+import ony.cpes.external.mypage.instt.bean.CondEduTrnngBean;
+import ony.cpes.external.mypage.instt.bean.EduTrnngBean;
+import ony.cpes.external.mypage.instt.bean.EduTrnngSoftSkillBean;
 import ony.cpes.external.mypage.instt.bean.InsttMemBean;
 import ony.framework.BaseController;
 import ony.framework.util.PageUtil;
@@ -130,8 +135,13 @@ public class JobFairController  extends BaseController {
 		ModelAndView mv = new ModelAndView();
     	AjaxResultBean ajaxResultBean = new AjaxResultBean();
 
-		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
-		String userAuthCd = SessionUtil.getUserAuthCd(req);
+		String userSeq = "";
+		String userAuthCd = "";
+
+		if(principal != null) {
+			userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+			userAuthCd = SessionUtil.getUserAuthCd(req);
+		}
 
       	PaginationInfo paginationInfo = PageUtil.getPageInfo(currentPageNo, pageUnit, pageSize);//page info
       	condFair.setFirstIndex(paginationInfo.getFirstRecordIndex());
@@ -206,7 +216,7 @@ public class JobFairController  extends BaseController {
 		}
 
 		jobFairPatcptn.setUserSeq(userSeq);
-		if("ROLE_USER".equals(userAuthCd) || "ROLE_STDIT".equals(userAuthCd)) {
+		if(ConstVal.ROLE_USER_VAL.equals(userAuthCd) || ConstVal.ROLE_STDIT_VAL.equals(userAuthCd)) {
 			JobFairPatcptnOnlineBean jobFairPatcptnOnline = jobFairService.selectJobFairApplyPatcptnOnline(jobFairPatcptn.getFairSeq(), userSeq);
 			if(jobFairPatcptnOnline != null) {
 				ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
@@ -217,7 +227,7 @@ public class JobFairController  extends BaseController {
 			}
 			jobFairService.insertJobFairApplyPatcptnOnline(jobFairPatcptn);
 
-		} else if("ROLE_CMPNY".equals(userAuthCd)) { //Company
+		} else if(ConstVal.ROLE_CMPNY_VAL.equals(userAuthCd)) { //Company
 			JobFairPatcptnCompnyBean jobFairPatcptnCompny = jobFairService.selectJobFairApplyPatcptnCompny(jobFairPatcptn.getFairSeq(), userSeq);
 			if(jobFairPatcptnCompny != null) {
 				ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
@@ -228,7 +238,7 @@ public class JobFairController  extends BaseController {
 			}
 			jobFairService.insertJobFairApplyPatcptnCompny(jobFairPatcptn);
 
-		} else if("ROLE_TRNCT".equals(userAuthCd)) { //Institute
+		} else if(ConstVal.ROLE_TRNCT_VAL.equals(userAuthCd)) { //Institute
 			JobFairPatcptnInsttBean jobFairPatcptnInstt  = jobFairService.selectJobFairApplyPatcptnInstt(jobFairPatcptn.getFairSeq(), userSeq);
 			if(jobFairPatcptnInstt != null) {
 				ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
@@ -266,14 +276,17 @@ public class JobFairController  extends BaseController {
 
 		JobFairCenterBean jobFairInfo = null;
 		String fairImgPath = "";
-		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
-	  	String userAuthCd = SessionUtil.getUserAuthCd(req);
+		String userSeq = "";
+		String userAuthCd = "";
+
 
 	  	ModelAndView mv = new ModelAndView();
 	  	mv.setViewName("jobFair/applyView.one");
 
 		if(principal != null) {
       		mv.addObject(ConstVal.LOGIN_YN_KEY, ConstVal.YES_VAL);
+    		userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+    	  	userAuthCd = SessionUtil.getUserAuthCd(req);
       	}
 
   		condFair.setLangCd(locale.getLanguage().toUpperCase());
@@ -300,15 +313,15 @@ public class JobFairController  extends BaseController {
 	      	fileBean.setFileGrpSeq(jobFairInfo.getBoothFileGrpSeq());
 	      	mv.addObject("boothImg", commonService.selectAttachFilesList(fileBean));
 
-	      	if("ROLE_USER".equals(userAuthCd) || "ROLE_STDIT".equals(userAuthCd)) {
+	      	if(ConstVal.ROLE_USER_VAL.equals(userAuthCd) || ConstVal.ROLE_STDIT_VAL.equals(userAuthCd)) {
 
-			} else if("ROLE_CMPNY".equals(userAuthCd)) { //Company
+			} else if(ConstVal.ROLE_CMPNY_VAL.equals(userAuthCd)) { //Company
 				JobFairPatcptnCompnyBean jobFairPatcptnCompnyBean = jobFairService.selectJobFairApplyPatcptnCompny(conditionBean.getCondSeq(), userSeq);
 				if(jobFairPatcptnCompnyBean != null) {
 					jcAgreeStsCd = jobFairPatcptnCompnyBean.getJcAgreeStsCd();
 				}
 
-			} else if("ROLE_TRNCT".equals(userAuthCd)) { //Institute
+			} else if(ConstVal.ROLE_TRNCT_VAL.equals(userAuthCd)) { //Institute
 				JobFairPatcptnInsttBean  jobFairPatcptnInsttBean  = jobFairService.selectJobFairApplyPatcptnInstt(conditionBean.getCondSeq(), userSeq);
 				if(jobFairPatcptnInsttBean != null) {
 					jcAgreeStsCd = jobFairPatcptnInsttBean.getJcAgreeStsCd();
@@ -343,16 +356,22 @@ public class JobFairController  extends BaseController {
 		List<JobFairBoothBean> jobFairBoothList = null;
 		String compnyInsttDivCd = "", alreadyResvWait = "N";
 
-		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
-	  	String userAuthCd = SessionUtil.getUserAuthCd(req);
+		String userSeq = "";
+		String userAuthCd = "";
+
+		if(principal != null) {
+			userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+		  	userAuthCd = SessionUtil.getUserAuthCd(req);
+		}
+
 	  	String langCd = locale.getLanguage().toUpperCase();
 
-		if("ROLE_USER".equals(userAuthCd) || "ROLE_STDIT".equals(userAuthCd)) {
+		if(ConstVal.ROLE_USER_VAL.equals(userAuthCd) || ConstVal.ROLE_STDIT_VAL.equals(userAuthCd)) {
 
-		} else if("ROLE_CMPNY".equals(userAuthCd)) { //Company
-			compnyInsttDivCd = "CIDC000000001";
-		} else if("ROLE_TRNCT".equals(userAuthCd)) { //Institute
-			compnyInsttDivCd = "CIDC000000002";
+		} else if(ConstVal.ROLE_CMPNY_VAL.equals(userAuthCd)) { //Company
+			compnyInsttDivCd = ConstVal.COMPNY_INSTT_DIV_CD_COMPNY_VAL;
+		} else if(ConstVal.ROLE_TRNCT_VAL.equals(userAuthCd)) { //Institute
+			compnyInsttDivCd = ConstVal.COMPNY_INSTT_DIV_CD_INSTT_VAL;
 		}
 
   		condFair.setLangCd(langCd);
@@ -413,8 +432,13 @@ public class JobFairController  extends BaseController {
 		JobFairBoothBean jobFairBooth = null;
 		String compnyNm = "", mngerNm = "", mngerCell = "", mngerEmail = "";
 
-		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
-	  	String userAuthCd = SessionUtil.getUserAuthCd(req);
+		String userSeq = "";
+		String userAuthCd = "";
+		if(principal != null) {
+			userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+		  	userAuthCd = SessionUtil.getUserAuthCd(req);
+		}
+
 	  	String langCd = locale.getLanguage().toUpperCase();
 
   		condFair.setLangCd(langCd);
@@ -427,9 +451,9 @@ public class JobFairController  extends BaseController {
 		// select job fair booth information
 		jobFairBooth = jobFairService.selectJobFairBooth(boothSeq, condFair.getCondSeq());
 
-		if("ROLE_USER".equals(userAuthCd) || "ROLE_STDIT".equals(userAuthCd)) {
+		if(ConstVal.ROLE_USER_VAL.equals(userAuthCd) || ConstVal.ROLE_STDIT_VAL.equals(userAuthCd)) {
 
-		} else if("ROLE_CMPNY".equals(userAuthCd)) { //Company
+		} else if(ConstVal.ROLE_CMPNY_VAL.equals(userAuthCd)) { //Company
 			CompnyMemBean compnyMemBean = compnyService.selectCompnyByUserSeq(userSeq, langCd);
 			if(compnyMemBean != null) {
 				compnyNm = compnyMemBean.getCompnyNm();
@@ -437,7 +461,7 @@ public class JobFairController  extends BaseController {
 				mngerCell = compnyMemBean.getMngerTel();
 				mngerEmail= compnyMemBean.getMngerEmail();
 			}
-		} else if("ROLE_TRNCT".equals(userAuthCd)) { //Institute
+		} else if(ConstVal.ROLE_TRNCT_VAL.equals(userAuthCd)) { //Institute
 			InsttMemBean insttMemBean = insttService.selectInsttByUser(userSeq, langCd);
 			if(insttMemBean != null) {
 				compnyNm = insttMemBean.getInsttNm();
@@ -482,8 +506,14 @@ public class JobFairController  extends BaseController {
     	AjaxResultBean ajaxResultBean = new AjaxResultBean();
     	JobFairBoothBean jobFairBooth2 = null;
 
-		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
-		String userAuthCd = SessionUtil.getUserAuthCd(req);
+		String userSeq = "";
+		String userAuthCd = "";
+
+		if(principal != null) {
+			userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+			userAuthCd = SessionUtil.getUserAuthCd(req);
+		}
+
 	  	String langCd = locale.getLanguage().toUpperCase();
 
 		// select job fair booth information
@@ -529,8 +559,14 @@ public class JobFairController  extends BaseController {
 		JobFairCenterBean jobFairInfo = null;
 		String compnyNm = "", mngerNm = "", mngerCell = "", mngerEmail = "";
 
-		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
-	  	String userAuthCd = SessionUtil.getUserAuthCd(req);
+		String userSeq = "";
+		String userAuthCd = "";
+
+		if(principal != null) {
+			userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+			userAuthCd = SessionUtil.getUserAuthCd(req);
+		}
+
 	  	String langCd = locale.getLanguage().toUpperCase();
 
   		condFair.setLangCd(langCd);
@@ -540,9 +576,9 @@ public class JobFairController  extends BaseController {
   		// select job fair information
 		jobFairInfo = jobFairService.selectJobFairApplyInfo(condFair);
 
-		if("ROLE_USER".equals(userAuthCd) || "ROLE_STDIT".equals(userAuthCd)) {
+		if(ConstVal.ROLE_USER_VAL.equals(userAuthCd) || ConstVal.ROLE_STDIT_VAL.equals(userAuthCd)) {
 
-		} else if("ROLE_CMPNY".equals(userAuthCd)) { //Company
+		} else if(ConstVal.ROLE_CMPNY_VAL.equals(userAuthCd)) { //Company
 			CompnyMemBean compnyMemBean = compnyService.selectCompnyByUserSeq(userSeq, langCd);
 			if(compnyMemBean != null) {
 				compnyNm = compnyMemBean.getCompnyNm();
@@ -550,7 +586,7 @@ public class JobFairController  extends BaseController {
 				mngerCell = compnyMemBean.getMngerCell();
 				mngerEmail= compnyMemBean.getMngerEmail();
 			}
-		} else if("ROLE_TRNCT".equals(userAuthCd)) { //Institute
+		} else if(ConstVal.ROLE_TRNCT_VAL.equals(userAuthCd)) { //Institute
 			InsttMemBean insttMemBean = insttService.selectInsttByUser(userSeq, langCd);
 			if(insttMemBean != null) {
 				compnyNm = insttMemBean.getInsttNm();
@@ -596,15 +632,15 @@ public class JobFairController  extends BaseController {
 		String userAuthCd = SessionUtil.getUserAuthCd(req);
 	  	String langCd = locale.getLanguage().toUpperCase();
 
-	  	if("ROLE_USER".equals(userAuthCd) || "ROLE_STDIT".equals(userAuthCd)) {
-		} else if("ROLE_CMPNY".equals(userAuthCd)) { //Company
-			jobFairBoothResvWaitBean.setCompnyInsttDivCd("CIDC000000001");
+	  	if(ConstVal.ROLE_USER_VAL.equals(userAuthCd) || ConstVal.ROLE_STDIT_VAL.equals(userAuthCd)) {
+		} else if(ConstVal.ROLE_CMPNY_VAL.equals(userAuthCd)) { //Company
+			jobFairBoothResvWaitBean.setCompnyInsttDivCd(ConstVal.COMPNY_INSTT_DIV_CD_COMPNY_VAL);
 			CompnyMemBean compnyMemBean = compnyService.selectCompnyByUserSeq(userSeq, langCd);
 			if(compnyMemBean != null) {
 				jobFairBoothResvWaitBean.setCompnyInsttSeq(compnyMemBean.getCompnySeq());
 			}
-		} else if("ROLE_TRNCT".equals(userAuthCd)) { //Institute
-			jobFairBoothResvWaitBean.setCompnyInsttDivCd("CIDC000000002");
+		} else if(ConstVal.ROLE_TRNCT_VAL.equals(userAuthCd)) { //Institute
+			jobFairBoothResvWaitBean.setCompnyInsttDivCd(ConstVal.COMPNY_INSTT_DIV_CD_INSTT_VAL);
 			InsttMemBean insttMemBean = insttService.selectInsttByUser(userSeq, langCd);
 			if(insttMemBean != null) {
 				jobFairBoothResvWaitBean.setCompnyInsttSeq(insttMemBean.getInsttSeq());
@@ -687,8 +723,13 @@ public class JobFairController  extends BaseController {
 
 		JobFairCenterBean jobFairInfo = null;
 		String fairImgPath = "";
-		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
-	  	String userAuthCd = SessionUtil.getUserAuthCd(req);
+		String userSeq = "";
+		String userAuthCd = "";
+
+		if(principal != null) {
+			userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+			userAuthCd = SessionUtil.getUserAuthCd(req);
+		}
 
 	  	ModelAndView mv = new ModelAndView();
 	  	mv.setViewName("jobFair/jobFairView.one");
@@ -721,15 +762,15 @@ public class JobFairController  extends BaseController {
 	      	fileBean.setFileGrpSeq(jobFairInfo.getBoothFileGrpSeq());
 	      	mv.addObject("boothImg", commonService.selectAttachFilesList(fileBean));
 
-	      	if("ROLE_USER".equals(userAuthCd) || "ROLE_STDIT".equals(userAuthCd)) {
+	      	if(ConstVal.ROLE_USER_VAL.equals(userAuthCd) || ConstVal.ROLE_STDIT_VAL.equals(userAuthCd)) {
 
-			} else if("ROLE_CMPNY".equals(userAuthCd)) { //Company
+			} else if(ConstVal.ROLE_CMPNY_VAL.equals(userAuthCd)) { //Company
 				JobFairPatcptnCompnyBean jobFairPatcptnCompnyBean = jobFairService.selectJobFairApplyPatcptnCompny(conditionBean.getCondSeq(), userSeq);
 				if(jobFairPatcptnCompnyBean != null) {
 					jcAgreeStsCd = jobFairPatcptnCompnyBean.getJcAgreeStsCd();
 				}
 
-			} else if("ROLE_TRNCT".equals(userAuthCd)) { //Institute
+			} else if(ConstVal.ROLE_TRNCT_VAL.equals(userAuthCd)) { //Institute
 				JobFairPatcptnInsttBean  jobFairPatcptnInsttBean  = jobFairService.selectJobFairApplyPatcptnInstt(conditionBean.getCondSeq(), userSeq);
 				if(jobFairPatcptnInsttBean != null) {
 					jcAgreeStsCd = jobFairPatcptnInsttBean.getJcAgreeStsCd();
@@ -764,8 +805,13 @@ public class JobFairController  extends BaseController {
 		HttpServletRequest req,
 		HttpServletResponse res) throws Exception {
 
-		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
-	  	String userAuthCd = SessionUtil.getUserAuthCd(req);
+		String userSeq = "";
+		String userAuthCd = "";
+
+		if(principal != null) {
+			userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+			userAuthCd = SessionUtil.getUserAuthCd(req);
+		}
 	  	String langCd = locale.getLanguage().toUpperCase();
 
 		Calendar cal = Calendar.getInstance();
@@ -825,7 +871,11 @@ public class JobFairController  extends BaseController {
 			HttpServletRequest req,
 			HttpServletResponse res) throws Exception {
 
-			String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+			String userSeq = "";
+
+			if(principal != null) {
+				userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+			}
 
 	  	ModelAndView mv = new ModelAndView();
 	  	mv.setViewName("jobFair/typeList.one");//BOARD BASIC TYPE
@@ -870,7 +920,7 @@ public class JobFairController  extends BaseController {
 	 * @return ModelAndView
 	 * @throws Exception
 	 */
-	  @RequestMapping("/view")
+	@RequestMapping("/view")
 	public ModelAndView view(Locale locale,
 			@RequestParam(required = false, defaultValue = "1") int currentPageNo,
 			@RequestParam(required = false, defaultValue = "10") int pageUnit,
@@ -883,17 +933,15 @@ public class JobFairController  extends BaseController {
 			HttpServletRequest req,
 			HttpServletResponse res) throws Exception {
 
-			String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+			String userSeq = "";
+
+			if(principal != null) {
+				userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+			}
 
 	  	ModelAndView mv = new ModelAndView();
-	  	mv.setViewName("jobFair/view.one");//게시판 기본유형,BASIC TYPE
+	  	mv.setViewName("jobFair/view.one");
 	  	mv.addObject(ConstVal.LOGIN_YN_KEY, ConstVal.NO_VAL);
-
-      	PaginationInfo paginationInfo = PageUtil.getPageInfo(currentPageNo, pageUnit, pageSize);//page info
-      	condFairBean.setFirstIndex(paginationInfo.getFirstRecordIndex());
-      	condFairBean.setLastIndex(paginationInfo.getLastRecordIndex());
-      	condFairBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
-
 
   		condFairBean.setLangCd(locale.getLanguage().toUpperCase());//language code
   		condFairBean.setRegUserSeq(userSeq);
@@ -902,44 +950,235 @@ public class JobFairController  extends BaseController {
   		mv.addObject("pTabNo", pTabNo);
 		mv.addObject("jobFairInfo", jobFairService.selectJobFairInfo(condFairBean));
 
-		if ( tabNo > 0) {
-			int totCnt = 0;
-
-			switch (tabNo) {
-			case 1:
-				totCnt = jobFairService.selectJobFairByEmployersCnt(condFairBean);
-				if(totCnt > 0) {
-					mv.addObject("resultList", jobFairService.selectJobFairByEmployers(condFairBean));
-				}
-
-				break;
-			case 2:
-				totCnt = jobFairService.selectJobFairByVacancysCnt(condFairBean);
-				if(totCnt > 0) {
-					mv.addObject("resultList", jobFairService.selectJobFairByVacancys(condFairBean));
-				}
-
-				break;
-			case 3:
-				totCnt = jobFairService.selectJobFairByEduInsttsCnt(condFairBean);
-				if(totCnt > 0) {
-					mv.addObject("resultList", jobFairService.selectJobFairByEduInstts(condFairBean));
-				}
-
-				break;
-			case 4:
-
-				break;
-			}
-
-			paginationInfo.setTotalRecordCount(totCnt);
-			mv.addObject("paginationInfo", paginationInfo);
-
-		}
-
 	  	return mv;
 
 	}
+
+	  /**
+	   * jobfair detail
+	   * @param req
+	   * @param res
+	   * @return ModelAndView
+	   * @throws Exception
+	   */
+	  @RequestMapping("/viewAjax")
+	  public ModelAndView viewAjax(Locale locale,
+			  @ModelAttribute("ConditionBean") ConditionBean conditionBean,
+			  @ModelAttribute("CondJobFairCenterBean") CondJobFairCenterBean condFairBean,
+			  Principal principal,
+			  HttpServletRequest req,
+			  HttpServletResponse res) throws Exception {
+
+		  ModelAndView mv = new ModelAndView();
+		  String userSeq = "";
+
+		  if(principal != null) {
+			  userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+		  }
+
+		  condFairBean.setRegUserSeq(userSeq);
+		  condFairBean.setLangCd(locale.getLanguage().toUpperCase());
+
+		  PaginationInfo paginationInfo = PageUtil.getPageInfo(conditionBean.getPageIndex(), conditionBean.getPageUnit(),
+				  conditionBean.getPageSize());
+		  condFairBean.setFirstIndex(paginationInfo.getFirstRecordIndex());
+		  condFairBean.setLastIndex(paginationInfo.getLastRecordIndex());
+		  condFairBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+		  int totCnt = 0;
+
+		  switch (conditionBean.getCondLvl()) {
+		  case "1":
+			  totCnt = jobFairService.selectJobFairByEmployersCnt(condFairBean);
+			  if(totCnt > 0) {
+				  mv.addObject(ConstVal.RESULT_KEY, jobFairService.selectJobFairByEmployers(condFairBean));
+			  }
+
+			  break;
+		  case "2":
+			  totCnt = jobFairService.selectJobFairByVacancysCnt(condFairBean);
+			  if(totCnt > 0) {
+				  mv.addObject(ConstVal.RESULT_KEY, jobFairService.selectJobFairByVacancys(condFairBean));
+			  }
+
+			  break;
+		  case "3":
+			  totCnt = jobFairService.selectJobFairByEduInsttsCnt(condFairBean);
+			  if(totCnt > 0) {
+				  mv.addObject(ConstVal.RESULT_KEY, jobFairService.selectJobFairByEduInstts(condFairBean));
+			  }
+
+			  break;
+		  case "4":
+			  totCnt = jobFairService.selectJobFairByWorkShopsCnt(condFairBean);
+			  if(totCnt > 0) {
+				  mv.addObject(ConstVal.RESULT_KEY, jobFairService.selectJobFairByWorkShops(condFairBean));
+			  }
+
+			  break;
+		  }
+		  paginationInfo.setTotalRecordCount(totCnt);
+		  conditionBean.setRecordsTotal(totCnt);
+
+		  CpesPaginationTag pTag = new CpesPaginationTag();
+
+		  mv.addObject("totalPageCount", paginationInfo.getTotalRecordCount());
+		  mv.addObject("currentPageNo", paginationInfo.getCurrentPageNo());
+		  mv.addObject(ConstVal.PAGINATION_INFO_KEY, pTag.getPagination(req, paginationInfo, "fnGoSrch"));
+
+		  mv.setViewName(ConstVal.JSON_VIEW_KEY);
+		  return mv;
+
+	  }
+
+	  /**
+	   * jobfair detail
+	   * @param req
+	   * @param res
+	   * @return ModelAndView
+	   * @throws Exception
+	   */
+	  @RequestMapping("/view_bak")
+	  public ModelAndView view_bak(Locale locale,
+			  @RequestParam(required = false, defaultValue = "1") int currentPageNo,
+			  @RequestParam(required = false, defaultValue = "10") int pageUnit,
+			  @RequestParam(required = false, defaultValue = "10") int pageSize,
+			  @RequestParam(required = false, defaultValue = "0") int tabNo,
+			  @RequestParam(required = false, defaultValue = "0") int pTabNo,
+			  @ModelAttribute("ConditionBean") ConditionBean conditionBean,
+			  @ModelAttribute("CondJobFairCenterBean") CondJobFairCenterBean condFairBean,
+			  Principal principal,
+			  HttpServletRequest req,
+			  HttpServletResponse res) throws Exception {
+
+		  String userSeq = "";
+
+		  if(principal != null) {
+			  userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+		  }
+
+		  ModelAndView mv = new ModelAndView();
+		  mv.setViewName("jobFair/view_bak.one");//게시판 기본유형,BASIC TYPE
+		  mv.addObject(ConstVal.LOGIN_YN_KEY, ConstVal.NO_VAL);
+
+		  PaginationInfo paginationInfo = PageUtil.getPageInfo(currentPageNo, pageUnit, pageSize);//page info
+		  condFairBean.setFirstIndex(paginationInfo.getFirstRecordIndex());
+		  condFairBean.setLastIndex(paginationInfo.getLastRecordIndex());
+		  condFairBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+
+		  condFairBean.setLangCd(locale.getLanguage().toUpperCase());//language code
+		  condFairBean.setRegUserSeq(userSeq);
+
+		  mv.addObject("tabNo", tabNo);
+		  mv.addObject("pTabNo", pTabNo);
+		  mv.addObject("jobFairInfo", jobFairService.selectJobFairInfo(condFairBean));
+
+		  if ( tabNo > 0) {
+			  int totCnt = 0;
+
+			  switch (tabNo) {
+			  case 1:
+				  totCnt = jobFairService.selectJobFairByEmployersCnt(condFairBean);
+				  if(totCnt > 0) {
+					  mv.addObject("resultList", jobFairService.selectJobFairByEmployers(condFairBean));
+				  }
+
+				  break;
+			  case 2:
+				  totCnt = jobFairService.selectJobFairByVacancysCnt(condFairBean);
+				  if(totCnt > 0) {
+					  mv.addObject("resultList", jobFairService.selectJobFairByVacancys(condFairBean));
+				  }
+
+				  break;
+			  case 3:
+				  totCnt = jobFairService.selectJobFairByEduInsttsCnt(condFairBean);
+				  if(totCnt > 0) {
+					  mv.addObject("resultList", jobFairService.selectJobFairByEduInstts(condFairBean));
+				  }
+
+				  break;
+			  case 4:
+				  totCnt = jobFairService.selectJobFairByWorkShopsCnt(condFairBean);
+				  if(totCnt > 0) {
+					  mv.addObject("resultList", jobFairService.selectJobFairByWorkShops(condFairBean));
+				  }
+
+				  break;
+			  }
+
+			  paginationInfo.setTotalRecordCount(totCnt);
+			  mv.addObject("paginationInfo", paginationInfo);
+
+		  }
+
+		  return mv;
+
+	  }
+
+	  @RequestMapping("/workshopApply")
+	  public ModelAndView workshopApply(Locale locale,
+			  @ModelAttribute("ConditionBean") ConditionBean conditionBean,
+			  @ModelAttribute("WorkShopBean") WorkShopBean workshopBean,
+			  Principal principal,
+			  HttpServletRequest req,
+			  HttpServletResponse res) throws Exception {
+			ModelAndView mv = new ModelAndView();
+
+		  if(principal != null) {
+			  workshopBean.setUserSeq(SessionUtil.getUserSeq(req));
+			  workshopBean.setRegUserSeq(SessionUtil.getUserSeq(req));
+		  }
+
+		  int result = jobFairService.insertFairWorkshopPatcptn(workshopBean);
+			if(result > 0) {
+				mv.addObject("seq", workshopBean.getFairWorkshopPatcptnSeq());
+				mv.addObject(ConstVal.RESULT_KEY, ConstVal.YES_VAL);
+			}else {
+				mv.addObject(ConstVal.RESULT_KEY, ConstVal.NO_VAL);
+			}
+
+
+			mv.setViewName(ConstVal.JSON_VIEW_KEY);
+			return mv;
+	  }
+
+	  @RequestMapping("/workshopView")
+	  public ModelAndView workshopView(Locale locale,
+			  @ModelAttribute("ConditionBean") ConditionBean conditionBean,
+			  @ModelAttribute("CondWorkShopBean") CondWorkShopBean condWorkShopBean,
+			  Principal principal,
+			  HttpServletRequest req,
+			  HttpServletResponse res) throws Exception {
+
+		  ModelAndView mv = new ModelAndView();
+		  mv.setViewName("jobFair/workshopView.one");
+
+		  if(StringUtil.isEmpty(condWorkShopBean.getCondSeq())) {
+			  mv.addObject(ConstVal.CONN_YN_KEY,ConstVal.NO_VAL);
+			  return mv;
+		  }
+
+		  condWorkShopBean.setLangCd(locale.getLanguage().toUpperCase());
+		  if(principal != null) {
+			  condWorkShopBean.setCondUserSeq(SessionUtil.getUserSeq(req));
+		  }
+		  int count = jobFairService.selectJobFairWorkShopCnt(condWorkShopBean);
+
+		  WorkShopBean workshopBean = jobFairService.selectJobFairWorkShop(condWorkShopBean);
+		  if(StringUtil.isEmpty(workshopBean)) {
+			  mv.addObject(ConstVal.DATA_EXIST_YN_KEY,ConstVal.NO_VAL);
+			  return mv;
+		  }
+		  workshopBean.setRecurmtManCnt(count);
+
+		  mv.addObject("applyClass", count <= 0 ? "on" : "");
+		  mv.addObject(ConstVal.RESULT_KEY, workshopBean);
+
+		  return mv;
+
+	  }
 
 		/**
 		 * job fair list by location
@@ -1011,7 +1250,7 @@ public class JobFairController  extends BaseController {
 
 			CpesPaginationTag pTag = new CpesPaginationTag();
 
-			mv.addObject("totalPageCount", paginationInfo.getTotalPageCount());
+			mv.addObject("totalPageCount", paginationInfo.getTotalRecordCount());
 			mv.addObject("currentPageNo", paginationInfo.getCurrentPageNo());
 			mv.addObject(ConstVal.PAGINATION_INFO_KEY, pTag.getPagination(req, paginationInfo, "fnGoSrch"));
 

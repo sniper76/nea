@@ -32,7 +32,14 @@ public class CondJobStudyBean extends CommonBean {
 	private List<String> condList;
 	private String condDiv;
 	private String condType;
+	private String condIscoCd;
 
+	public String getCondIscoCd() {
+		return condIscoCd;
+	}
+	public void setCondIscoCd(String condIscoCd) {
+		this.condIscoCd = condIscoCd;
+	}
 	public String getCondText() {
 		return condText;
 	}

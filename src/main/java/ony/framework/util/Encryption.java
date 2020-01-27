@@ -21,7 +21,7 @@ public class Encryption {
     private final static String KEY_128 = KEY.substring(0, 128 / 8);
     // 256bit (32자리)
 	private final static String KEY_256 = KEY.substring(0, 256 / 8);
-	
+
 	/**
      * sha512 방식으로 암호화한 스트링을 리턴한다
      *
@@ -39,33 +39,33 @@ public class Encryption {
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}
-	
+
 	return toReturn;
     }
-    
-    
+
+
  // AES 256 암호화
     public final static String encryptAES256(String string) {
 
            try {
                    byte[] key256Data = KEY_256.getBytes(CharEncoding.UTF_8);
                    byte[] key128Data = KEY_128.getBytes(CharEncoding.UTF_8);
-                   
+
                    // 운용모드 CBC, 패딩은 PKCS5Padding
                    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
                    // key 와 iv 같게..
                    // 블록 암호의 운용 모드(Block engine modes of operation)가 CBC/OFB/CFB를 사용할 경우에는
                    // Initialization Vector(IV), IvParameterSpec를 설정해줘야한다. 아니면 InvalidAlgorithmParameterException 발생
-                   
+
                    // AES 256은 미국만 되는거라. JDK/JRE 패치를 해야된다.
-                   // http://www.oracle.com/technetwork/java/javase/downloads/index.html 에서 
+                   // http://www.oracle.com/technetwork/java/javase/downloads/index.html 에서
                    // Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files for JDK/JRE 8 이런 링크 찾아서 다운
                    // $JAVA_HOME\jre\lib\security 아래에 local_policy.jar, US_export_policy.jar 파일 overwrite!
-                   
+
                    // iv값이 16자리가 아니면..
                    // java.security.InvalidAlgorithmParameterException: Wrong IV length: must be 16 bytes long 발생
-                   
+
                    cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key256Data, "AES"), new IvParameterSpec(key128Data));
 
                    // AES 암호화
@@ -82,8 +82,8 @@ public class Encryption {
            catch (Exception e) {
                    return null;
            }
-    }       
-    
+    }
+
     // AES 256복호화
     public final static String decryptAES256(String string) {
 
@@ -111,7 +111,7 @@ public class Encryption {
                    return null;
            }
     }
-    
+
     public static Key getAESKey() throws Exception {
         String iv;
         Key keySpec;
@@ -143,12 +143,12 @@ public class Encryption {
 	        byte[] encrypted = c.doFinal(str.getBytes("UTF-8"));
 	        enStr = new String(Base64.encodeBase64(encrypted));
     	} catch (Exception e) {
-    		
+
     	}
 
         return enStr;
-	 }       
- 
+	 }
+
 	 // AES 128복호화
 	 public final static String decryptAES128(String enStr) {
 		 String decStr = "";
@@ -159,10 +159,39 @@ public class Encryption {
 	    		byte[] byteStr = Base64.decodeBase64(enStr.getBytes("UTF-8"));
 	    		 decStr = new String(c.doFinal(byteStr), "UTF-8");
 	    	} catch (Exception e) {
-	    		
+
 	    	}
 
 		    return decStr;
+	 }
+
+
+	 /**
+	  * 문자열을 MD-5 방식으로 암호화
+	  * @param txt 암호화 하려하는 문자열
+	  * @return String
+	  * @throws Exception
+	  */
+	 public static String getEncMD5(String txt) {
+
+	 	StringBuffer sbuf = new StringBuffer();
+
+	 	try {
+		 	MessageDigest mDigest = MessageDigest.getInstance("MD5");
+		 	mDigest.update(txt.getBytes());
+
+		 	byte[] msgStr = mDigest.digest() ;
+
+		 	for(int i=0; i < msgStr.length; i++){
+		 		String tmpEncTxt = Integer.toHexString((int)msgStr[i] & 0x00ff) ;
+		 		sbuf.append(tmpEncTxt) ;
+		 	}
+	 	} catch(Exception e) {
+
+	 	}
+
+
+	 	return sbuf.toString() ;
 	 }
 }
 

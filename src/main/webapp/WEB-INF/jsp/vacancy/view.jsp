@@ -177,58 +177,60 @@
 						<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">
 							<c:choose>
 								<c:when test="${result.vacancyStsCd == 'VCS0000000002'}"><!-- 입사지원했거나 마감인경우 -->
-									<span class="button apply">채용 기간이 종료 되었습니다.</span>
+									<span class="button apply"><spring:message code="vacancy.view.msg"/></span>
 								</c:when>
 								<c:otherwise>
 									<c:choose>
 										<c:when test="${empty applicResult and !empty offerResult}"><!-- 입사지원 안했고  입사제의를 한경우-->
 											<c:choose>
 												<c:when test="${empty offerResult.offerOpenYn or offerResult.offerOpenYn == 'N'}"><!-- 입사제의 열람을 안했을경우-->
-													<a href="javascript:void(0);" onclick="fnOfferSave('${offerResult.offerSeq}','${result.vacancySeq}','OK');" class="button apply on">입사제의 수락 </a>
-													<a href="javascript:void(0);" onclick="fnOfferSave('${offerResult.offerSeq}','${result.vacancySeq}','REJECT');" class="button apply on">입사제의 거절</a>
+													<a href="javascript:void(0);" onclick="fnOfferSave('${offerResult.offerSeq}','${result.vacancySeq}','OK');" class="button apply on"><spring:message code="vacancy.view.msg2"/> </a>
+													<a href="javascript:void(0);" onclick="fnOfferSave('${offerResult.offerSeq}','${result.vacancySeq}','REJECT');" class="button apply on"><spring:message code="vacancy.view.msg3"/></a>
 												</c:when>
 												<c:when test="${offerResult.offerAcptYn == 'N'}"><!-- 입사제의 거절-->
-													<span class="button apply">입사제의 거절</span>
+													<span class="button apply"><spring:message code="vacancy.view.msg4"/></span>
 												</c:when>
 											</c:choose>
 										</c:when>
 										<c:when test="${!empty applicResult}"><!-- 입사지원했을경우 -->
 											<c:choose>
-												<c:when test="${applicResult.applicProcCd == 'APC0000000002' and applicResult.applicCancelYn == 'Y'}"><!-- 검토중이면서 입사지원 취소한 상태 -->
-													<span class="button apply">입사지원 취소 </span>
+												<c:when test="${applicResult.applicCancelYn == 'Y'}"><!-- 검토중이면서 입사지원 취소한 상태 -->
+													<span class="button apply"><spring:message code="vacancy.view.msg5"/></span>
 												</c:when>
-												<c:when test="${applicResult.applicProcCd == 'APC0000000002'}"><!-- 검토중 -->
-													<a href="javascript:void(0);" onclick="fnApplicCancel('${applicResult.resumeSeq}','${applicResult.vacancySeq}');" class="button apply on">입사지원 취소</a>
+												<c:when test="${applicResult.applicProcCd == 'APC0000000001' || applicResult.applicProcCd == 'APC0000000002'}"><!-- 검토중 -->
+													<a href="javascript:void(0);" onclick="fnApplicCancel('${applicResult.resumeSeq}','${applicResult.vacancySeq}');" class="button apply on"><spring:message code="vacancy.view.msg5"/></a>
 												</c:when>
 												<c:when test="${applicResult.applicProcCd == 'APC0000000003' and empty intvwResult}"><!-- 서류합격이고 인터뷰가 없을경우 -->
 													${applicResult.applicProcNm}
 												</c:when>
 												<c:when test="${!empty intvwResult and intvwResult.intvwStsCd == 'INS0000000001'}"><!-- 인터뷰요청 상태일 경우 -->
-													<a href="javascript:void(0);" onclick="fnOkIntvw('${result.vacancySeq}');" class="button apply on">인터뷰 수락</a>
-													<a href="javascript:void(0);" onclick="fnRejectIntvw('${result.vacancySeq}');" class="button apply on">인터뷰 거절</a>
+													<a href="javascript:void(0);" onclick="fnOkIntvw('${result.vacancySeq}');" class="button apply on"><spring:message code="vacancy.view.msg2"/></a>
+													<a href="javascript:void(0);" onclick="fnRejectIntvw('${result.vacancySeq}');" class="button apply on"><spring:message code="vacancy.view.msg3"/></a>
 												</c:when>
 												<c:when test="${!empty intvwResult and intvwResult.intvwStsCd != 'INS0000000001'}"><!-- 인터뷰 요청상태가 아닐경우-->
 													<c:choose>
 														<c:when test="${intvwResult.intvwStsCd == 'INS0000000002'}"><!-- 인터뷰 수락 -->
 															<span class="button apply">${intvwResult.intvwStsNm}</span>
-															<span class="button apply">온라인 인터뷰 상세보기</span>
+<!-- 															<span class="button apply">온라인 인터뷰 상세보기</span> -->
 														</c:when>
 														<c:otherwise><!-- 인터뷰 거절 -->
-															${intvwResult.intvwStsNm}
+															<span class="button apply">${intvwResult.intvwStsNm}</span>
 														</c:otherwise>
 													</c:choose>
 												</c:when>
 												<c:when test="${applicResult.applicProcCd == 'APC0000000004'}"><!-- 최종합격 -->
-													<span class="button apply">${applicResult.applicProcNm}(축하합니다. 채용이 확정 되었습니다.)</span>
+													<span class="button apply">${applicResult.applicProcNm}(<spring:message code="vacancy.view.msg6"/>)</span>
 
 												</c:when>
 											</c:choose>
 
 										</c:when>
+										<c:when test="${empty applicResult}"><!-- 입사지원안했을경우 -->
+											<a id="aTagApplic" href="javascript:void(0);" onclick="fnApplicSaveType2('${result.vacancySeq}','','aTagApplic');" class="button apply on"><spring:message code="mypage.compny.profile.title22"/></a>
+										</c:when>
 									</c:choose>
 								</c:otherwise>
 							</c:choose>
-
 							<span id="bkmkSpan"><button type="button" id="btnBkmk" onclick="fnBkmk('${result.bkmkSeq}','${result.vacancySeq}',LIKE_CATEGORY_VACANCY, 'bkmkSpan', 'btnBkmk');" class="button save <c:if test="${!empty result.bkmkSeq}">on</c:if>"><spring:message code="mypage.compny.profile.title13"/></button></span>
 						</sec:authorize>
 					</div>
@@ -743,11 +745,11 @@
 						<div class="view_box count2">
 							<div class="view_form">
 								<strong class="title"><spring:message code="member.join.step.two.compnay.msg11"/></strong>
-								<p class="cont_box">${result.mngerNm}</p>
+								<p class="cont_box">${masking:getNmMasking(data.mngerNm, data.displayYn)}</p>
 							</div>
 							<div class="view_form">
 								<strong class="title"><spring:message code="login.stop.email"/></strong>
-								<p class="cont_box">${result.mngerEmail}</p>
+								<p class="cont_box">${masking:getEmailMasking(data.mngerEmail,data.displayYn)}</p>
 							</div>
 						</div>
 						<!-- //view_box -->
@@ -755,7 +757,7 @@
 						<div class="view_box">
 							<div class="view_form">
 								<strong class="title"><spring:message code="login.findId.cell"/></strong>
-								<p class="cont_box"><a href="tel:${result.mngerCell}" class="mobile_phone">${result.mngerCell}</a></p>
+								<p class="cont_box"><a href="tel:${masking:getPhoneNumberMasking(data.mngerCell,data.displayYn)}" class="mobile_phone">${masking:getPhoneNumberMasking(data.mngerCell,data.displayYn)}</a></p>
 							</div>
 						</div>
 						<!-- //view_box -->
@@ -838,68 +840,71 @@
 					<!-- //recruitment_bottom -->
 
 					<div class="recruitment_btnbox">
-					<div class="bbs_center"><!-- 버튼 활성화 되어야 할 땨 클래스 on 추가 -->
-						<sec:authorize access="isAnonymous()">
-							<a href="${pageContext.request.contextPath}/login.do?retUrl=${pageContext.request.contextPath}/vacancy/view.do?condSeq=${result.vacancySeq}" class="button apply"><spring:message code="mypage.compny.profile.title22"/></a>
-						</sec:authorize>
-						<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">
-							<c:choose>
-								<c:when test="${result.vacancyStsCd == 'VCS0000000002'}"><!-- 입사지원했거나 마감인경우 -->
-									<span class="button apply">채용 기간이 종료 되었습니다.</span>
-								</c:when>
-								<c:otherwise>
-									<c:choose>
-										<c:when test="${empty applicResult and !empty offerResult}"><!-- 입사지원 안했고  입사제의를 한경우-->
-											<c:choose>
-												<c:when test="${empty offerResult.offerOpenYn or offerResult.offerOpenYn == 'N'}"><!-- 입사제의 열람을 안했을경우-->
-													<a href="javascript:void(0);" onclick="fnOfferSave('${offerResult.offerSeq}','${result.vacancySeq}','OK');" class="button apply on">입사제의 수락 </a>
-													<a href="javascript:void(0);" onclick="fnOfferSave('${offerResult.offerSeq}','${result.vacancySeq}','REJECT');" class="button apply on">입사제의 거절</a>
-												</c:when>
-												<c:when test="${offerResult.offerAcptYn == 'N'}"><!-- 입사제의 거절-->
-													<span class="button apply">입사제의 거절</span>
-												</c:when>
-											</c:choose>
-										</c:when>
-										<c:when test="${!empty applicResult}"><!-- 입사지원했을경우 -->
-											<c:choose>
-												<c:when test="${applicResult.applicProcCd == 'APC0000000002' and applicResult.applicCancelYn == 'Y'}"><!-- 검토중이면서 입사지원 취소한 상태 -->
-													<span class="button apply">입사지원 취소 </span>
-												</c:when>
-												<c:when test="${applicResult.applicProcCd == 'APC0000000002'}"><!-- 검토중 -->
-													<a href="javascript:void(0);" onclick="fnApplicCancel('${applicResult.resumeSeq}','${applicResult.vacancySeq}');" class="button apply on">입사지원 취소</a>
-												</c:when>
-												<c:when test="${applicResult.applicProcCd == 'APC0000000003' and empty intvwResult}"><!-- 서류합격이고 인터뷰가 없을경우 -->
-													${applicResult.applicProcNm}
-												</c:when>
-												<c:when test="${!empty intvwResult and intvwResult.intvwStsCd == 'INS0000000001'}"><!-- 인터뷰요청 상태일 경우 -->
-													<a href="javascript:void(0);" onclick="fnOkIntvw('${result.vacancySeq}');" class="button apply on">인터뷰 수락</a>
-													<a href="javascript:void(0);" onclick="fnRejectIntvw('${result.vacancySeq}');" class="button apply on">인터뷰 거절</a>
-												</c:when>
-												<c:when test="${!empty intvwResult and intvwResult.intvwStsCd != 'INS0000000001'}"><!-- 인터뷰 요청상태가 아닐경우-->
-													<c:choose>
-														<c:when test="${intvwResult.intvwStsCd == 'INS0000000002'}"><!-- 인터뷰 수락 -->
-															<span class="button apply">${intvwResult.intvwStsNm}</span>
-															<span class="button apply">온라인 인터뷰 상세보기</span>
-														</c:when>
-														<c:otherwise><!-- 인터뷰 거절 -->
-															${intvwResult.intvwStsNm}
-														</c:otherwise>
-													</c:choose>
-												</c:when>
-												<c:when test="${applicResult.applicProcCd == 'APC0000000004'}"><!-- 최종합격 -->
-													<span class="button apply">${applicResult.applicProcNm}(축하합니다. 채용이 확정 되었습니다.)</span>
 
-												</c:when>
-											</c:choose>
+						<div class="bbs_center"><!-- 버튼 활성화 되어야 할 땨 클래스 on 추가 -->
+							<sec:authorize access="isAnonymous()">
+								<a href="${pageContext.request.contextPath}/login.do?retUrl=${pageContext.request.contextPath}/vacancy/view.do?condSeq=${result.vacancySeq}" class="button apply on"><spring:message code="mypage.compny.profile.title22"/></a>
+							</sec:authorize>
+							<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">
+								<c:choose>
+									<c:when test="${result.vacancyStsCd == 'VCS0000000002'}"><!-- 입사지원했거나 마감인경우 -->
+										<span class="button apply"><spring:message code="vacancy.view.msg"/></span>
+									</c:when>
+									<c:otherwise>
+										<c:choose>
+											<c:when test="${empty applicResult and !empty offerResult}"><!-- 입사지원 안했고  입사제의를 한경우-->
+												<c:choose>
+													<c:when test="${empty offerResult.offerOpenYn or offerResult.offerOpenYn == 'N'}"><!-- 입사제의 열람을 안했을경우-->
+														<a href="javascript:void(0);" onclick="fnOfferSave('${offerResult.offerSeq}','${result.vacancySeq}','OK');" class="button apply on"><spring:message code="vacancy.view.msg2"/></a>
+														<a href="javascript:void(0);" onclick="fnOfferSave('${offerResult.offerSeq}','${result.vacancySeq}','REJECT');" class="button apply on"><spring:message code="vacancy.view.msg3"/></a>
+													</c:when>
+													<c:when test="${offerResult.offerAcptYn == 'N'}"><!-- 입사제의 거절-->
+														<span class="button apply"><spring:message code="vacancy.view.msg4"/></span>
+													</c:when>
+												</c:choose>
+											</c:when>
+											<c:when test="${!empty applicResult}"><!-- 입사지원했을경우 -->
+												<c:choose>
+													<c:when test="${applicResult.applicCancelYn == 'Y'}"><!-- 검토중이면서 입사지원 취소한 상태 -->
+														<span class="button apply"><spring:message code="vacancy.view.msg5"/></span>
+													</c:when>
+													<c:when test="${applicResult.applicProcCd == 'APC0000000001' || applicResult.applicProcCd == 'APC0000000002'}"><!-- 검토중 -->
+														<a href="javascript:void(0);" onclick="fnApplicCancel('${applicResult.resumeSeq}','${applicResult.vacancySeq}');" class="button apply on"><spring:message code="vacancy.view.msg5"/></a>
+													</c:when>
+													<c:when test="${applicResult.applicProcCd == 'APC0000000003' and empty intvwResult}"><!-- 서류합격이고 인터뷰가 없을경우 -->
+														<span class="button apply">${applicResult.applicProcNm}</span>
+													</c:when>
+													<c:when test="${!empty intvwResult and intvwResult.intvwStsCd == 'INS0000000001'}"><!-- 인터뷰요청 상태일 경우 -->
+														<a href="javascript:void(0);" onclick="fnOkIntvw('${result.vacancySeq}');" class="button apply on"><spring:message code="vacancy.view.msg2"/></a>
+														<a href="javascript:void(0);" onclick="fnRejectIntvw('${result.vacancySeq}');" class="button apply on"><spring:message code="vacancy.view.msg3"/></a>
+													</c:when>
+													<c:when test="${!empty intvwResult and intvwResult.intvwStsCd != 'INS0000000001'}"><!-- 인터뷰 요청상태가 아닐경우-->
+														<c:choose>
+															<c:when test="${intvwResult.intvwStsCd == 'INS0000000002'}"><!-- 인터뷰 수락 -->
+																<span class="button apply">${intvwResult.intvwStsNm}</span>
+	<!-- 															<span class="button apply">온라인 인터뷰 상세보기</span> -->
+															</c:when>
+															<c:otherwise><!-- 인터뷰 거절 -->
+																<span class="button apply">${intvwResult.intvwStsNm}</span>
+															</c:otherwise>
+														</c:choose>
+													</c:when>
+													<c:when test="${applicResult.applicProcCd == 'APC0000000004'}"><!-- 최종합격 -->
+														<span class="button apply">${applicResult.applicProcNm}(<spring:message code="vacancy.view.msg6"/>)</span>
 
-										</c:when>
-									</c:choose>
-								</c:otherwise>
-							</c:choose>
+													</c:when>
+												</c:choose>
 
-							<span id="bkmkSpan2"><button type="button" id="btnBkmk2" onclick="fnBkmk('${result.bkmkSeq}','${result.vacancySeq}',LIKE_CATEGORY_VACANCY, 'bkmkSpan2', 'btnBkmk2');" class="button save <c:if test="${!empty result.bkmkSeq}">on</c:if>"><spring:message code="mypage.compny.profile.title13"/></button></span>
-						</sec:authorize>
-					</div>
+											</c:when>
+											<c:when test="${empty applicResult}"><!-- 입사지원안했을경우 -->
+												<a id="aTagApplic2" href="javascript:void(0);" onclick="fnApplicSaveType2('${result.vacancySeq}','','aTagApplic2');" class="button apply on"><spring:message code="mypage.compny.profile.title22"/></a>
+											</c:when>
+										</c:choose>
+									</c:otherwise>
+								</c:choose>
+								<span id="bkmkSpan2"><button type="button" id="btnBkmk2" onclick="fnBkmk('${result.bkmkSeq}','${result.vacancySeq}',LIKE_CATEGORY_VACANCY, 'bkmkSpan2', 'btnBkmk2');" class="button save <c:if test="${!empty result.bkmkSeq}">on</c:if>"><spring:message code="mypage.compny.profile.title13"/></button></span>
+							</sec:authorize>
+						</div>
 					</div>
 					<!-- //recruitment_btnbox -->
 				</div>

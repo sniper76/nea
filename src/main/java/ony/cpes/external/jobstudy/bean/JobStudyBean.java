@@ -1,5 +1,7 @@
 package ony.cpes.external.jobstudy.bean;
 
+import java.util.List;
+
 import ony.cmm.common.bean.CommonBean;
 
 
@@ -37,7 +39,162 @@ public class JobStudyBean extends CommonBean {
 	private String fullPath;//
 	private int lvlCnt;
 
+	private String occupIncNm;
+	private String occupExcNm;
+	private String noteNm;
+	private String defNm;
+	private String taskNm;
+	private String titleNm;
+	private String dutiesNm;
+	private String skillNm;
+	private String responsibilitiesNm;
+	private String eduTrnngNm;
+	private String highEduNm;
+	private String majorStudyNm;
+	private String skillRelatedExpNm;
+	private String jobCateNm;
+	private String depthNm1;
+	private String depthNm2;
+	private String depthNm3;
+	private String depthNm4;
 
+	private List<JobStudyBean> list;
+	private List<JobStudyBean> underList;
+	private int underListCnt;
+	private int totCnt;
+
+	public String getDepthNm1() {
+		return depthNm1;
+	}
+	public void setDepthNm1(String depthNm1) {
+		this.depthNm1 = depthNm1;
+	}
+	public String getDepthNm2() {
+		return depthNm2;
+	}
+	public void setDepthNm2(String depthNm2) {
+		this.depthNm2 = depthNm2;
+	}
+	public String getDepthNm3() {
+		return depthNm3;
+	}
+	public void setDepthNm3(String depthNm3) {
+		this.depthNm3 = depthNm3;
+	}
+	public String getDepthNm4() {
+		return depthNm4;
+	}
+	public void setDepthNm4(String depthNm4) {
+		this.depthNm4 = depthNm4;
+	}
+	public int getTotCnt() {
+		return totCnt;
+	}
+	public void setTotCnt(int totCnt) {
+		this.totCnt = totCnt;
+	}
+	public List<JobStudyBean> getList() {
+		return list;
+	}
+	public void setList(List<JobStudyBean> list) {
+		this.list = list;
+	}
+	public int getUnderListCnt() {
+		return underListCnt;
+	}
+	public void setUnderListCnt(int underListCnt) {
+		this.underListCnt = underListCnt;
+	}
+	public List<JobStudyBean> getUnderList() {
+		return underList;
+	}
+	public void setUnderList(List<JobStudyBean> underList) {
+		this.underList = underList;
+	}
+	public String getOccupIncNm() {
+		return occupIncNm;
+	}
+	public void setOccupIncNm(String occupIncNm) {
+		this.occupIncNm = occupIncNm;
+	}
+	public String getOccupExcNm() {
+		return occupExcNm;
+	}
+	public void setOccupExcNm(String occupExcNm) {
+		this.occupExcNm = occupExcNm;
+	}
+	public String getNoteNm() {
+		return noteNm;
+	}
+	public void setNoteNm(String noteNm) {
+		this.noteNm = noteNm;
+	}
+	public String getDefNm() {
+		return defNm;
+	}
+	public void setDefNm(String defNm) {
+		this.defNm = defNm;
+	}
+	public String getTaskNm() {
+		return taskNm;
+	}
+	public void setTaskNm(String taskNm) {
+		this.taskNm = taskNm;
+	}
+	public String getTitleNm() {
+		return titleNm;
+	}
+	public void setTitleNm(String titleNm) {
+		this.titleNm = titleNm;
+	}
+	public String getDutiesNm() {
+		return dutiesNm;
+	}
+	public void setDutiesNm(String dutiesNm) {
+		this.dutiesNm = dutiesNm;
+	}
+	public String getSkillNm() {
+		return skillNm;
+	}
+	public void setSkillNm(String skillNm) {
+		this.skillNm = skillNm;
+	}
+	public String getResponsibilitiesNm() {
+		return responsibilitiesNm;
+	}
+	public void setResponsibilitiesNm(String responsibilitiesNm) {
+		this.responsibilitiesNm = responsibilitiesNm;
+	}
+	public String getEduTrnngNm() {
+		return eduTrnngNm;
+	}
+	public void setEduTrnngNm(String eduTrnngNm) {
+		this.eduTrnngNm = eduTrnngNm;
+	}
+	public String getHighEduNm() {
+		return highEduNm;
+	}
+	public void setHighEduNm(String highEduNm) {
+		this.highEduNm = highEduNm;
+	}
+	public String getMajorStudyNm() {
+		return majorStudyNm;
+	}
+	public void setMajorStudyNm(String majorStudyNm) {
+		this.majorStudyNm = majorStudyNm;
+	}
+	public String getSkillRelatedExpNm() {
+		return skillRelatedExpNm;
+	}
+	public void setSkillRelatedExpNm(String skillRelatedExpNm) {
+		this.skillRelatedExpNm = skillRelatedExpNm;
+	}
+	public String getJobCateNm() {
+		return jobCateNm;
+	}
+	public void setJobCateNm(String jobCateNm) {
+		this.jobCateNm = jobCateNm;
+	}
 	public String getIscoId() {
 		return iscoId;
 	}

@@ -21,6 +21,21 @@ public class JobskReqBean extends CommonBean {
 	private String delYn;
 	private String delDt;
 
+	private String jcUserNm;
+	private String jcNm;
+
+	public String getJcUserNm() {
+		return jcUserNm;
+	}
+	public void setJcUserNm(String jcUserNm) {
+		this.jcUserNm = jcUserNm;
+	}
+	public String getJcNm() {
+		return jcNm;
+	}
+	public void setJcNm(String jcNm) {
+		this.jcNm = jcNm;
+	}
 	public String getJobskReqSeq() {
 		return jobskReqSeq;
 	}

@@ -50,6 +50,7 @@ public class OfferBean extends CommonBean{
 	private String bkmkSeq;
 	private int totCareerTermYearCnt;
 	private int totCareerTermMonthCnt;
+	private String displayYn;
 
 	public int getTotCareerTermYearCnt() {
 		return totCareerTermYearCnt;
@@ -279,6 +280,12 @@ public class OfferBean extends CommonBean{
 	}
 	public void setBkmkSeq(String bkmkSeq) {
 		this.bkmkSeq = bkmkSeq;
+	}
+	public String getDisplayYn() {
+		return displayYn;
+	}
+	public void setDisplayYn(String displayYn) {
+		this.displayYn = displayYn;
 	}
 
 }

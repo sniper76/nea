@@ -55,6 +55,7 @@ public class CondVacancyBean extends CommonBean {
 	private String condSort;
 	private List<String> condMinEduDegreeCd;
 	private List<String> condLangCd;
+	private int condLimit;
 
 	public String getCondText() {
 		return condText;
@@ -223,6 +224,12 @@ public class CondVacancyBean extends CommonBean {
 	}
 	public void setCondLangCd(List<String> condLangCd) {
 		this.condLangCd = condLangCd;
+	}
+	public int getCondLimit() {
+		return condLimit;
+	}
+	public void setCondLimit(int condLimit) {
+		this.condLimit = condLimit;
 	}
 
 

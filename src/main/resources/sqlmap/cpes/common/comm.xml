@@ -33,6 +33,7 @@
                 , A.USER_SEQ
 				, A.USER_NM_KH
 				, A.USER_NM_EN
+				, FN_GET_USER_NM_BY_USER_SEQ(A.USER_SEQ, #{langCd}) AS USER_NM
 				, A.JC_CD
 				, FN_GET_JOB_CNTR_NM(A.JC_CD, #{langCd}) AS JC_NM
 				, (SELECT C.TEL1 FROM CPES_JOB_CENTER C WHERE C.JC_CD = A.JC_CD) AS JC_TEL
@@ -132,6 +133,7 @@
 		/*comm.selectIscoCdList*/
 		SELECT IC.ISCO_CD AS CD
 			 , CASE WHEN UPPER(#{langCd}) = 'KH' THEN KH_NM ELSE EN_NM END AS CD_NM
+			 , IC.UPPER_CD
 		FROM CPES_ISCO_CD IC
 		WHERE 1=1
 		AND IC.USE_YN = 'Y'
@@ -251,5 +253,51 @@
     	FROM CPES_BANWORD BANWORD
     	WHERE BANWORD.USE_YN = 'Y'
     </select>
+
+	<!-- Job Center Code List -->
+	<select id="selectJobCenterCdList" resultType="ony.cpes.external.jobcenter.bean.JobCenterBean" parameterType="ony.cmm.common.bean.ConditionBean" >
+		/*comm.selectJobCenterCdList*/
+		SELECT JC_CD
+		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN JC_KH   ELSE JC_EN   END JC_NM
+		  FROM CPES_JOB_CENTER
+		 WHERE USE_YN = 'Y'
+		 ORDER BY 2
+    </select>
+
+
+  	<!-- video interview detail -->
+	<select id="selectVideoIntvw" resultType="ony.cpes.external.mypage.compny.bean.VideoIntvwPatcptnBean" parameterType="ony.cmm.common.bean.ConditionBean" >
+		/*comm.selectVideoIntvw*/
+		SELECT A.VIDEO_INTVW_PATCPTN_SEQ
+		     , A.INTVW_SEQ
+		     , A.JOBSK_JC_CD
+		     , A.VIDEO_TIME_TABLE_CD
+		     , DATE_FORMAT(A.VIDEO_INTVW_DT, '%d/%m/%Y') AS VIDEO_INTVW_DT
+		     , A.COMPNY_JC_CD
+		     , A.COMPNY_SEQ
+		     , A.USER_SEQ
+		     , A.REG_USER_SEQ
+		     , A.REG_DT
+		     , FN_GET_JOB_CNTR_NM(A.COMPNY_JC_CD, #{langCd}) AS COMPNY_JC_NM
+		     , FN_GET_JOB_CNTR_NM(A.JOBSK_JC_CD, #{langCd}) AS JOBSK_JC_NM
+		     , FN_GET_COMMON_NM('VIDEO_TIME_TABLE_CD', A.VIDEO_TIME_TABLE_CD, #{langCd}) AS VIDEO_TIME_TABLE_NM
+		     , D.MNGER_NM
+		     , D.MNGER_CELL
+		     , D.VACANCY_TITLE
+		     , CASE WHEN #{langCd} = 'KH' THEN C.COMPNY_NM_KH ELSE C.COMPNY_NM_EN END AS COMPNY_NM
+		     , CASE WHEN #{langCd} = 'KH' THEN E.USER_NM_KH ELSE E.USER_NM_EN END AS USER_NM
+		     , E.USER_CELL
+		 FROM CPES_VIDEO_INTVW_PATCPTN A
+		 INNER JOIN CPES_INTVW B
+		 ON A.INTVW_SEQ = B.INTVW_SEQ
+		 INNER JOIN CPES_COMPNY C
+		 ON C.COMPNY_SEQ = A.COMPNY_SEQ
+		 INNER JOIN CPES_VACANCY D
+		 ON (D.VACANCY_SEQ = #{condSeq2} AND D.COMPNY_SEQ = C.COMPNY_SEQ)
+		 INNER JOIN CPES_USER E
+		 ON E.USER_SEQ = A.USER_SEQ
+		 WHERE A.VIDEO_INTVW_PATCPTN_SEQ = #{condSeq}
+    </select>
+
 
 </mapper>

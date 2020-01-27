@@ -103,11 +103,12 @@
 			ON 1=1
 	</select>
 
+
 	<select id="selectResumeDetail" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.ResumeBean">
 		/* resume.selectResumeDetail */
 		SELECT RE.RESUME_SEQ
 			 , RE.USER_SEQ
-			 , (SELECT BKMK_SEQ FROM CPES_BKMK WHERE USER_SEQ = #{userSeq} AND TABLE_KEY_SEQ = RE.USER_SEQ) AS BKMK_SEQ
+			 , FN_GET_BKMK_SEQ(#{userSeq}, 'BCT0000000006', RE.RESUME_SEQ) AS BKMK_SEQ
 			 , RE.USER_ID
 			 , RE.JC_CD
 			 , RE.CMPLT_USER_NM_KH
@@ -194,6 +195,9 @@
 			 , RE.ADDR_FULL_CD
 			 , RE.ADDR_FULL_NM
 			 , FN_GET_FILE_PATH(RE.FILE_GRP_SEQ) AS FILE_PATH
+			 , CASE WHEN RE.USER_SEQ = #{userSeq} THEN 'Y' /* 자신의 이력서일경우 */
+			   ELSE 'N'
+			   END AS DISPLAY_YN
 		<choose>
     		<when test="tempFlag == 1">
     			FROM CPES_RESUME_TEMP RE
@@ -434,10 +438,13 @@
 	<select id="selectJobskReqDetail" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.JobskReqBean">
 		SELECT JR.JOBSK_REQ_SEQ
 			 , DATE_FORMAT(JR.REG_DT, '%d/%m/%Y') AS REG_DT
+			 , DATE_FORMAT(JR.JC_AGREE_DT, '%d/%m/%Y') AS JC_AGREE_DT
+			 , FN_GET_USER_NM_BY_USER_SEQ(JR.JC_USER_SEQ, #{langCd}) AS JC_USER_NM
+			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN JC_KH ELSE JC_EN END FROM CPES_JOB_CENTER WHERE JC_CD = JR.JC_CD) AS JC_NM
 		FROM CPES_JOBSK_REQ JR
 		WHERE 1=1
 		AND JR.RESUME_SEQ = #{resumeSeq}
-		AND JR.JC_AGREE_STS_CD = 'JSC0000000002'
+		AND JR.JC_AGREE_STS_CD = 'JAS0000000001'
 		AND JR.DEL_YN = 'N'
 	</select>
 
@@ -446,6 +453,9 @@
 			 , RI.ISCO_CD
 			 , (SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN KH_NM ELSE EN_NM END AS NM FROM CPES_ISCO_CD WHERE ISCO_CD = RI.ISCO_CD AND USE_YN = 'Y') AS ISCO_CD_NM
 			 , RI.RESUME_SEQ
+			 , RI.ISCO_FULL_CD
+			 , RI.ISCO_FULL_NM
+			 , RI.ISCO_UPPER_CD
 		FROM CPES_RESUME_ISCO RI
 		WHERE 1=1
 		AND RI.RESUME_SEQ = #{resumeSeq}
@@ -468,6 +478,7 @@
 			  ON INTV.APPLIC_SEQ = AP.APPLIC_SEQ
 			  WHERE AP.APPLIC_CANCEL_YN = 'N'
 			  AND AP.RESUME_SEQ = #{value}
+			  AND INTV.DEL_YN = 'N'
 			  AND INTV.INTVW_DT <![CDATA[<]]> NOW()) C
 
 	</select>

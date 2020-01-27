@@ -25,7 +25,12 @@
 				return false;
 			}
 
+			dext5uploadAllFileSet("dext5uploadArea", 'view', '', '', '', '', '');
 
+			var fileGrpSeq = $('#fileGrpSeq').val();
+	  		if(fileGrpSeq != ""){
+	  			dext5AddUploadFile(fileGrpSeq);
+	  		}
 		});
 
 
@@ -85,13 +90,17 @@
 					<div class="bbs_content"><c:out value="${result2.content}"/></div>
 					<!-- //bbs_content -->
 
-					<ul class="bbs_attachments">
+					<%-- <ul class="bbs_attachments">
 
 					<c:if test="${result.fileYn == 'Y'}"><!-- 첨부파일 -->
 					<li><a href="">ScreenShot and capture the whole Page.pdf</a></li>
 					<li><a href="">ScreenShot and capture the whole Page.pdf</a></li>
 					</c:if>
-					</ul>
+					</ul> --%>
+
+					<input type="hidden" id="fileGrpSeq" value="${result2.fileGrpSeq }">
+					<div id="dext5uploadArea"></div>
+
 					<!-- //bbs_attachments -->
 
 					<ul class="bbs_viewmove">

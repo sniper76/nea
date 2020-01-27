@@ -26,7 +26,8 @@ public class CustomUserDetailsBean implements UserDetails {
 	    private String accntLockStsCd	= "";
 	    private String userSeq		=	"";
 	    private String dormancyYn		=	"";
-
+	    private String userPwdOld		=	"";
+	    private String newPwdApplyYn	= "";
 
 
 	    @Override
@@ -153,5 +154,21 @@ public class CustomUserDetailsBean implements UserDetails {
 	    public boolean isEnabled() {
 	        return true;
 	    }
+
+		public String getUserPwdOld() {
+			return userPwdOld;
+		}
+
+		public void setUserPwdOld(String userPwdOld) {
+			this.userPwdOld = userPwdOld;
+		}
+
+		public String getNewPwdApplyYn() {
+			return newPwdApplyYn;
+		}
+
+		public void setNewPwdApplyYn(String newPwdApplyYn) {
+			this.newPwdApplyYn = newPwdApplyYn;
+		}
 
 }

@@ -210,11 +210,12 @@ public class MemberController extends BaseController{
 		if(memberService.selectEmailDupChk(certifyBean) > 0) {//email duplication check
 			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
 			ajaxResultBean.setStatCd(ConstVal.CODE_01_VAL);
-		} else if(memberService.selectCellPhoneDupChk(certifyBean) > 0) {//cell phone duplication check
+		}
+		if(memberService.selectCellPhoneDupChk(certifyBean) > 0) {//cell phone duplication check
 			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
 			ajaxResultBean.setStatCd(ConstVal.CODE_02_VAL);
 		} else {
-			memberBean.setUserPwd(Encryption.getSHA512(memberBean.getUserPwd()));
+			memberBean.setUserPwd(EncryptUtil.getSha512(memberBean.getUserPwd()));
 			memberBean.setUserCell(EncryptUtil.getAes256Enc(memberBean.getUserCell()));
 			memberBean.setUserEmail(EncryptUtil.getAes256Enc(memberBean.getUserEmail()));
 
@@ -268,7 +269,7 @@ public class MemberController extends BaseController{
 			memberBean.setUserNmKh(companyBean.getMngerNm());
 			memberBean.setUserEmail(EncryptUtil.getAes256Enc(companyBean.getMngerEmail()));
 			memberBean.setUserCell(EncryptUtil.getAes256Enc(companyBean.getMngerCell()));
-			memberBean.setUserPwd(Encryption.getSHA512(memberBean.getUserPwd()));
+			memberBean.setUserPwd(EncryptUtil.getSha512(memberBean.getUserPwd()));
 
 			if(memberService.insertCompany(memberBean,companyBean) > 0) {
 				ajaxResultBean.setSuccessYn(ConstVal.YES_VAL);
@@ -317,7 +318,7 @@ public class MemberController extends BaseController{
 			memberBean.setUserCell(EncryptUtil.getAes256Enc(institutionBean.getInsttCell()));
 			memberBean.setAddrCd(institutionBean.getInsttAddrCd());
 			memberBean.setAddrDtl(institutionBean.getInsttAddrDtl());
-			memberBean.setUserPwd(Encryption.getSHA512(memberBean.getUserPwd()));
+			memberBean.setUserPwd(EncryptUtil.getSha512(memberBean.getUserPwd()));
 
 
 			if(memberService.insertInstitution(memberBean,institutionBean) > 0) {

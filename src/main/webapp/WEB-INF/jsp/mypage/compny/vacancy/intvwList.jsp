@@ -2,24 +2,114 @@
 <%@ include file="/WEB-INF/jsp/common/inc.jsp" %>
     <script>
     	$(document).ready(function() {
-			//검색키워드 enter
-			$("#condText").keypress(function( event ) {
-				if( event.which == 13 ) {
-					fnSetPageing("1");
-				}
-			});
+    	    $("input:radio[name=rdo]").click(function(){
+    	    	$("#condSeq").val($("input:radio[name=rdo]:checked").val());
+    	    });
+
+    	    if($('input:radio[name="rdo"]:checked').length == 0) {//checked  된게 없다면
+    	    	$('input:radio[name=rdo]').eq(0).attr("checked", true);
+    	    }
+
+    	    fnVacancyChange();
+
+
+
 
 
     	});
 
+    	function fnVacancyChange() {
+			$("#currentPageNo").val(1);
+			$("#condText").val("");
+			$("#condType").val("");
 
-      	function fnSetPageing(curPage) {
-    		$("#currentPageNo").val(curPage);
-    		fnGoList("frm");
+			var rdoVal = $('input:radio[name="rdo"]:checked').val();
+			//console.log("###################rdoVal="+rdoVal);
+
+			if(typeof rdoVal != "undefined" && rdoVal != null && rdoVal != "") {
+				$("#condSeq").val($("input:radio[name=rdo]:checked").val());
+			}
+
+			fnIntvwList();
+
     	}
 
 
+    	function fnIntvwList() {
+			$.ajax({
+				url: contextPath + "/cpes/compny/vacancy/intvwListAjax.do",
+				type: 'post',
+				data: {
+					condSeq: $("#condSeq").val(),
+					condType: $("#condType").val(),
+					condText: $("#condText").val(),
+					currentPageNo: $("#currentPageNo").val()
+				},
+				datatype: 'html'
+			})
+			.done(function(data) {
+				$("#intvwListDiv").html(data);
+			})
+			.fail(function(xhr, status, errorThrown) {
+				alertify.alert("<spring:message code="errors.ajax.fail"/>");
+			});
+    	}
 
+
+      	function fnSetPageing(curPage) {
+    		$("#currentPageNo").val(curPage);
+    		fnIntvwList();
+    	}
+
+      	function fnCloseReject(id) {
+      		$("#"+id).dialog( "close" );
+      	}
+
+
+    	function fnDelIntvw() {
+    		var seqArr = new Array;
+
+    		if(!$("input:checkbox[name=chk]").is(":checked") == true) {
+				alertify.alert("<spring:message code="mypage.compny.applic.errors.msg"/>", function (e){
+
+				});
+				return false;
+    		}
+
+    		$("input:checkbox[name=chk]:checked").each(function() {
+    			seqArr.push($(this).val())
+			});
+
+    		alertify.confirm("<spring:message code="compny.vacancy.msg.btn.delete"/>", function (e) {
+    			if (e) {
+    				$.ajax({
+    					url: contextPath + "/cpes/compny/vacancy/intvwDelProcessAjax.do",
+    					type: 'post',
+    					data: {
+    						condStr : seqArr.join(",")
+    					},
+    					datatype: 'json'
+    				})
+    				.done(function(data) {
+    					if (data.result.successYn == "Y") {
+    						alertify.alert("<spring:message code="counsel.msg.delete.success"/>", function (e){
+    							fnSetPageing("1");
+    						});
+
+    					} else {
+    		 				var msg = noMemberFailMsg;
+    						if(data.result.statCd == "02") {
+    							msg = systemMsg;
+    						}
+    						alertify.alert(msg);
+    					}
+    				})
+    				.fail(function(xhr, status, errorThrown) {
+    					alertify.alert(systemMsg);
+    				});
+    			}
+    		});
+    	}
 	</script>
 	<main class="colgroup" id="colgroup">
 		<article>
@@ -32,130 +122,169 @@
 	      	</header>
 
 	       	<div id="contents" class="vacancyIntvwList">
-				<div class="bbs_info clearfix tab_confirm"><!-- 서브페이지에 탭 메뉴가 있을 경우 클래스 tab_confirm 추가  -->
-
-					<form id="frm" name="frm" action="${pageContext.request.contextPath}/cpes/compny/vacancy/intvwList.do" method="post">
-					<input type="hidden" id="currentPageNo" name="currentPageNo" value="${paginationInfo.currentPageNo}"/>
-					<input type="hidden" id="condSeq" name="condSeq" value=""/>
-					<div class="bbs_left bbs_count">
-						<strong class="currently">${paginationInfo.currentPageNo}</strong>
-						<span class="total">/&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${paginationInfo.totalPageCount}" /></span>
-					</div>
-
-					<div class="bbs_right bbs_category">
-						<fieldset>
-
-							<input type="text" id="condText" name="condText" value="<c:out value="${param.condText}"/>" class="input_text" title="<spring:message code="mypage.compny.vacancy.msg15"/>" placeholder="<spring:message code="mypage.compny.vacancy.msg15"/>" maxlength="50" />
-							<input type="text" class="skip" style="visibility: hidden; with: 0px" title="hidden text"><!-- on submit 방지 -->
-							<input type="button" onclick="javascript:fnSetPageing('1');" value="Search" class="submit" />
-						</fieldset>
-					</div>
-					</form>
-				</div>
-				<!-- //bbs_info -->
-				<c:if test="${!empty resultList}">
-					<c:forEach var="data" items="${resultList}" varStatus="status">
-						이름:${data.userNm} || 나이:${data.age} || 성별:${data.genderNm} | 이력서제목:
-						<a href="javascript:void(0);" onclick="fnGoCompnyResumeView('${data.resumeSeq}', '${data.vacancySeq}');">${data.resumeTitle}</a>
-							학력:${data.eduDegreeNm} || 직종:${data.iscoNm} || 경력:
-						<c:choose>
-							<c:when test="${data.careerYn == 'Y'}">${data.totCareerTermYearCnt}</c:when>
-							<c:otherwise>신입</c:otherwise>
-						</c:choose>
-						<a href="javascript:void(0);" onclick="fnVacancyView('${data.vacancySeq}','frm');">공고명:${data.vacancyTitle}</a> ||
-						면접제의일자:${data.intvwDt}
-
-
-
-
-
-					</c:forEach>
-				</c:if>
-				<!-- //bbs_basic list -->
-
-
-
-
-
-
-				<div class="bbs_info clearfix"><!-- 서브페이지에 탭 메뉴가 있을 경우 클래스 tab_confirm 추가  -->
-					<div class="bbs_left bbs_count">
-						<strong class="currently">1</strong>
-						<span class="total">/&nbsp;1</span>
-						<span class="order">
-							<strong class="skip">Change list order</strong>
-							<button type="button">Latest</button>
-							<button type="button">View</button>
-							<button type="button">like</button>
-						</span>
-					</div>
-				</div>
-				<!-- //bbs_info -->
-
-				<c:if test="${!empty resultList}">
-				<div class="bbs_basic">
-					<ul class="recruitment_list edu my clearfix"><!-- 인기채용공고 목록일 경우 클래스 popularity 추가, 교육기관,교육프로그램일 경우 클래스 adu 추가 -->
-					<c:forEach var="data" items="${resultList}" varStatus="status">
-						<li>
-							<span class="check_box">
-								<label for="#check1" class="skip">Select</label>
-								<input type="checkbox" id="check1" />
-							</span>
-							<div class="contents_wrap">
-								<div class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></div>
-								<div class="contents_box"><!-- 모집중일 경우 클래스 recruiting , 교육 마감일 경우 클래스 closed 추가, 삭제된 글일 경우 클래스 deleted 추가 -->
-									<div class="title_box new"><!-- 새글일 경우 클래스 new 추가 -->
-										<a href="" class="title">13/09/2019 01:00 PM <span>Online Interview</span></a>
-									</div>
-									<div class="cont_box">
-										<div class="cont">
-											<span class="con">SAMSUNG Cambodiagy</span>
-										</div>
-									</div>
-									<div class="put_box">
-										<a href="" class="link">Construction Project Planning Manager</a>
-									</div>
-									<div class="other_box type2">
-										<span class="top_box">
-											<span class="day">30</span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
-										</span>
-										<span class="bottom_box">
-											<button type="button" class="bbs_btn type08 small">Accept</button>
-											<button type="button" class="bbs_btn small">Reject</button>
-										</span>
-									</div>
+				<div class="search_matching">
+					<div class="box_wrap recruitment_list">
+						<form id="frm" name="frm" action="${pageContext.request.contextPath}/cpes/compny/vacancy/intvwList.do" method="post">
+							<input type="hidden" id="currentPageNo" name="currentPageNo" value="1"/>
+							<input type="hidden" id="condSeq" name="condSeq" value="${param.condSeq}"/>
+							<fieldset>
+								<legend>Search Auto Matching</legend>
+								<c:forEach var="data" items="${resultList2}" varStatus="status">
+									<c:if test="${status.count == 1}">
+										<button type="button" class="open">
+											<span class="contents_wrap">
+												<span class="check_area">
+													<label for="rdo_${status.count}">Select Recruitment Notice</label>
+													<input type="radio" id="rdo_${status.count}" name="rdo" value="${data.vacancySeq}" <c:if test="${param.condSeq == data.vacancySeq}">checked</c:if> />
+												</span>
+												<span class="contents_box">
+													<span class="title_box <c:if test="${data.newYn == 'Y'}">new</c:if>"><!-- 새글일 경우 클래스 new 추가 -->
+														<strong class="title">${data.vacancyTitle}</strong>
+													</span>
+													<span class="cont_box">
+														<span class="cont">
+															<span class="con">${data.bgnDt} ~ ${data.endDt}</span>
+															<span class="con"><spring:message code="compny.vacancy.msg.title8"/> : <fmt:formatNumber type="number" maxFractionDigits="3" value="${data.recrumtMemb}" /></span>
+														</span>
+													</span>
+													<span class="other_box">
+														<span class="top_box">
+															<c:choose>
+																<c:when test="${data.vacancyStsCd == 'VCS0000000002'}"><!-- 채용공고 마감 -->
+																	<span class="close">${data.vacancyStsNm}</span>
+																</c:when>
+																<c:otherwise>
+																	<span class="${data.remainDiv}">${data.remainDt}<c:if test="${data.remainDiv == 'hurry'}">Hour</c:if></span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
+																</c:otherwise>
+															</c:choose>
+														</span>
+													</span>
+												</span>
+											</span>
+										</button>
+									</c:if>
+								</c:forEach>
+								<div class="child_box">
+									<ul class="clearfix">
+									<c:forEach var="data" items="${resultList2}" varStatus="status">
+										<c:if test="${status.count > 1}">
+											<li>
+												<span class="contents_wrap">
+													<span class="check_area">
+														<label for="rdo_${status.count}">Select Recruitment Notice</label>
+														<input type="radio" id="rdo_${status.count}" name="rdo" value="${data.vacancySeq}" <c:if test="${param.condSeq == data.vacancySeq}">checked</c:if>/>
+													</span>
+													<span class="contents_box">
+														<span class="title_box <c:if test="${data.newYn == 'Y'}">new</c:if>"><!-- 새글일 경우 클래스 new 추가 -->
+															<strong class="title">${data.vacancyTitle}</strong>
+														</span>
+														<span class="cont_box">
+															<span class="cont">
+																<span class="con">${data.bgnDt} ~ ${data.endDt}</span>
+																<span class="con"><spring:message code="compny.vacancy.msg.title8"/> : <fmt:formatNumber type="number" maxFractionDigits="3" value="${data.recrumtMemb}" /></span>
+															</span>
+														</span>
+														<span class="other_box">
+															<span class="top_box">
+															<c:choose>
+																<c:when test="${data.vacancyStsCd == 'VCS0000000002'}"><!-- 채용공고 마감 -->
+																	<span class="close">${data.vacancyStsNm}</span>
+																</c:when>
+																<c:otherwise>
+																	<span class="${data.remainDiv}">${data.remainDt}<c:if test="${data.remainDiv == 'hurry'}">Hour</c:if></span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
+																</c:otherwise>
+															</c:choose>
+															</span>
+														</span>
+													</span>
+												</span>
+											</li>
+										</c:if>
+									</c:forEach>
+									</ul>
 								</div>
-							</div>
-						</li>
-					</c:forEach>
-					</ul>
+								<button type="button" class="submit" onclick="fnVacancyChange();"><spring:message code="sel"/></button>
+							</fieldset>
+						</form>
+					</div>
 				</div>
-				</c:if>
-				<!-- //bbs_basic list -->
+				<!-- //search_matching -->
 
-				<c:if test="${empty resultList}">
-				<div class="bbs_empty">
-					<p><spring:message code="counsel.msg.no.data"/></p>
-					<!-- <p>No results found. <br />Please enter a search term in the search box again.</p> -->
+				<div class="box type6">
+				    <div class="box_wrap">
+				        <ul class="bu">
+							<li><spring:message code="mypage.intvw.msg3"/></li>
+							<li><spring:message code="mypage.intvw.msg4"/></li>
+							<li><spring:message code="mypage.intvw.msg5"/></li>
+						</ul>
+				    </div>
 				</div>
-				<!-- //bbs_empty -->
-				</c:if>
 
-				<div class="bbs_btn_wrap clearfix">
-					<span class="bbs_left">
 
-					</span>
-					<span class="bbs_right">
-						<button type="button" class="bbs_btn delete">Delete</button>
-					</span>
+				<div id="intvwListDiv"></div>
+
+
+				<div id="dialogVideo" style="display:none" class="bbs_popup"><!-- 팝업 가로, 세로 지정하지 않았습니다. 필요에 딸라 지정해서 사용 -->
+					<section class="box_wrap">
+						<div class="title_box">
+							<h1 class="title">Online interview</h1>
+						</div>
+						<div class="contents_box">
+							<form>
+								<fieldset>
+									<legend>Online interview</legend>
+
+									<table class="table">
+										<caption>Online interview</caption>
+										<colgroup>
+											<col style="width:30%" />
+											<col />
+										</colgroup>
+										<tbody>
+											<tr>
+												<th scope="row"><label for="videoUserNm">User</label></th>
+												<td id="videoUserNm"></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoUserCell">User Mobile no.</label></th>
+												<td id="videoUserCell"></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoCompnyNm">Company</label></th>
+												<td id="videoCompnyNm"></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoVacancyTitle">Job vacancy</label></th>
+												<td id="videoVacancyTitle"></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoMngerNm">Contact person</label></th>
+												<td id="videoMngerNm"></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoMngerCell">Mobile no.</label></th>
+												<td id="videoMngerCell"></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoJobskJcNm">My job center</label></th>
+												<td><span id="videoJobskJcNm"></span>(<spring:message code="mypage.intvw.msg"/>)</td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoCompnyJcNm">Company’s job center</label></th>
+												<td><span id="videoJobskJcNm"></span>(<spring:message code="mypage.intvw.msg2"/>)</td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoIntvwDt">Interview date</label></th>
+												<td id="videoIntvwDt"></td>
+											</tr>
+										</tbody>
+									</table>
+								</fieldset>
+							</form>
+						</div>
+						<button type="button" onclick="fnCloseReject('dialogVideo');" class="close">close of popup</button>
+					</section>
 				</div>
-				<!-- //bbs_btn_wrap -->
-
-				<div class="pagination">
-					<ui:pagination paginationInfo="${paginationInfo}" type="customRenderer" jsFunction="fnSetPageing"/>
-				</div>
-				<!-- //pagination -->
-
 
 
 			</div>

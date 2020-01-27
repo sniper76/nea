@@ -38,6 +38,7 @@ public class EduTrnngBean extends CommonBean{
 	private String delYn;
 	private String neaEduDivCd;
 	private String recrumtStsCd;
+	private String bkmkSeq;
 
 	public String getEduTrnngSeq() {
 		return eduTrnngSeq;
@@ -201,7 +202,11 @@ public class EduTrnngBean extends CommonBean{
 	public void setRecrumtStsCd(String recrumtStsCd) {
 		this.recrumtStsCd = recrumtStsCd;
 	}
-
-
+	public String getBkmkSeq() {
+		return bkmkSeq;
+	}
+	public void setBkmkSeq(String bkmkSeq) {
+		this.bkmkSeq = bkmkSeq;
+	}
 
 }

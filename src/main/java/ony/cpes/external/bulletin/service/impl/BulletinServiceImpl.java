@@ -162,27 +162,29 @@ public class BulletinServiceImpl implements BulletinService {
 	public int insertBulletin (BulletinBean param) throws Exception {
 
     	List<String> banwordList = commonService.selectBanWordList();
-    	String banYn = "N";
+    	String titleBanYn = "N";
+    	String contentBanYn = "N";
     	for(String banword : banwordList) {
     		if(param.getTitleEn().contains(banword)) {
     			param.setTitleEn(param.getTitleEn().replaceAll(banword, "<span id=\"banwordY\" style=\"color: red;\">" + banword + "</span>"));
-    			banYn = "Y";
+    			titleBanYn = "Y";
     		}
     		if(param.getTitleKh().contains(banword)) {
     			param.setTitleKh(param.getTitleKh().replaceAll(banword, "<span id=\"banwordY\" style=\"color: red;\">" + banword + "</span>"));
-    			banYn = "Y";
+    			titleBanYn = "Y";
     		}
     		if(param.getContentEn().contains(banword)) {
     			param.setContentEn(param.getContentEn().replaceAll(banword, "<span id=\"banwordY\" style=\"color: red;\">" + banword + "</span>"));
-    			banYn = "Y";
+    			contentBanYn = "Y";
     		}
     		if(param.getContentKh().contains(banword)) {
     			param.setContentKh(param.getContentKh().replaceAll(banword, "<span id=\"banwordY\" style=\"color: red;\">" + banword + "</span>"));
-    			banYn = "Y";
+    			contentBanYn = "Y";
     		}
     	}
 
-   		param.setBanYn(banYn);
+   		param.setTitleBanYn(titleBanYn);
+   		param.setContentBanYn(contentBanYn);
 
 		return bulletinDAO.insertBulletin(param);
 	}
@@ -295,27 +297,29 @@ public class BulletinServiceImpl implements BulletinService {
 	public int updateBulletin (BulletinBean param) throws Exception {
 
     	List<String> banwordList = commonService.selectBanWordList();
-    	String banYn = "N";
+    	String titleBanYn = "N";
+    	String contentBanYn = "N";
     	for(String banword : banwordList) {
     		if(param.getTitleEn().contains(banword)) {
     			param.setTitleEn(param.getTitleEn().replaceAll(banword, "<span id=\"banwordY\" style=\"color: red;\">" + banword + "</span>"));
-    			banYn = "Y";
+    			titleBanYn = "Y";
     		}
     		if(param.getTitleKh().contains(banword)) {
     			param.setTitleKh(param.getTitleKh().replaceAll(banword, "<span id=\"banwordY\" style=\"color: red;\">" + banword + "</span>"));
-    			banYn = "Y";
+    			titleBanYn = "Y";
     		}
     		if(param.getContentEn().contains(banword)) {
     			param.setContentEn(param.getContentEn().replaceAll(banword, "<span id=\"banwordY\" style=\"color: red;\">" + banword + "</span>"));
-    			banYn = "Y";
+    			contentBanYn = "Y";
     		}
     		if(param.getContentKh().contains(banword)) {
     			param.setContentKh(param.getContentKh().replaceAll(banword, "<span id=\"banwordY\" style=\"color: red;\">" + banword + "</span>"));
-    			banYn = "Y";
+    			contentBanYn = "Y";
     		}
     	}
 
-   		param.setBanYn(banYn);
+   		param.setTitleBanYn(titleBanYn);
+   		param.setContentBanYn(contentBanYn);
 
 		return bulletinDAO.updateBulletin(param);
 	}

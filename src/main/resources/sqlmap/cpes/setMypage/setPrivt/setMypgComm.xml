@@ -4,7 +4,7 @@
 
 	<!-- insertResume -->
     <insert id="insertResumeOpenCompny" parameterType="ony.cpes.external.mypage.privt.bean.ResumeOpenCompnyBean">
-		/*setResume.insertResumeOpenCompny*/
+		/*setMypgComm.insertResumeOpenCompny*/
 		<selectKey resultType="string" keyProperty="resumeOpenCompnySeq" order="BEFORE">
         	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
     	</selectKey>
@@ -27,5 +27,13 @@
 		, NOW()
 		)
     </insert>
+
+    <update id="updateResumeOpenCompany" parameterType="ony.cpes.external.mypage.privt.bean.ResumeOpenCompnyBean">
+    	/*setMypgComm.insertResumeOpenCompny*/
+    	UPDATE CPES_RESUME_OPEN_COMPNY
+    	SET MOD_DT = NOW()
+    	, MOD_USER_SEQ = #{compnySeq}
+    	WHERE RESUME_OPEN_COMPNY_SEQ = #{resumeOpenCompnySeq}
+    </update>
 
 </mapper>

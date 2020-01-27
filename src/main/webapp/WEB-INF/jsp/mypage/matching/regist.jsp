@@ -8,13 +8,19 @@
     		});
 
     		$('select#iscoLvl1').change(function() {
-    			iscoSelectObject.level1Change(true, 1, $(this).find('option:selected').val(), 'iscoLvl2');
+    			//iscoSelectObject.level1Change(true, 1, $(this).find('option:selected').val(), 'iscoLvl2')
+    			iscoChainObj.chain1Change(1,$(this).find('option:selected').val(),'iscoLvl2')
+    			.chain2Change(2,'','iscoLvl3')
+    			.chain3Change(3,'','iscoLvl4');
     		});
     		$('select#iscoLvl2').change(function() {
-    			iscoSelectObject.level2Change(true, 2, $(this).find('option:selected').val(), 'iscoLvl3');
+    			//iscoSelectObject.level2Change(true, 2, $(this).find('option:selected').val(), 'iscoLvl3')
+    			iscoChainObj.chain2Change(2,$(this).find('option:selected').val(),'iscoLvl3')
+    			.chain3Change(3,'','iscoLvl4');
     		});
     		$('select#iscoLvl3').change(function() {
-    			iscoSelectObject.level3Change(true, 3, $(this).find('option:selected').val(), 'iscoLvl4');
+    			//iscoSelectObject.level3Change(true, 3, $(this).find('option:selected').val(), 'iscoLvl4')
+    			iscoChainObj.chain3Change(3,$(this).find('option:selected').val(),'iscoLvl4');
     		});
 
     		$('div.bbs_btn_wrap input[type=button]').click(function() {
@@ -81,7 +87,7 @@
 					}
     			}
     	};
-
+/*
     	var iscoSelectObject = {
     			url : contextPath + '/common/nextDepthCdSelectAjax.do',
     			level1Change : function(isChange, depth, grpCd, nextSelId, nextSelVal) {//depth 1, 1
@@ -132,9 +138,9 @@
     			},
     			makeHtml : function(flag, data, nextSelId, nextSelVal) {
 
-					/* console.log('data', data);
-					console.log('nextSelId', nextSelId);
-					console.log('nextSelVal', nextSelVal); */
+					//console.log('data', data);
+					//console.log('nextSelId', nextSelId);
+					//console.log('nextSelVal', nextSelVal);
 					var html = "<option value=''><spring:message code='member.join.msg.choice'/></option>";
 					if(data.result.length > 0){
 						for(var i in data.result){
@@ -167,7 +173,7 @@
     					}
     				}
     			}
-    	};
+    	};*/
 
     	function fnSave() {
     		var iscoList = [], locList = [], langList = [], eduDegreeList = [], privilList = [];
@@ -244,12 +250,12 @@
     		if($('select#iscoLvl1').val() == ''
     				|| $('select#iscoLvl2').val() == ''
     				|| $('select#iscoLvl3').val() == '') {
-    			alertify.alert("isco select");
+    			alertify.alert("<spring:message code="mypage.private.interest.msg4"/>");
     			return;
     		}
 
     		if($('select#locLvl1').val() == '') {
-    			alertify.alert("location select");
+    			alertify.alert("<spring:message code="mypage.private.interest.msg5"/>");
     			return;
     		}
 
@@ -288,6 +294,60 @@
 			});
     	}
 
+    	var iscoChainObj = {
+    			url : contextPath + '/common/nextDepthCdSelectAjax.do',
+    			getData : function(depth, grpCd, nextSelId, nextSelVal) {
+    				var that = this;
+    				var html = '';
+					$('select#'+nextSelId).empty();
+    				if(grpCd == '') {
+    					//empty draw
+						html = "<option value=''><spring:message code='member.join.msg.choice'/></option>";
+						$('select#'+nextSelId).html(html);
+    					return;
+    				}
+    				$.ajax({
+    					type: METHOD_POST,
+    					url: that.url,
+    					dataType: AJAX_DATA_TYPE_JSON,
+    					data: {
+    						depth : depth,
+    						cd : grpCd,
+    						flag : 'isco'
+    					},
+    					success: function(data) {
+							html = "<option value=''><spring:message code='member.join.msg.choice'/></option>";
+    						if(data.result.length > 0){
+    							for(var i in data.result){
+    								var resultObj = data.result[i];
+    								html += "<option value='" + resultObj.cd +"'>" + resultObj.cdNm + "</option>";
+    							}
+    						}
+   							$('select#'+nextSelId).html(html);
+
+   							if(nextSelVal) {
+   								$('select#'+nextSelId).val(nextSelVal);
+   							}
+    					},
+    					error: function(xhr, status, error) {
+    						alertify.alert("error to connecting server");
+    					},
+    				});
+    			},
+    			chain1Change : function(depth, grpCd, selId, selVal) {
+    				this.getData(depth, grpCd, selId, selVal);
+    				return this;
+    			},
+    			chain2Change : function(depth, grpCd, selId, selVal) {
+    				this.getData(depth, grpCd, selId, selVal);
+    				return this;
+    			},
+    			chain3Change : function(depth, grpCd, selId, selVal) {
+    				this.getData(depth, grpCd, selId, selVal);
+    				return this;
+    			},
+    	};
+
     	function fnGetInit() {
     		var employCtrctDecidCd = '${matchingBean.employCtrctDecidCd}';
     		var employCtrctUndecidCd = '${matchingBean.employCtrctUndecidCd}';
@@ -304,11 +364,11 @@
 
     		var jobskMatchSetSeq = '${matchingBean.jobskMatchSetSeq}';
 
-    		$('input[name=workTime][value='+workTimeFullCd+']').prop('checked', true);
-    		$('input[name=workTime][value='+workTimePartCd+']').prop('checked', true);
-    		$('input[name=contract][value='+employCtrctDecidCd+']').prop('checked', true);
-    		$('input[name=contract][value='+employCtrctUndecidCd+']').prop('checked', true);
-    		$('input[name=minWorkExp][value='+minWorkExp+']').prop('checked', true);
+    		$('input[name=workTime][value="'+workTimeFullCd+'"]').prop('checked', true);
+    		$('input[name=workTime][value="'+workTimePartCd+'"]').prop('checked', true);
+    		$('input[name=contract][value="'+employCtrctDecidCd+'"]').prop('checked', true);
+    		$('input[name=contract][value="'+employCtrctUndecidCd+'"]').prop('checked', true);
+    		$('input[name=minWorkExp][value="'+minWorkExp+'"]').prop('checked', true);
     		$('input[name=hopeSalary]').val(hopeSalary);
 
     		var eduDegrees = [], langCds = [], locCds = [], iscoCds = [], privilCds = [];
@@ -365,8 +425,20 @@
     		}
     		else {
     			$('select#locLvl1').val(locCdStr);
+    			locSelectObject.level1Change(false, 1, 3, locCdStr, 'locLvl2');
     		}
+    		if(iscoCdStr.indexOf(',') > -1) {
+    			var arr = iscoCdStr.split(',');
+    			console.log('arr', arr);
 
+    			$('select#iscoLvl1').val(arr[0]);
+
+    			iscoChainObj.chain1Change(1,arr[0],'iscoLvl2',arr[1]).chain2Change(2,arr[1],'iscoLvl3',arr[2]);
+    			if(arr.length > 3) {
+    				iscoChainObj.chain3Change(3,arr[2],'iscoLvl4',arr[3]);
+    			}
+    		}
+/*
     		if(iscoCdStr.indexOf(',') > -1) {
     			var arr = iscoCdStr.split(',');
 
@@ -378,7 +450,10 @@
     			if(arr.length > 3) {
     				iscoSelectObject.level3Change(false, 3, arr[2], 'iscoLvl4', arr[3]);
     			}
-    		}
+    			else {
+    				iscoSelectObject.level3Change(false, 3, arr[2], 'iscoLvl4');
+    			}
+    		}*/
 /*
     		console.log('jobskMatchSetSeq', jobskMatchSetSeq);
     		console.log('employCtrctDecidCd', employCtrctDecidCd);

@@ -71,7 +71,7 @@
 										</c:choose>
 									</div>
 									<div class="top_box">
-										<span class="name">${data.userNm}</span>
+										<span class="name">${masking:getNmMasking(data.userNm,'N')}</span>
 										<span class="age">
 											(<span>${data.genderNm}</span> <span>${data.age}</span>)
 										</span>

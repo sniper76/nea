@@ -221,7 +221,8 @@
 				 FN_GET_COMMON_NM('GENDER_CD', E.GENDER_CD, #{langCd}) AS GENDER_NM,
 				 FN_GET_ADDR_NM(SUBSTR(D.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM,
 				 FN_GET_BASE_DATE_CHAR(A.REG_DT, #{langCd}) AS REG_DT,
-				 A.FAIL_REASON
+				 A.FAIL_REASON,
+				 FN_GET_MASKING_DISPLAY_YN(A.APPLIC_SEQ) AS DISPLAY_YN
             FROM CPES_APPLIC A
             INNER JOIN CPES_VACANCY B
             ON A.VACANCY_SEQ = B.VACANCY_SEQ
@@ -553,6 +554,7 @@
                  COUNT(1) AS CNT
             FROM CPES_INTVW A
             WHERE A.APPLIC_SEQ = #{condSeq}
+            AND A.DEL_YN = 'N'
        ]]>
     </select>
 

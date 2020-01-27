@@ -118,14 +118,18 @@
 							</c:if>
 
 							<div class="contents_wrap ${genderCdClass}"><!-- 남성일 경우 클래스 male 추가, 여성일 경우 클래스 female 추가 -->
-								<div class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${data.filePath}" alt="image" onerror="fnNoImage(this)"/></div>
+								<div class="img_box">
+									<c:if test="${data.displayYn == 'Y'}">
+									<img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${data.filePath}" alt="image" onerror="fnNoImage(this)"/>
+									</c:if>
+								</div>
 								<div class="contents_box"><!-- 모집중일 경우 클래스 recruiting , 교육 마감일 경우 클래스 closed 추가, 삭제된 글일 경우 클래스 deleted 추가 -->
 									<div class="title_box <c:if test="${data.newYn == 'Y'}">new</c:if>"><!-- 새글일 경우 클래스 new 추가 -->
 										<span class="tit">${data.iscoNm}</span>
 										<a href="javascript:void(0);" onclick="fnGoCompnyResumeView('${data.resumeSeq}','${data.vacancySeq}');" class="title">${data.resumeTitle}</a>
 									</div>
 									<div class="top_box">
-										<span class="name">${data.userNm}</span>
+										<span class="name">${masking:getNmMasking(data.userNm, data.displayYn)}</span>
 										<span class="age">
 											(<span>${data.genderNm}</span> <span>${data.age}</span>)
 										</span>

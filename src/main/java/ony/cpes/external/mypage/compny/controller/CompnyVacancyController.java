@@ -1,7 +1,7 @@
 package ony.cpes.external.mypage.compny.controller;
 
 import java.security.Principal;
-import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.Resource;
@@ -30,12 +30,20 @@ import ony.cmm.common.bean.ConditionBean;
 import ony.cmm.common.service.CommonService;
 import ony.cmm.common.util.EncryptUtil;
 import ony.cmm.common.util.SessionUtil;
+import ony.cpes.external.compny.service.CompnyService;
 import ony.cpes.external.member.bean.MemberBean;
+import ony.cpes.external.mypage.compny.bean.CompnyMemBean;
+import ony.cpes.external.mypage.compny.bean.CondCompnyIntvwBean;
 import ony.cpes.external.mypage.compny.bean.CondVacancyBean;
 import ony.cpes.external.mypage.compny.bean.VacancyBean;
+import ony.cpes.external.mypage.compny.bean.VacancyIntvwBean;
 import ony.cpes.external.mypage.compny.bean.VacancyLangBean;
 import ony.cpes.external.mypage.compny.bean.VacancyLocBean;
 import ony.cpes.external.mypage.compny.bean.VacancyPreferntBean;
+import ony.cpes.external.mypage.compny.bean.VideoIntvwPatcptnBean;
+import ony.cpes.external.mypage.compny.service.CompnyApplicService;
+import ony.cpes.external.mypage.compny.service.CompnyIntvwService;
+import ony.cpes.external.mypage.compny.service.CompnyMatchService;
 import ony.cpes.external.mypage.compny.service.CompnyVacancyService;
 import ony.cpes.external.mypage.privt.bean.CondApplicBean;
 import ony.framework.BaseController;
@@ -53,14 +61,25 @@ public class CompnyVacancyController extends BaseController {
 	  @Autowired
 	  private CompnyVacancyService compnyVacancyService;
 
+	@Autowired
+	private CompnyMatchService compnyMatchService;
 
-	  @Autowired SessionLocaleResolver localeResolver;
+	@Autowired
+	private CompnyIntvwService compnyIntvwService;
 
-	  @Resource(name = "propertiesService")
-	  protected EgovPropertyService propertiesService;
+	@Autowired
+	private CompnyService compnyService;
+
+	@Autowired
+	private CompnyApplicService compnyApplicService;
+
+	@Autowired SessionLocaleResolver localeResolver;
+
+	@Resource(name = "propertiesService")
+	protected EgovPropertyService propertiesService;
 
 
-	  @Autowired MessageSource messageSource;
+	@Autowired MessageSource messageSource;
 
 
 	/**
@@ -697,11 +716,8 @@ public class CompnyVacancyController extends BaseController {
 	 */
 	  @RequestMapping("/intvwList")
 	  public ModelAndView intvwList(Locale locale,
-	  			@RequestParam(required = false, defaultValue = "1") int currentPageNo,
-	  			@RequestParam(required = false, defaultValue = "10") int pageUnit,
-	  			@RequestParam(required = false, defaultValue = "10") int pageSize,
 				@ModelAttribute("ConditionBean") ConditionBean conditionBean,
-				@ModelAttribute("CondVacancyBean") CondVacancyBean condVacancyBean,
+				@ModelAttribute("CondApplicBean") CondApplicBean condApplicBean,
 				Principal principal,
 				HttpServletRequest req,
 				HttpServletResponse res) throws Exception {
@@ -709,26 +725,476 @@ public class CompnyVacancyController extends BaseController {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("mypage/compny/vacancy/intvwList.left");
 
+		conditionBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
+		conditionBean.setCondGrpCd(ConstVal.GRP_CD_INTVW_STS_CD_VAL);
+		condApplicBean.setCondUserSeq(SessionUtil.getUserSeq(req));
 
-		condVacancyBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
-		condVacancyBean.setCondUserSeq(SessionUtil.getUserSeq(req));
+
+	  	mv.addObject("intvwStsCd", commonService.selectCommCdList(conditionBean));//최소교육
+
+
+	  	mv.addObject(ConstVal.RESULT_LIST2_KEY, compnyApplicService.selectVacancySimpleList(condApplicBean));
+
+		return mv;
+
+	}
+
+
+	/**
+	 * 입사지원 목록
+	 * private applic list
+	 * @param req
+	 * @param res
+	 * @return ModelAndView
+	 * @throws Exception
+	 */
+	  @RequestMapping("/intvwListAjax")
+	  public ModelAndView intvwListAjax(Locale locale,
+	  			@RequestParam(required = false, defaultValue = "1") int currentPageNo,
+	  			@RequestParam(required = false, defaultValue = "10") int pageUnit,
+	  			@RequestParam(required = false, defaultValue = "10") int pageSize,
+				@ModelAttribute("ConditionBean") ConditionBean conditionBean,
+				@ModelAttribute("CondVacancyBean") CondVacancyBean condVacancyBean,
+				@ModelAttribute("CondApplicBean") CondApplicBean condApplicBean,
+				Principal principal,
+				HttpServletRequest req,
+				HttpServletResponse res) throws Exception {
+
+			ModelAndView mv = new ModelAndView();
+			mv.setViewName("mypage/compny/vacancy/intvwListForm.empty");
+
+			conditionBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
+			condApplicBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
+			condApplicBean.setCondUserSeq(SessionUtil.getUserSeq(req));
+			condVacancyBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
+			condVacancyBean.setCondUserSeq(SessionUtil.getUserSeq(req));
+
+	      	PaginationInfo paginationInfo = PageUtil.getPageInfo(currentPageNo, pageUnit, pageSize);
+	  		mv.addObject(ConstVal.PAGINATION_INFO_KEY, paginationInfo);
+	  		condVacancyBean.setFirstIndex(paginationInfo.getFirstRecordIndex());
+	  		condVacancyBean.setLastIndex(paginationInfo.getLastRecordIndex());
+	  		condVacancyBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+
+	      	int totCnt = compnyVacancyService.selectIntvwListCnt(condVacancyBean);
+	      	paginationInfo.setTotalRecordCount(totCnt);
+	    	mv.addObject(ConstVal.PAGINATION_INFO_KEY, paginationInfo);
+
+	    	if(totCnt > 0) {
+	    		mv.addObject(ConstVal.RESULT_LIST_KEY, compnyVacancyService.selectIntvwList(condVacancyBean));
+	    	}
+
+			conditionBean.setCondGrpCd(ConstVal.GRP_CD_INTVW_STS_CD_VAL);
+		  	mv.addObject("intvwStsCd", commonService.selectCommCdList(conditionBean));//최소교육
+
+
+
+		return mv;
+
+	}
+
+	/**
+	 * 화상면접신청관라::목록
+	 * @param locale
+	 * @param conditionBean
+	 * @param principal
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/intvwVideoList")
+	public ModelAndView intvwVideoList(Locale locale,
+		@ModelAttribute("ConditionBean") ConditionBean conditionBean,
+		Principal principal,
+		HttpServletRequest req,
+		HttpServletResponse res
+	) throws Exception {
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("mypage/compny/vacancy/intvwVideoList.left");
+
+		String userSeq = SessionUtil.getUserSeq(req);
+		String langCd = locale.getLanguage().toUpperCase();
+
+		// 콤보박스 : 해당기업의 채용공고 목록
+		mv.addObject(ConstVal.RESULT_LIST_KEY, compnyMatchService.selectCompnyVacancyList(userSeq, langCd, "INCLUDE_CLOSED"));
+		// 콤보박스 : 잡센터
+		mv.addObject("jobCenterCdList", commonService.selectJobCenterCdList(conditionBean));
+
+		return mv;
+	}
+
+	/**
+	 * 화상면접신청관라::목록 조회
+	 * @param locale
+	 * @param currentPageNo
+	 * @param pageUnit
+	 * @param pageSize
+	 * @param condBean
+	 * @param principal
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/intvwVideoListAjax")
+	public ModelAndView intvwVideoListAjax(Locale locale,
+		@RequestParam(required = false, defaultValue = "1") int currentPageNo,
+		@RequestParam(required = false, defaultValue = "10") int pageUnit,
+		@RequestParam(required = false, defaultValue = "10") int pageSize,
+		@ModelAttribute("CondCompnyIntvwBean") CondCompnyIntvwBean condBean,
+		Principal principal,
+		HttpServletRequest req,
+		HttpServletResponse res
+	) throws Exception {
+		ModelAndView mv = new ModelAndView();
+    	AjaxResultBean ajaxResultBean = new AjaxResultBean();
+
+		if(principal == null) {
+			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
+			ajaxResultBean.setStatCd("NO_LOGIN");
+			mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+		  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+		  	return mv;
+		}
+
+		String langCd = locale.getLanguage().toUpperCase();
+		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
 
       	PaginationInfo paginationInfo = PageUtil.getPageInfo(currentPageNo, pageUnit, pageSize);
-  		mv.addObject(ConstVal.PAGINATION_INFO_KEY, paginationInfo);
-  		condVacancyBean.setFirstIndex(paginationInfo.getFirstRecordIndex());
-  		condVacancyBean.setLastIndex(paginationInfo.getLastRecordIndex());
-  		condVacancyBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+      	condBean.setFirstIndex(paginationInfo.getFirstRecordIndex());
+      	condBean.setLastIndex(paginationInfo.getLastRecordIndex());
+      	condBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
 
-      	int totCnt = compnyVacancyService.selectIntvwListCnt(condVacancyBean);
+      	condBean.setLangCd(langCd);
+      	condBean.setRegUserSeq(userSeq);
+
+      	int totCnt = compnyIntvwService.selectVacancyIntwvVideoListCnt(condBean);
       	paginationInfo.setTotalRecordCount(totCnt);
     	mv.addObject(ConstVal.PAGINATION_INFO_KEY, paginationInfo);
 
     	if(totCnt > 0) {
-    		mv.addObject(ConstVal.RESULT_LIST_KEY, compnyVacancyService.selectIntvwList(condVacancyBean));
+    		List<VacancyIntvwBean> VacancyIntvwList = compnyIntvwService.selectVacancyIntwvVideoList(condBean);
+    		for(VacancyIntvwBean v : VacancyIntvwList) {
+    			if(v.getUserCell() != null && !"".equals(v.getUserCell().trim())) {
+    				v.setUserCell(EncryptUtil.getAes256Dec(v.getUserCell()));
+    			}
+    		}
+    		mv.addObject(ConstVal.RESULT_LIST_KEY, VacancyIntvwList);
     	}
 
-		return mv;
+		ajaxResultBean.setSuccessYn(ConstVal.YES_VAL);
+		ajaxResultBean.setStatCd(ConstVal.STAT_CD_SUCCESS_VAL);
 
+		mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+	  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+	    return mv;
+	}
+
+	/**
+	 * 화상면접신청관라::삭제
+	 * @param locale
+	 * @param param
+	 * @param principal
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/intvwVideoDelAjax", method = RequestMethod.POST)
+	public ModelAndView intvwVideoDelAjax(Locale locale,
+		@ModelAttribute("VacancyIntvwBean") VacancyIntvwBean param,
+		Principal principal,
+		HttpServletRequest req,
+		HttpServletResponse res
+	) throws Exception {
+		ModelAndView mv = new ModelAndView();
+    	AjaxResultBean ajaxResultBean = new AjaxResultBean();
+
+		if(principal == null) {
+			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
+			ajaxResultBean.setStatCd("NO_LOGIN");
+			mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+		  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+		  	return mv;
+		}
+
+		String langCd = locale.getLanguage().toUpperCase();
+		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+
+		param.setLangCd(langCd);
+      	param.setRegUserSeq(userSeq);
+
+		// 화상면접신청 정보
+      	VideoIntvwPatcptnBean intvwvVdeoPatcptn = compnyIntvwService.selectVacancyIntwvVideoPatcptn(param.getVideoIntvwPatcptnSeq(), langCd);
+      	if(intvwvVdeoPatcptn == null) { // 화상면접 신청 정보가 없는 경우
+			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
+			mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+		  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+		    return mv;
+      	}
+      	if("N".equals(intvwvVdeoPatcptn.getAbleDelYn())) { //수정/취소는 면접일 1일 전까지만 가능합니다.
+			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
+			ajaxResultBean.setStatCd("NOT_ABLE_DEL");
+			mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+		  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+		    return mv;
+      	}
+
+      	int ret = 0;
+      	ret = compnyIntvwService.deleteVacancyIntwvVideo(param);
+      	if(ret > 0) {
+			ajaxResultBean.setSuccessYn(ConstVal.YES_VAL);
+			ajaxResultBean.setStatCd(ConstVal.STAT_CD_SUCCESS_VAL);
+      	} else {
+			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
+      	}
+
+		mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+	  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+	    return mv;
+	}
+
+	/**
+	 * 화상면접신청관라::신청
+	 * @param locale
+	 * @param principal
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/intvwVideoApply")
+	public ModelAndView intvwVideoApply(Locale locale,
+		@ModelAttribute("ConditionBean") ConditionBean conditionBean,
+		Principal principal,
+		HttpServletRequest req,
+		HttpServletResponse res
+	) throws Exception {
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("mypage/compny/vacancy/intvwVideoApply.left");
+
+		String userSeq = SessionUtil.getUserSeq(req);
+		String langCd = locale.getLanguage().toUpperCase();
+		List<String> holiday1List = null;
+		List<String> holiday2List = null;
+		conditionBean.setLangCd(langCd);
+
+		// 콤보박스 : 잡센터
+		mv.addObject("jobCenterCdList", commonService.selectJobCenterCdList(conditionBean));
+		// 콤보박스 : 면접시간 테이블
+		conditionBean.setCondGrpCd(ConstVal.GRP_CD_VIDEO_TIME_TABLE_CD_VAL);
+		mv.addObject("videoTimeTableCdList", commonService.selectCommCdList(conditionBean));
+
+		// 구직자 정보
+		MemberBean mb2 = commonService.selectMemberInfoByUserSeq(conditionBean);
+		if(mb2 != null) {
+			// 구직자의 잡센터 휴일 목록
+			holiday2List = compnyIntvwService.selectJcHolidayList(mb2.getJcCd());
+			if(mb2.getUserCell() != null && !"".equals(mb2.getUserCell().trim())) {
+				mb2.setUserCell(EncryptUtil.getAes256Dec(mb2.getUserCell()));
+			}
+		}
+
+		// Company Info
+		CompnyMemBean mb1 = compnyService.selectCompnyByUserSeq(userSeq, langCd);
+		if(mb1 != null) {
+			// 잡센터 휴일 목록
+			holiday1List = compnyIntvwService.selectJcHolidayList(mb1.getJcCd());
+		}
+
+		mv.addObject("compny", mb1);
+		mv.addObject("member", mb2);
+		mv.addObject("holiday1List", holiday1List);
+		mv.addObject("holiday2List", holiday2List);
+		mv.addObject(ConstVal.RESULT_LIST_KEY, compnyIntvwService.selectJcHolidayList(mb2.getJcCd()));
+		return mv;
+	}
+
+	/**
+	 * 화상면접신청관라::신청
+	 * @param locale
+	 * @param param
+	 * @param principal
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/intvwVideoApplyAjax", method = RequestMethod.POST)
+	public ModelAndView intvwVideoApplyAjax(Locale locale,
+		@ModelAttribute("VideoIntvwPatcptnBean") VideoIntvwPatcptnBean param,
+		Principal principal,
+		HttpServletRequest req,
+		HttpServletResponse res
+	) throws Exception {
+		ModelAndView mv = new ModelAndView();
+    	AjaxResultBean ajaxResultBean = new AjaxResultBean();
+
+		if(principal == null) {
+			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
+			ajaxResultBean.setStatCd("NO_LOGIN");
+			mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+		  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+		  	return mv;
+		}
+
+		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+
+		param.setRegUserSeq(userSeq);
+		compnyIntvwService.insertVacancyIntwvVideo(param);
+
+		ajaxResultBean.setSuccessYn(ConstVal.YES_VAL);
+		ajaxResultBean.setStatCd(ConstVal.STAT_CD_SUCCESS_VAL);
+
+		mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+	  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+	    return mv;
+	}
+
+	/**
+	 * 잡센터 휴일 목록
+	 * @param locale
+	 * @param jcCd
+	 * @param principal
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/jcHolidayAjax")
+	public ModelAndView jcHolidayAjax(Locale locale,
+		String jcCd,
+		Principal principal,
+		HttpServletRequest req,
+		HttpServletResponse res
+	) throws Exception {
+		ModelAndView mv = new ModelAndView();
+    	AjaxResultBean ajaxResultBean = new AjaxResultBean();
+
+		if(jcCd != null && !"".equals(jcCd.trim())) {
+			mv.addObject(ConstVal.RESULT_LIST_KEY, compnyIntvwService.selectJcHolidayList(jcCd));
+		}
+
+		ajaxResultBean.setSuccessYn(ConstVal.YES_VAL);
+		ajaxResultBean.setStatCd(ConstVal.STAT_CD_SUCCESS_VAL);
+
+		mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+	  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+	    return mv;
+	}
+
+	/**
+	 * 화상면접 시간테이블 조회
+	 * @param locale
+	 * @param param
+	 * @param principal
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/videoTimeTableListAjax")
+	public ModelAndView videoTimeTableListAjax(Locale locale,
+		@ModelAttribute("VideoIntvwPatcptnBean") VideoIntvwPatcptnBean param,
+		Principal principal,
+		HttpServletRequest req,
+		HttpServletResponse res
+	) throws Exception {
+		ModelAndView mv = new ModelAndView();
+    	AjaxResultBean ajaxResultBean = new AjaxResultBean();
+
+		mv.addObject(ConstVal.RESULT_LIST_KEY, compnyIntvwService.selectVacancyIntwvVideoTimeList(param));
+
+		ajaxResultBean.setSuccessYn(ConstVal.YES_VAL);
+		ajaxResultBean.setStatCd(ConstVal.STAT_CD_SUCCESS_VAL);
+
+		mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+	  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+	    return mv;
+	}
+
+
+	/**
+	 * 화상면접신청관라::상세
+	 * @param locale
+	 * @param principal
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/intvwVideoView")
+	public ModelAndView intvwVideoView(Locale locale,
+		@ModelAttribute("ConditionBean") ConditionBean conditionBean,
+		String videoIntvwPatcptnSeq,
+		Principal principal,
+		HttpServletRequest req,
+		HttpServletResponse res
+	) throws Exception {
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("mypage/compny/vacancy/intvwVideoView.left");
+
+		String langCd = locale.getLanguage().toUpperCase();
+		VideoIntvwPatcptnBean intvwvVdeoPatcptn = null;
+		MemberBean member = null;
+
+		// 화상면접신청 정보
+		intvwvVdeoPatcptn = compnyIntvwService.selectVacancyIntwvVideoPatcptn(videoIntvwPatcptnSeq, langCd);
+		if(intvwvVdeoPatcptn != null) {
+			// 구직자 정보
+			conditionBean.setCondUserSeq(intvwvVdeoPatcptn.getUserSeq());
+			member = commonService.selectMemberInfoByUserSeq(conditionBean);
+			if(member.getUserCell() != null && !"".equals(member.getUserCell().trim())) {
+				member.setUserCell(EncryptUtil.getAes256Dec(member.getUserCell()));
+			}
+		}
+
+		mv.addObject("member", member);
+		mv.addObject("intvwvVdeoPatcptn", intvwvVdeoPatcptn);
+		return mv;
+	}
+
+
+	/**
+	 * 인터뷰 삭제
+	 * interview delete
+	 * @param req
+	 * @param res
+	 * @return ModelAndView
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unused")
+	@RequestMapping(value = "/intvwDelProcessAjax", method = RequestMethod.POST)
+	public ModelAndView intvwDelProcessAjax(Locale locale,
+				@ModelAttribute("ConditionBean") ConditionBean conditionBean,
+				@ModelAttribute("CondApplicBean") CondApplicBean condApplicBean,
+				Principal principal,
+				HttpServletRequest req,
+				HttpServletResponse res) throws Exception {
+
+		ModelAndView mv = new ModelAndView();
+		AjaxResultBean ajaxResultBean = new AjaxResultBean();
+
+		String userSeq = SessionUtil.getUserSeq(req);
+		condApplicBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
+
+  		condApplicBean.setCondUserSeq(userSeq);
+  		condApplicBean.setRegUserSeq(userSeq);
+  		condApplicBean.setModUserSeq(userSeq);
+
+  		if(compnyVacancyService.deleteIntvw(condApplicBean) > 0) {
+  			ajaxResultBean.setSuccessYn(ConstVal.YES_VAL);//입력실패,insert fail
+      		ajaxResultBean.setStatCd(ConstVal.STAT_CD_SUCCESS_VAL);
+  		} else {
+  			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);//입력실패,insert fail
+      		ajaxResultBean.setStatCd(ConstVal.CODE_02_VAL);
+  		}
+
+		mv.addObject(ConstVal.RESULT_KEY,ajaxResultBean);
+	  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+
+		return mv;
 	}
 
 }

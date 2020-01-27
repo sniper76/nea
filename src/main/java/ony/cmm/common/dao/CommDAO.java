@@ -14,7 +14,10 @@ import ony.cmm.common.bean.IscedCdBean;
 import ony.cmm.common.bean.IsicCdBean;
 import ony.cmm.common.bean.LikeBean;
 import ony.cmm.common.bean.LocCdBean;
+import ony.cmm.common.bean.SmsBean;
+import ony.cpes.external.jobcenter.bean.JobCenterBean;
 import ony.cpes.external.member.bean.MemberBean;
+import ony.cpes.external.mypage.compny.bean.VideoIntvwPatcptnBean;
 import ony.cpes.external.mypage.privt.bean.OfferBean;
 
 
@@ -256,6 +259,47 @@ public class CommDAO extends EgovAbstractMapper{
 
 	public List<String> selectBanWordList(){
 		return getSqlSession().selectList("comm.selectBanWordList");
+	}
+
+
+	/**
+	 *
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+	public int insertSmsLog(SmsBean param) throws Exception {
+		return getSqlSession().insert("setSms.insertSmsLog", param);
+	}
+
+	/**
+	 *
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+	public int updateSmsLog(SmsBean param) throws Exception {
+		return getSqlSession().insert("setSms.updateSmsLog", param);
+	}
+
+	/**
+	 * 잡센터 목록
+	 * @param param
+	 * @return
+	 */
+	public List<JobCenterBean> selectJobCenterCdList(ConditionBean param) {
+		return getSqlSession().selectList("comm.selectJobCenterCdList", param);
+	}
+
+
+	/**
+	 * 화상면접 상세
+	 * video intview deail
+	 * @param param
+	 * @return VideoIntvwPatcptnBean
+	 */
+	public VideoIntvwPatcptnBean selectVideoIntvw(ConditionBean param) {
+		return getSqlSession().selectOne("comm.selectVideoIntvw", param);
 	}
 
 }

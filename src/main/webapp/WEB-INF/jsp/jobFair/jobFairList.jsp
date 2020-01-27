@@ -214,7 +214,7 @@
    		$.ajax({ type: 'post', datatype: 'json', url: action, data: param })
    		.done(function(data) {
    			if (data.result.successYn != "Y") {
-   				var msg = "<spring:message code="login.findId.no.data"/>";
+   				var msg = "<spring:message code="mypage.compny.vacancy.intvw.video.msg11"/>";
    				if(data.result.statCd == "03") {
    					msg = "<spring:message code="errors.ajax.fail"/>";
    				}
@@ -236,45 +236,44 @@
 				$(".bbs_basic").show();
 				$(".bbs_empty").hide();
 
-				var dataList = "", active = "";
 				var cnt = 0;
+				var dataList = "", classActive = "", classFairSts = "";
 				$.each(data.resultList, function(index, item) {
 					cnt = index + 1;
+
+					if(item.fairStsCd == "FAS0000000003") { //행사중
+						classFairSts = "date";
+					} else if(item.fairStsCd == "FAS0000000004") { //행사종료
+						classFairSts = "close";
+					}
+
 					dataList += '<li>';
 					dataList += '	<div class="contents_wrap">';
-					dataList += '		<div class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url='+item.filePath+'" alt="image" onerror="fnNoImage(this)" /></div>';
-					dataList += '		<div class="contents_box '+locTp(item.fairDivCd)+'">';
-					dataList += '			<div class="title_box '+isNew(item.newYn)+'">';
-					dataList += '				<a href="javascript:fnGoView(\''+item.fairSeq+'\')" class="title">'+item.fairNm+'</a>';
+					dataList += '		<div class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url='+nvl(item.filePath)+'" alt="image" onerror="fnNoImage(this)" /></div>';
+					dataList += '		<div class="contents_box '+fnJobFairDivNm(item.fairDivCd)+'">';
+					dataList += '			<div class="title_box '+fnIsNew(item.newYn)+'">';
+					dataList += '				<a href="javascript:fnGoView(\''+nvl(item.fairSeq)+'\')" class="title">'+nvl(item.fairNm)+'</a>';
 					dataList += '			</div>';
 					dataList += '			<div class="cont_box">';
 					dataList += '				<span class="cont">';
-					dataList += '					<span class="con">'+loc+' : <strong>'+item.addrNm+'</strong></span>';
+					dataList += '					<span class="con">'+loc+' : <strong>'+nvl(item.addrNm)+'</strong></span>';
 					dataList += '				</span>';
 					dataList += '				<span class="cont">';
-					dataList += '					<span class="con">'+item.fairBgnDt+' ~ '+item.fairEndDt+'</span>';
+					dataList += '					<span class="con">'+nvl(item.fairBgnDt)+' ~ '+nvl(item.fairEndDt)+'</span>';
 					dataList += '				</span>';
 					dataList += '				<span class="cont">';
-					dataList += '					<span class="con"><a href="tel:'+item.tel1+'" class="mobile_phone">'+item.tel1+'</a></span>';
-					dataList += '					<span class="con"><a href="tel:'+item.tel2+'" class="mobile_phone">'+item.tel2+'</a></span>';
-					dataList += '					<span class="con">'+item.email+'</span>';
+					dataList += '					<span class="con"><a href="tel:'+nvl(item.tel1)+'" class="mobile_phone">'+nvl(item.tel1)+'</a></span>';
+					dataList += '					<span class="con"><a href="tel:'+nvl(item.tel2)+'" class="mobile_phone">'+nvl(item.tel2)+'</a></span>';
+					dataList += '					<span class="con">'+nvl(item.email)+'</span>';
 					dataList += '				</span>';
 					dataList += '			</div>';
 					dataList += '			<div class="other_box">';
 					dataList += '				<span class="top_box">';
+					dataList += '					<span class="'+classFairSts+'">'+nvl(item.fairStsNm)+'</span>';
 
-						if(item.fairStsCd == "FAS0000000001") {        //모집전
-
-						} else if(item.fairStsCd == "FAS0000000002") { //모집중
-					dataList += '					<span class="registering">Registering</span>';
-						} else if(item.fairStsCd == "FAS0000000003") { //행사중
-					dataList += '					<span class="date"></span>';
-						} else if(item.fairStsCd == "FAS0000000004") { //행사종료
-					dataList += '					<span class="close">Closed</span>';
-						}
 					<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT,ROLE_CMPNY,ROLE_TRNCT')">
-					active = (item.bkmkSeq) ?  "on" : "";
-					dataList += '					<span id="bkmkSapn_'+cnt+'"><button type="button" id="btnBkmk_'+cnt+'" onclick="fnBkmkType2(\''+((item.bkmkSeq) ? item.bkmkSeq : "")+'\',\''+item.fairSeq+'\',LIKE_CATEGORY_FAIR,\'btnBkmk_'+cnt+'\',\'bkmkSapn_'+cnt+'\');" class="interest '+active+'">interest</button></span>';
+					classActive = (item.bkmkSeq) ?  "on" : "";
+					dataList += '					<span id="bkmkSapn_'+cnt+'"><button type="button" id="btnBkmk_'+cnt+'" onclick="fnBkmkType2(\''+((item.bkmkSeq) ? item.bkmkSeq : "")+'\',\''+item.fairSeq+'\',LIKE_CATEGORY_FAIR,\'btnBkmk_'+cnt+'\',\'bkmkSapn_'+cnt+'\');" class="interest '+classActive+'">interest</button></span>';
 					</sec:authorize>
 
 					dataList += '				</span>';
@@ -289,25 +288,6 @@
    		.fail(function(xhr, status, errorThrown) {
    			alertify.alert("<spring:message code="errors.ajax.fail"/>");
    		});
-   	}
-
-   	function locTp(fairDivCd) {
-		var locTp = "";
-		if(fairDivCd == 'FDC0000000001') {
-			locTp = "ncpf";
-		} else if(fairDivCd == 'FDC0000000002') {
-			locTp = "pcpf";
-		} else if(fairDivCd == 'FDC0000000003') {
-			locTp = "ep";
-		} else if(fairDivCd == 'FDC0000000004') {
-			locTp = "mj";
-		} else if(fairDivCd == 'FDC0000000005') {
-			locTp = "rf";
-		}
-		return locTp;
-   	}
-   	function isNew(newYn) {
-		return (newYn == 'Y') ? "new" : "";
    	}
 	function fnSetPageing(curPage) {
 		currentPageNo = curPage;

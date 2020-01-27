@@ -51,13 +51,7 @@
 			, B.BKMK_CNT
 			, B.ISIC_CD
 			, FN_GET_ISIC_NM(B.ISIC_CD, #{langCd}) AS ISIC_NM
-          	, (
-          	 	SELECT BKMK_SEQ
-          	 	FROM CPES_BKMK F
-          	 	WHERE F.CATE_CD = 'BCT0000000001'
-          	 	AND F.TABLE_KEY_SEQ = B.COMPNY_SEQ
-          	 	AND F.USER_SEQ = #{condUserSeq}
-          	 ) AS BKMK_SEQ
+			, FN_GET_BKMK_SEQ(#{condUserSeq}, 'BCT0000000001', B.COMPNY_SEQ) AS BKMK_SEQ
 		FROM CPES_USER A
 		INNER JOIN CPES_COMPNY B
 		ON A.USER_SEQ = B.USER_SEQ

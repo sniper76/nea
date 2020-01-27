@@ -18,10 +18,6 @@
 				</div>
 	      	</header>
 
-	       	<div id="contents" class="studyView">
-				설명:${result.expln} <br/>
-				카테고리:${result.cateNm} <br/>
-
 <div class="dictionary_detail">
 	<div class="title_area">
 					<form id="frm" name="frm" action="${pageContext.request.contextPath}/jobStudy/list.do" method="post">
@@ -37,14 +33,12 @@
 	<div class="contents_area">
 		<div class="contents_item">
 			<div class="title_box">
-				<h4 class="title">Tasks to be completed</h4>
+				<h4 class="title"><spring:message code="counsel.msg.title"/></h4>
 			</div>
 			<div class="contents_box">
 				<div class="list_box">
 					<ul>
-					<li>Evaluate and manage information</li>
-					<li>Evaluate and manage information</li>
-					<li>Evaluate and manage information</li>
+						<li><c:out value="${result.titleNm }" /></li>
 					</ul>
 				</div>
 			</div>
@@ -53,14 +47,155 @@
 
 		<div class="contents_item">
 			<div class="title_box">
-				<h4 class="title">Tasks to be completed</h4>
+				<h4 class="title"><spring:message code="jobStudy.occupInc"/></h4>
 			</div>
 			<div class="contents_box">
 				<div class="list_box">
 					<ul>
-					<li>Evaluate and manage information</li>
-					<li>Evaluate and manage information</li>
-					<li>Evaluate and manage information</li>
+					<li><c:out value="${result.occupIncNm }" /></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="contents_item">
+			<div class="title_box">
+				<h4 class="title"><spring:message code="jobStudy.occupExc"/></h4>
+			</div>
+			<div class="contents_box">
+				<div class="list_box">
+					<ul>
+					<li><c:out value="${result.occupExcNm }" /></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="contents_item">
+			<div class="title_box">
+				<h4 class="title"><spring:message code="jobStudy.note"/></h4>
+			</div>
+			<div class="contents_box">
+				<div class="list_box">
+					<ul>
+					<li><c:out value="${result.noteNm }" /></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="contents_item">
+			<div class="title_box">
+				<h4 class="title"><spring:message code="jobStudy.def"/></h4>
+			</div>
+			<div class="contents_box">
+				<div class="list_box">
+					<ul>
+					<li><c:out value="${result.defNm }" /></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="contents_item">
+			<div class="title_box">
+				<h4 class="title"><spring:message code="jobStudy.task"/></h4>
+			</div>
+			<div class="contents_box">
+				<div class="list_box">
+					<ul>
+					<li><c:out value="${result.taskNm }" /></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="contents_item">
+			<div class="title_box">
+				<h4 class="title"><spring:message code="jobStudy.duties"/></h4>
+			</div>
+			<div class="contents_box">
+				<div class="list_box">
+					<ul>
+					<li><c:out value="${result.dutiesNm }" /></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="contents_item">
+			<div class="title_box">
+				<h4 class="title"><spring:message code="jobStudy.skill"/></h4>
+			</div>
+			<div class="contents_box">
+				<div class="list_box">
+					<ul>
+					<li><c:out value="${result.skillNm }" /></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="contents_item">
+			<div class="title_box">
+				<h4 class="title"><spring:message code="jobStudy.responsibilities"/></h4>
+			</div>
+			<div class="contents_box">
+				<div class="list_box">
+					<ul>
+					<li><c:out value="${result.responsibilitiesNm }" /></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="contents_item">
+			<div class="title_box">
+				<h4 class="title"><spring:message code="jobStudy.eduTrnng"/></h4>
+			</div>
+			<div class="contents_box">
+				<div class="list_box">
+					<ul>
+					<li><c:out value="${result.eduTrnngNm }" /></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="contents_item">
+			<div class="title_box">
+				<h4 class="title"><spring:message code="jobStudy.highEdu"/></h4>
+			</div>
+			<div class="contents_box">
+				<div class="list_box">
+					<ul>
+					<li><c:out value="${result.highEduNm }" /></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="contents_item">
+			<div class="title_box">
+				<h4 class="title"><spring:message code="jobStudy.majorStudy"/></h4>
+			</div>
+			<div class="contents_box">
+				<div class="list_box">
+					<ul>
+					<li><c:out value="${result.majorStudyNm }" /></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="contents_item">
+			<div class="title_box">
+				<h4 class="title"><spring:message code="jobStudy.skillRelatedExp"/></h4>
+			</div>
+			<div class="contents_box">
+				<div class="list_box">
+					<ul>
+					<li><c:out value="${result.skillRelatedExpNm }" /></li>
 					</ul>
 				</div>
 			</div>
@@ -69,41 +204,17 @@
 
 		<div class="contents_item">
 			<div class="title_box">
-				<h4 class="title">What do agricultural scientists do?</h4>
+				<h4 class="title"><spring:message code="jobStudy.jobCateCd"/></h4>
 			</div>
 			<div class="contents_box">
 				<div class="cont_box">
-					<p>Generally, agricultural  scientists research about the plants and animals in the natural environment in which they lives. <br />The research can be conducted in the laboratory or  in the natural environment directly.</p>
+					<p><c:out value="${result.jobCateNm }" /></p>
 				</div>
 			</div>
 		</div>
 		<!-- //contents_item -->
 
-		<div class="contents_item">
-			<div class="title_box">
-				<h4 class="title">Education and training</h4>
-			</div>
-			<div class="contents_box">
-				<div class="cont_box">
-					<p>Agricultural scientists should study a number of major subjects since high school, such as foreign languages, math, biology, physics. <br />Also, you should learn some basic computer skills and other programs.</p>
-				</div>
-			</div>
-		</div>
-		<!-- //contents_item -->
-
-		<div class="contents_item">
-			<div class="title_box">
-				<h4 class="title">Should understand</h4>
-			</div>
-			<div class="contents_box">
-				<div class="cont_box">
-					<p>School subjects : Biology and Chemistry <br />Minimum education level :  Bachelor's degree <br />More information should be read for similar specialties : Agribusiness technicians, agricultural engineers, breeding technicians and soil quality technicians.</p>
-				</div>
-			</div>
-		</div>
-		<!-- //contents_item -->
-
-		<div class="contents_item">
+		<!-- <div class="contents_item">
 			<div class="img_list">
 				<ul class="clearfix">
 				<li>
@@ -132,7 +243,7 @@
 				</li>
 				</ul>
 			</div>
-		</div>
+		</div> -->
 		<!-- //contents_item -->
 	</div>
 </div>

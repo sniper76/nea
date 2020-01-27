@@ -6,9 +6,30 @@ public class ResumeIscoBean extends CommonBean {
 	private String resumeIscoSeq;
 	private String iscoCd;
 	private String resumeSeq;
+	private String iscoFullCd;
+	private String iscoFullNm;
+	private String iscoUpperCd;
 
 	private String iscoCdNm;
 
+	public String getIscoFullCd() {
+		return iscoFullCd;
+	}
+	public void setIscoFullCd(String iscoFullCd) {
+		this.iscoFullCd = iscoFullCd;
+	}
+	public String getIscoFullNm() {
+		return iscoFullNm;
+	}
+	public void setIscoFullNm(String iscoFullNm) {
+		this.iscoFullNm = iscoFullNm;
+	}
+	public String getIscoUpperCd() {
+		return iscoUpperCd;
+	}
+	public void setIscoUpperCd(String iscoUpperCd) {
+		this.iscoUpperCd = iscoUpperCd;
+	}
 	public String getIscoCdNm() {
 		return iscoCdNm;
 	}

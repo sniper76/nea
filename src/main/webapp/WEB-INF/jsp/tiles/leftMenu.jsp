@@ -59,6 +59,7 @@
 		                        </ul>
 		                    </li>
 		                    <li><a href="javascript:void(0);" onclick="fnGoPrivt('${pageContext.request.contextPath}/cpes/private/fair/list.do');"><spring:message code="mypage.private.fair.title"/></a></li>
+		                    <li><a href="javascript:void(0);" onclick="fnGoPrivt('${pageContext.request.contextPath}/cpes/private/workshop/list.do');"><spring:message code="eduTrnng.free.search.title39"/></a></li>
 		                    <li><a href="javascript:void(0);" onclick="fnGoPrivt('${pageContext.request.contextPath}/cpes/private/mypage/counsel/list.do');"><spring:message code="gnb.menu.interest.title2"/></a></li>
 
 		                    <li><a href=""><spring:message code="lnb.mypage.left.menu1"/></a>
@@ -97,6 +98,7 @@
 									<li><a href="javascript:void(0);" onclick="fnGoPrivt('${pageContext.request.contextPath}/cpes/compny/vacancy/list.do');"><spring:message code="compny.vacancy.msg.title68"/></a></li>
 									<li><a href="javascript:void(0);" onclick="fnGoPrivt('${pageContext.request.contextPath}/cpes/compny/applic/list.do');"><spring:message code="gnb.menu.vacancy.title"/></a></li>
 									<li><a href="javascript:void(0);" onclick="fnGoPrivt('${pageContext.request.contextPath}/cpes/compny/vacancy/intvwList.do');">면접제의 관리</a></li>
+									<li><a href="javascript:void(0);" onclick="fnGoPrivt('${pageContext.request.contextPath}/cpes/compny/vacancy/intvwVideoList.do');"><spring:message code="mypage.compny.vacancy.intvw.video.ttl01"/></a></li>
 		                        </ul>
 		                    </li>
 		                    <li><a href=""><spring:message code="gnb.menu.vacancy.title2"/></a>
@@ -111,6 +113,13 @@
 									<li><a href="javascript:void(0);" onclick="fnGoPrivt('${pageContext.request.contextPath}/cpes/compny/applic/vacancyList.do');"><spring:message code="mypage.private.jobsk.title37"/></a></li>
 		                        </ul>
 		                    </li>
+		                    <li><a href=""><spring:message code="mypage.compny.match.ttl01"/></a>
+		                        <ul class="dep3">
+									<li><a href="javascript:void(0);" onclick="fnGoPrivt('${pageContext.request.contextPath}/cpes/compny/match/autoMatchList.do');"><spring:message code="auto.matching"/></a></li>
+									<li><a href="javascript:void(0);" onclick="fnGoPrivt('${pageContext.request.contextPath}/cpes/compny/match/matchResumeList.do');"><spring:message code="mypage.compny.match.ttl01"/></a></li>
+		                        </ul>
+		                    </li>
+
 		                    <li><a href=""><spring:message code="gnb.menu.interest.title"/></a>
 		                        <ul class="dep3">
 		                        	<li><a href="javascript:void(0);" onclick="fnGoPrivt('${pageContext.request.contextPath}/cpes/compny/interest/resumeList.do');"><spring:message code="mypage.compny.interest.title3"/></a></li>
@@ -160,7 +169,7 @@
 		                        <ul class="dep3">
 		                        	<li><a href="javascript:void(0);" onclick="fnGoPrivt('${pageContext.request.contextPath}/cpes/instt/fair/inviteList.do');"><spring:message code="mypage.compny.fair.title"/></a></li>
 		                        	<li><a href="javascript:void(0);" onclick="fnGoPrivt('${pageContext.request.contextPath}/cpes/instt/fair/boothList.do');"><spring:message code="mypage.compny.fair.title3"/></a></li>
-
+									<li><a href="javascript:void(0);" onclick="fnGoPrivt('${pageContext.request.contextPath}/cpes/instt/fair/joinList.do');"><spring:message code="mypage.compny.fair.title2"/></a></li>
 		                        </ul>
 		                    </li>
 		                    <li><a href=""><spring:message code="gnb.menu.counsel.title7"/></a>

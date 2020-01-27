@@ -22,6 +22,33 @@
     		$("#frmDtlSearch").submit();
     	}
 
+
+    	function fnDtlSearchOption(val) {
+    		$("input:checkbox[name='condPreferntCondCd']:input[value='"+val+"']").attr("checked",true);
+    		fnDtlSearch();
+    	}
+
+
+    	function fnSetPageing(pageNo) {
+			$.ajax({
+				url: contextPath + "/vacancy/todayVacancyListAjax.do",
+				type: 'post',
+				data: {
+					currentPageNo : pageNo
+				},
+				datatype: 'html'
+			})
+			.done(function(data) {
+				$('#todayVacancyId').html(data);
+
+			})
+			.fail(function(xhr, status, errorThrown) {
+				alertify.alert(systemMsg);
+			});
+
+
+    	}
+
 	</script>
 	<main class="colgroup" id="colgroup">
     	<article>
@@ -145,7 +172,7 @@
 										<tr>
 											<th scope="col"><spring:message code="mypage.private.interest.msg7"/></th>
 											<td>
-												<input id="condSalAmt" name="condSalAmt" type="text" maxlength="6" style="width:80px;" onKeyPress="return fnCheckNumber(event);" />$
+												$<input id="condSalAmt" name="condSalAmt" type="text" maxlength="6" style="width:80px;" onKeyPress="return fnCheckNumber(event);" />
 											</td>
 										</tr>
 										<tr>
@@ -243,152 +270,38 @@
 				<!-- //srch_box -->
 
 				<div class="recruitment_notice">
-					<h3>Providers latest job vacancys</h3>
+					<h3><spring:message code="vacancy.search.main.msg"/></h3>
 					<div class="company_list type2"><!-- 채용공고 상단 노축 리스트일 경우 클래스 type2 추가 -->
 						<div class="count_box">
-							<span class="current">2</span>/<span class="total">3</span>
+							<span class="current"><fmt:formatNumber type="number" maxFractionDigits="3" value="${paginationInfo.currentPageNo}"/></span>/<span class="total"><fmt:formatNumber type="number" maxFractionDigits="3" value="${paginationInfo.totalPageCount}" /></span>
 						</div>
 						<div class="slide_box clearfix">
+							<c:forEach var="data" items="${latestList}" varStatus="status">
 							<div class="slide_item">
 								<div class="contents_box">
-									<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></span>
-									<a href="" class="title_box">
-										<span class="tit">SAMSUNG CAMBODIA</span>
-										<strong class="title">News SubjectNews SubjectNews SubjectNews SubjectNews SubjectNews Subject</strong>
+									<span class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${data.filePath}" alt="company logo" onerror="fnNoImage(this)" /></span>
+									<a href="javascript:void(0);" onclick="fnVacancyView2('${data.vacancySeq}')" class="title_box">
+										<span class="tit">${data.compnyNm}</span>
+										<strong class="title">${data.vacancyTitle}</strong>
 									</a>
 									<span class="put_box">
-										<span class="career">Experiencw:2+</span>
-										<strong class="date">~20/10/2019</strong>
+										<span class="career">
+										<c:choose>
+											<c:when test="${data.minWorkExpYn == 'N'}"><spring:message code="mypage.compny.profile.title20"/></c:when>
+											<c:otherwise>${data.minWorkExp} <spring:message code="member.join.step.two.msg.year"/></c:otherwise>
+										</c:choose>
+										</span>
+										<strong class="date">~${data.endDt}</strong>
 									</span>
-									<button type="button" class="interest">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
+									<span id="bkmkSapn_${status.count}" class="top_box">
+										<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">
+										<button type="button" id="btnBkmk_${status.count}" onclick="fnBkmkType2('${data.bkmkSeq}','${data.vacancySeq}',LIKE_CATEGORY_VACANCY,'btnBkmk_${status.count}','bkmkSapn_${status.count}');" class="interest <c:if test="${!empty data.bkmkSeq and data.bkmkSeq != ''}">on</c:if>"><spring:message code="mypage.compny.profile.title13"/></button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
+										</sec:authorize>
+									</span>
 								</div>
 							</div>
-							<div class="slide_item">
-								<div class="contents_box">
-									<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></span>
-									<a href="" class="title_box">
-										<span class="tit">SAMSUNG CAMBODIA</span>
-										<strong class="title">News SubjectNews SubjectNews SubjectNews SubjectNews SubjectNews Subject</strong>
-									</a>
-									<span class="put_box">
-										<span class="career">Experiencw:2+</span>
-										<strong class="date">~20/10/2019</strong>
-									</span>
-									<button type="button" class="interest">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-								</div>
-							</div>
-							<div class="slide_item">
-								<div class="contents_box">
-									<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></span>
-									<a href="" class="title_box">
-										<span class="tit">SAMSUNG CAMBODIA</span>
-										<strong class="title">News SubjectNews SubjectNews SubjectNews SubjectNews SubjectNews Subject</strong>
-									</a>
-									<span class="put_box">
-										<span class="career">Experiencw:2+</span>
-										<strong class="date">~20/10/2019</strong>
-									</span>
-									<button type="button" class="interest">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-								</div>
-							</div>
-							<div class="slide_item">
-								<div class="contents_box">
-									<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></span>
-									<a href="" class="title_box">
-										<span class="tit">SAMSUNG CAMBODIA</span>
-										<strong class="title">News SubjectNews SubjectNews SubjectNews SubjectNews SubjectNews Subject</strong>
-									</a>
-									<span class="put_box">
-										<span class="career">Experiencw:2+</span>
-										<strong class="date">~20/10/2019</strong>
-									</span>
-									<button type="button" class="interest">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-								</div>
-							</div>
-							<div class="slide_item">
-								<div class="contents_box">
-									<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></span>
-									<a href="" class="title_box">
-										<span class="tit">SAMSUNG CAMBODIA</span>
-										<strong class="title">News SubjectNews SubjectNews SubjectNews SubjectNews SubjectNews Subject</strong>
-									</a>
-									<span class="put_box">
-										<span class="career">Experiencw:2+</span>
-										<strong class="date">~20/10/2019</strong>
-									</span>
-									<button type="button" class="interest">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-								</div>
-							</div>
-							<div class="slide_item">
-								<div class="contents_box">
-									<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></span>
-									<a href="" class="title_box">
-										<span class="tit">SAMSUNG CAMBODIA</span>
-										<strong class="title">News SubjectNews SubjectNews SubjectNews SubjectNews SubjectNews Subject</strong>
-									</a>
-									<span class="put_box">
-										<span class="career">Experiencw:2+</span>
-										<strong class="date">~20/10/2019</strong>
-									</span>
-									<button type="button" class="interest">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-								</div>
-							</div>
-							<div class="slide_item">
-								<div class="contents_box">
-									<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></span>
-									<a href="" class="title_box">
-										<span class="tit">SAMSUNG CAMBODIA</span>
-										<strong class="title">News SubjectNews SubjectNews SubjectNews SubjectNews SubjectNews Subject</strong>
-									</a>
-									<span class="put_box">
-										<span class="career">Experiencw:2+</span>
-										<strong class="date">~20/10/2019</strong>
-									</span>
-									<button type="button" class="interest">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-								</div>
-							</div>
-							<div class="slide_item">
-								<div class="contents_box">
-									<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></span>
-									<a href="" class="title_box">
-										<span class="tit">SAMSUNG CAMBODIA</span>
-										<strong class="title">News SubjectNews SubjectNews SubjectNews SubjectNews SubjectNews Subject</strong>
-									</a>
-									<span class="put_box">
-										<span class="career">Experiencw:2+</span>
-										<strong class="date">~20/10/2019</strong>
-									</span>
-									<button type="button" class="interest">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-								</div>
-							</div>
-							<div class="slide_item">
-								<div class="contents_box">
-									<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></span>
-									<a href="" class="title_box">
-										<span class="tit">SAMSUNG CAMBODIA</span>
-										<strong class="title">News SubjectNews SubjectNews SubjectNews SubjectNews SubjectNews Subject</strong>
-									</a>
-									<span class="put_box">
-										<span class="career">Experiencw:2+</span>
-										<strong class="date">~20/10/2019</strong>
-									</span>
-									<button type="button" class="interest">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-								</div>
-							</div>
-							<div class="slide_item">
-								<div class="contents_box">
-									<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></span>
-									<a href="" class="title_box">
-										<span class="tit">SAMSUNG CAMBODIA</span>
-										<strong class="title">News SubjectNews SubjectNews SubjectNews SubjectNews SubjectNews Subject</strong>
-									</a>
-									<span class="put_box">
-										<span class="career">Experiencw:2+</span>
-										<strong class="date">~20/10/2019</strong>
-									</span>
-									<button type="button" class="interest">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-								</div>
-							</div>
+							</c:forEach>
+
 						</div>
 					</div>
 					<!-- //company_list -->
@@ -396,65 +309,24 @@
 
 				</div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 				<div class="recruitment_notice02">
 					<div class="box_wrap clearfix">
 						<div class="col_box col_box01">
 							<div class="title_box">
-								<h3 class="title">Company of the Month</h3>
+								<h3 class="title"><spring:message code="vacancy.search.main.msg2"/></h3>
 							</div>
 							<div class="contents_box">
 								<ul class="clearfix">
-								<li>
-									<a href="" class="cont_box">
-										<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt=" image" /></span>
-										<strong class="title">Kt m&amp;s</strong>
-									</a>
-								</li>
-								<li>
-									<a href="" class="cont_box">
-										<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt=" image" /></span>
-										<strong class="title">Kt m&amp;s</strong>
-									</a>
-								</li>
-								<li>
-									<a href="" class="cont_box">
-										<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt=" image" /></span>
-										<strong class="title">Kt m&amp;s</strong>
-									</a>
-								</li>
-								<li>
-									<a href="" class="cont_box">
-										<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt=" image" /></span>
-										<strong class="title">Kt m&amp;s</strong>
-									</a>
-								</li>
-								<li>
-									<a href="" class="cont_box">
-										<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt=" image" /></span>
-										<strong class="title">Kt m&amp;s</strong>
-									</a>
-								</li>
-								<li>
-									<a href="" class="cont_box">
-										<span class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt=" image" /></span>
-										<strong class="title">Kt m&amp;s</strong>
-									</a>
-								</li>
+								<c:forEach var="data" items="${monthList}" varStatus="status">
+									<li>
+										<a href="javascript:void(0);" onclick="fnCompnyView('${data.compnySeq}')" class="cont_box">
+											<span class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${data.filePath}" alt="company logo" onerror="fnNoImage(this)" /></span>
+											<strong class="title">${data.compnyNm}</strong>
+										</a>
+									</li>
+								</c:forEach>
 								</ul>
-								<a href="" class="more">Company of the Month more view</a>
+								<a href="${pageContext.request.contextPath}/vacancy/popularCompnyMonth.do" class="more">Company of the Month more view</a>
 							</div>
 						</div>
 						<div class="col_box col_box02">
@@ -464,22 +336,22 @@
 							<div class="contents_box">
 								<ul class="clearfix">
 								<li>
-									<a href="" class="cont_box">
+									<a href="${pageContext.request.contextPath}/vacancy/internDtlSearch.do" class="cont_box">
 										<span class="cont">Internship</span>
 									</a>
 								</li>
 								<li>
-									<a href="" class="cont_box">
+									<a href="${pageContext.request.contextPath}/vacancy/partTimeDtlSearch.do" class="cont_box">
 										<span class="cont">Part time</span>
 									</a>
 								</li>
 								<li>
-									<a href="" class="cont_box">
+									<a href="javascript:void(0);" onclick="fnDtlSearchOption('PCC0000000001');" class="cont_box">
 										<span class="cont">People width <br />Disabilities</span>
 									</a>
 								</li>
 								<li>
-									<a href="" class="cont_box">
+									<a href="javascript:void(0);" onclick="fnDtlSearchOption('PCC0000000002');" class="cont_box">
 										<span class="cont">Migrant <br />Workers</span>
 									</a>
 								</li>
@@ -489,116 +361,48 @@
 					</div>
 				</div>
 
-				<h3>Today's Popular</h3>
-				<div class="bbs_basic">
-					<ul class="recruitment_list clearfix"><!-- 인기채용공고 목록일 경우 클래스 popularity 추가, 교육기관,교육프로그램일 경우 클래스 adu 추가 -->
-					<li>
-						<div class="contents_wrap">
-							<div class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></div>
-							<div class="contents_box"><!-- 모집중일 경우 클래스 recruiting , 교육 마감일 경우 클래스 closed 추가, 삭제된 글일 경우 클래스 deleted 추가 -->
-								<div class="title_box new"><!-- 새글일 경우 클래스 new 추가 -->
-									<span class="tit">SAMSUNG Cambodiagy</span>
-									<a href="" class="title">Construction Project Planning Manager</a>
+				<h3><spring:message code="vacancy.search.main.msg3"/></h3>
+				<div id="todayVacancyId">
+					<div class="bbs_basic">
+						<ul class="recruitment_list clearfix"><!-- 인기채용공고 목록일 경우 클래스 popularity 추가, 교육기관,교육프로그램일 경우 클래스 adu 추가 -->
+						<c:forEach var="data" items="${todayList}" varStatus="status">
+							<li>
+								<div class="contents_wrap">
+									<span class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${data.filePath}" alt="company logo" onerror="fnNoImage(this)" /></span>
+									<div class="contents_box"><!-- 모집중일 경우 클래스 recruiting , 교육 마감일 경우 클래스 closed 추가, 삭제된 글일 경우 클래스 deleted 추가 -->
+										<div class="title_box <c:if test="${data.newYn == 'Y'}">new</c:if>"><!-- 새글일 경우 클래스 new 추가 -->
+											<span class="tit">${data.compnyNm}</span>
+											<a href="javascript:void(0);" onclick="fnVacancyView2('${data.vacancySeq}');" class="title">${data.vacancyTitle}</a>
+										</div>
+										<div class="cont_box">
+											<span class="con">${data.employFormNm}</span>
+											<span class="con"><spring:message code="compny.vacancy.msg.title8"/>&nbsp;:&nbsp;<strong><fmt:formatNumber type="number" maxFractionDigits="3" value="${data.recrumtMemb}" /></strong></span>
+											<span class="con">${data.addrNm}</span>
+											<span class="con">$<fmt:formatNumber type="number" maxFractionDigits="3" value="${data.minSalaryAmt}" /> ~ $<fmt:formatNumber type="number" maxFractionDigits="3" value="${data.maxSalaryAmt}" /></span>
+										</div>
+										<div class="other_box">
+											<span class="top_box">
+												<span class="${data.remainDiv}">${data.remainDt}<c:if test="${data.remainDiv == 'hurry'}">Hour</c:if></span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
+												<span id="bkmkSapn_${status.count}" class="top_box">
+													<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">
+													<button type="button" id="btnBkmk_${status.count}" onclick="fnBkmkType2('${data.bkmkSeq}','${data.vacancySeq}',LIKE_CATEGORY_VACANCY,'btnBkmk_${status.count}','bkmkSapn_${status.count}');" class="interest <c:if test="${!empty data.bkmkSeq and data.bkmkSeq != ''}">on</c:if>"><spring:message code="mypage.compny.profile.title13"/></button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
+													</sec:authorize>
+												</span>
+											</span>
+										</div>
+									</div>
 								</div>
-								<div class="cont_box">
-									<span class="con">Part time</span>
-									<span class="con">Vacancy&nbsp;:&nbsp;<strong>1</strong></span>
-									<span class="con">Phonm Penh</span>
-									<span class="con">$300</span>
-								</div>
-								<div class="other_box">
-									<span class="top_box">
-										<span class="day">30</span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
-										<button type="button" class="interest on">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-									</span>
-								</div>
-							</div>
-						</div>
-					</li>
-					<li>
-						<div class="contents_wrap">
-							<div class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></div>
-							<div class="contents_box"><!-- 모집중일 경우 클래스 recruiting , 교육 마감일 경우 클래스 closed 추가, 삭제된 글일 경우 클래스 deleted 추가 -->
-								<div class="title_box"><!-- 새글일 경우 클래스 new 추가 -->
-									<span class="tit">SAMSUNG Cambodiagy</span>
-									<a href="" class="title">Construction Project Planning Manager</a>
-								</div>
-								<div class="cont_box">
-									<span class="con">Part time</span>
-									<span class="con">Vacancy&nbsp;:&nbsp;<strong>1</strong></span>
-									<span class="con">Phonm Penh</span>
-									<span class="con">$300</span>
-								</div>
-								<div class="other_box">
-									<span class="top_box">
-										<span class="hurry">18Hour</span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
-										<button type="button" class="interest">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-									</span>
-								</div>
-							</div>
-						</div>
-					</li>
-					<li>
-						<div class="contents_wrap">
-							<div class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></div>
-							<div class="contents_box"><!-- 모집중일 경우 클래스 recruiting , 교육 마감일 경우 클래스 closed 추가, 삭제된 글일 경우 클래스 deleted 추가 -->
-								<div class="title_box"><!-- 새글일 경우 클래스 new 추가 -->
-									<span class="tit">SAMSUNG Cambodiagy</span>
-									<a href="" class="title">Construction Project Planning Manager</a>
-								</div>
-								<div class="cont_box">
-									<span class="con">Part time</span>
-									<span class="con">Vacancy&nbsp;:&nbsp;<strong>1</strong></span>
-									<span class="con">Phonm Penh</span>
-									<span class="con">$300</span>
-								</div>
-								<div class="other_box">
-									<span class="top_box">
-										<span class="close">Closed</span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
-										<button type="button" class="interest close">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-									</span>
-								</div>
-							</div>
-						</div>
-					</li>
-					<li>
-						<div class="contents_wrap">
-							<div class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></div>
-							<div class="contents_box deleted"><!-- 모집중일 경우 클래스 recruiting , 교육 마감일 경우 클래스 closed 추가, 삭제된 글일 경우 클래스 deleted 추가 -->
-								<div class="title_box"><!-- 새글일 경우 클래스 new 추가 -->
-									<span class="tit">SAMSUNG Cambodiagy</span>
-									<a href="" class="title">Construction Project Planning Manager</a>
-								</div>
-								<div class="other_box">
-									<span class="top_box">
-										<span class="close">Closed</span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
-										<button type="button" class="interest close">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-									</span>
-								</div>
-							</div>
-						</div>
-					</li>
-					</ul>
-				</div>
-				<!-- //bbs_basic list -->
+							</li>
+						</c:forEach>
+						</ul>
+					</div>
+					<!-- //bbs_basic list -->
 
-				<div class="pagination">
-					<a href="" class="prev_end">First page</a>
-					<a href="" class="prev_one">Prev page</a>
-					<strong title="Current page">1</strong>
-					<a href="" title="Go to page 2">2</a>
-					<a href="" title="Go to page 3">3</a>
-					<a href="" title="Go to page 4">4</a>
-					<a href="" title="Go to page 5">5</a>
-					<a href="" title="Go to page 6">6</a>
-					<a href="" title="Go to page 7">7</a>
-					<a href="" title="Go to page 8">8</a>
-					<a href="" title="Go to page 9">9</a>
-					<a href="" title="Go to page 10">110</a>
-					<a href="" class="next_one">Next page</a>
-					<a href="" class="next_end">Last page</a>
+					<div class="pagination">
+						<ui:pagination paginationInfo="${paginationInfo}" type="customRenderer" jsFunction="fnSetPageing"/>
+					</div>
+					<!-- //pagination -->
 				</div>
-				<!--  //pagination -->
 
         	</div>
         	<!-- //contents -->

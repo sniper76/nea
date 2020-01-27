@@ -28,6 +28,7 @@ import ony.cmm.common.bean.AjaxResultBean;
 import ony.cmm.common.bean.ConditionBean;
 import ony.cmm.common.bean.FileBean;
 import ony.cmm.common.service.CommonService;
+import ony.cmm.common.util.EncryptUtil;
 import ony.cmm.common.util.SessionUtil;
 import ony.cpes.external.mypage.privt.bean.CondInterestBean;
 import ony.cpes.external.mypage.privt.bean.CondPrivtMemBean;
@@ -96,6 +97,13 @@ public class PrivtMemController extends BaseController{
     		return mv;
   		}
 
+  		if(result.getUserCell() != null && !"".equals(result.getUserCell().trim())) {
+  			result.setUserCell(EncryptUtil.getAes256Dec(result.getUserCell()));
+  		}
+  		if(result.getUserEmail() != null && !"".equals(result.getUserEmail().trim())) {
+  			result.setUserEmail(EncryptUtil.getAes256Dec(result.getUserEmail()));
+  		}
+
   		// select member image list
   		FileBean fileBean = new FileBean();
       	fileBean.setFileGrpSeq(result.getFileGrpSeq());
@@ -111,6 +119,19 @@ public class PrivtMemController extends BaseController{
 		return mv;
 	}
 
+	/**
+	 * 관심채용공고 목록
+	 * @param locale
+	 * @param currentPageNo
+	 * @param pageUnit
+	 * @param pageSize
+	 * @param param
+	 * @param principal
+	 * @param req
+	 * @param res
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping("/interestListAjax")
 	public ModelAndView interestListAjax(Locale locale,
 		@RequestParam(required = false, defaultValue = "1") int currentPageNo,

@@ -167,6 +167,8 @@ public class VacancyBean extends CommonBean {
 	private String resumeSeq;
 	private int applicCnt;
 	private String remainDiv;
+	private String displayYn;
+
 
 	private VacancyLangBean vacancyLangBean;
 	private VacancyPreferntBean vacancyPreferntBean;
@@ -1331,5 +1333,13 @@ public class VacancyBean extends CommonBean {
 	}
 	public void setRemainHours(Integer remainHours) {
 		this.remainHours = remainHours;
+	}
+
+	public String getDisplayYn() {
+		return displayYn;
+	}
+
+	public void setDisplayYn(String displayYn) {
+		this.displayYn = displayYn;
 	}
 }

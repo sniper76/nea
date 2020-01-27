@@ -85,4 +85,17 @@ public class InsttFairDAO  extends EgovAbstractMapper {
 		return getSqlSession().update("setInsttFair.updateBoothCancel", param);
 	}
 
+
+	/**
+	 * 채용행사 취소
+	 * cancel fair request
+	 * @param param
+	 * @return int
+	 */
+	public int updateFairCancel(CondFairBean param) {
+		return getSqlSession().update("setInsttFair.updateFairCancel", param);
+	}
+
+
+
 }

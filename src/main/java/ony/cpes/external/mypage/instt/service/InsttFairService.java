@@ -70,4 +70,31 @@ public interface InsttFairService {
 	 * @return int
 	 */
 	public int updateBoothCancel(CondFairBean param) throws Exception;
+
+
+
+	/**
+	 * 참가 채용행사 목록 count
+	 * join fair list count
+	 * @param param
+	 * @return int
+	 */
+	public int selectJoinListCnt(CondFairBean param) throws Exception;
+
+	/**
+	 * 참가 채용행사 목록
+	 * join fair list
+	 * @param param
+	 * @return List<FairBean>
+	 */
+	public List<FairBean> selectJoinList(CondFairBean param) throws Exception;
+
+
+	/**
+	 * 채용행사 취소
+	 * cancel fair request
+	 * @param param
+	 * @return int
+	 */
+	public int updateFairCancel(CondFairBean param)	throws Exception;
 }

@@ -14,7 +14,10 @@ import ony.cmm.common.bean.IscedCdBean;
 import ony.cmm.common.bean.IsicCdBean;
 import ony.cmm.common.bean.LikeBean;
 import ony.cmm.common.bean.LocCdBean;
+import ony.cmm.common.bean.SmsBean;
+import ony.cpes.external.jobcenter.bean.JobCenterBean;
 import ony.cpes.external.member.bean.MemberBean;
+import ony.cpes.external.mypage.compny.bean.VideoIntvwPatcptnBean;
 import ony.cpes.external.mypage.privt.bean.OfferBean;
 
 public interface CommonService {
@@ -121,9 +124,35 @@ public interface CommonService {
 
 	public String inserCommonFile(MultipartFile uploadFile, String fileGrpSeq, String regUserSeq, String seq, String flag) throws Exception;
 
-	public List<CommonBean> select2CommonLocCdList(ConditionBean conditionBean);
+	public List<CommonBean> select2CommonLocCdList(ConditionBean conditionBean) throws Exception;
 
-	public MemberBean selectMemberInfoByUserSeq(ConditionBean param);
+	public MemberBean selectMemberInfoByUserSeq(ConditionBean param) throws Exception;
 
-	public List<String> selectBanWordList();
+	public List<String> selectBanWordList() throws Exception;
+
+    /**
+    *
+    * @param param
+    * @return
+    * @throws Exception
+    */
+   public SmsBean insertSmsLog(SmsBean param) throws Exception;
+
+   /**
+    * 잡센터 코드 목록
+    * @param param
+    * @return
+    * @throws Exception
+    */
+   public List<JobCenterBean> selectJobCenterCdList(ConditionBean param) throws Exception;
+
+
+	/**
+	 * 화상면접 상세
+	 * video intview deail
+	 * @param param
+	 * @return VideoIntvwPatcptnBean
+	 */
+	public VideoIntvwPatcptnBean selectVideoIntvw(ConditionBean param) throws Exception;
+
 }

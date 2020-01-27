@@ -26,9 +26,15 @@
 	<insert id="insertJobFairPatcptnCompny"  parameterType="ony.cpes.external.jobfair.bean.JobFairPatcptnBean">
 		/*setJobFairPatcptn.insertJobFairPatcptnCompny*/
 		INSERT INTO CPES_FAIR_PATCPTN_COMPNY(
-		       FAIR_SEQ, COMPNY_SEQ
+		       FAIR_SEQ
+		     , COMPNY_SEQ
 			 , REQ_DT, DEL_YN
-			 , REG_USER_SEQ, REG_DT, MOD_USER_SEQ, MOD_DT
+			 , REG_USER_SEQ
+			 , REG_DT
+			 , MOD_USER_SEQ
+			 , MOD_DT
+			 , INVITE_YN
+			 , CANCEL_YN
 		) VALUES(
 		       #{fairSeq}
 		     , (SELECT COMPNY_SEQ FROM CPES_COMPNY WHERE USER_SEQ=#{userSeq} LIMIT 1)
@@ -38,6 +44,8 @@
 		     , now()
 		     , #{userSeq}
 		     , now()
+		     , 'N'
+		     , 'N'
 		)
 	</insert>
 
@@ -45,9 +53,16 @@
 	<insert id="insertJobFairPatcptnInstt"  parameterType="ony.cpes.external.jobfair.bean.JobFairPatcptnBean">
 		/*setJobFairPatcptn.insertJobFairPatcptnInstt*/
 		INSERT INTO CPES_FAIR_PATCPTN_INSTT(
-		       FAIR_SEQ, INSTT_SEQ
-			 , REQ_DT, DEL_YN
-			 , REG_USER_SEQ, REG_DT, MOD_USER_SEQ, MOD_DT
+		       FAIR_SEQ
+		     , INSTT_SEQ
+			 , REQ_DT
+			 , DEL_YN
+			 , REG_USER_SEQ
+			 , REG_DT
+			 , MOD_USER_SEQ
+			 , MOD_DT
+			 , INVITE_YN
+			 , CANCEL_YN
 		) VALUES(
 		       #{fairSeq}
 		     , (SELECT INSTT_SEQ FROM CPES_INSTT WHERE USER_SEQ=#{userSeq} LIMIT 1)
@@ -57,6 +72,8 @@
 		     , now()
 		     , #{userSeq}
 		     , now()
+		     , 'N'
+		     , 'N'
 		)
 	</insert>
 

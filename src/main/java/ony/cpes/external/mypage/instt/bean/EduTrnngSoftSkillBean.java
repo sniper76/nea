@@ -83,6 +83,13 @@ public class EduTrnngSoftSkillBean extends CommonBean{
 	private String remainDiv;
 	private String remainDt;
 	private String userEduTrnngSeq;
+	private String area;
+	public String getArea() {
+		return area;
+	}
+	public void setArea(String area) {
+		this.area = area;
+	}
 	public String getRemainDiv() {
 		return remainDiv;
 	}

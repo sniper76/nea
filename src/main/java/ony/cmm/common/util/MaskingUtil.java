@@ -48,8 +48,8 @@ public class MaskingUtil {
 		try {
 			String[] arr = email.split("\\@");
 
-			System.out.println("arr[0]="+arr[0]);
-			System.out.println("arr[1]="+arr[1]);
+			//System.out.println("arr[0]="+arr[0]);
+			//System.out.println("arr[1]="+arr[1]);
 
 			if(arr[0].length() > 2) {
 				result.append(arr[0].substring(0,arr[0].length()-2)).append("**@");
@@ -63,7 +63,7 @@ public class MaskingUtil {
 
 			}
 		} catch(Exception e) {
-			result.append("**@***.com");
+			result.append("***");
 		}
 		return result.toString();
 	}
@@ -82,4 +82,55 @@ public class MaskingUtil {
 		return result.toString();
 	}
 
+	//yn이 Y가 아닐경우만 마스크 처리
+	public static String getEmailMasking(String val, String yn) {
+		String result = val;
+
+		if(!StringUtils.equals(ConstVal.YES_VAL, yn)) {
+			result = "***";
+		}
+
+		return result;
+
+	}
+
+	//yn이 Y가 아닐경우만 마스크 처리
+	public static String getNmMasking(String val, String yn) {
+		String result = val;
+
+		if(!StringUtils.equals(ConstVal.YES_VAL, yn)) {
+			result = "***";
+		}
+
+		return result;
+
+	}
+
+	//yn이 Y가 아닐경우만 마스크 처리
+	public static String getBirthMasking(String val, String yn) {
+		String result = val;
+
+		if(!StringUtils.equals(ConstVal.YES_VAL, yn)) {
+			if(val != null && val.length() > 4) {
+				result = val.substring(0,4);
+			} else {
+				result = val;
+			}
+		}
+
+		return result;
+
+	}
+
+	//yn이 Y가 아닐경우만 마스크 처리
+	public static String getPhoneNumberMasking(String val, String yn) {
+		String result = val;
+
+		if(!StringUtils.equals(ConstVal.YES_VAL, yn)) {
+			result = "***";
+		}
+
+		return result;
+
+	}
 }

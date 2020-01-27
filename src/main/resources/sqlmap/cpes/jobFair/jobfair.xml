@@ -13,7 +13,11 @@
 		AND LEFT(A.ADDR_CD, 3) = #{condAreaCd}
 		</if>
 		<if test="condText != null and !condText.equals('')">
-		AND ( A.FAIR_NM_EN LIKE CONCAT('%',#{condText},'%') OR A.FAIR_NM_KH LIKE CONCAT('%',#{condText},'%') )
+		AND (
+				A.FAIR_NM_EN LIKE CONCAT('%',#{condText},'%')
+				OR A.FAIR_NM_KH LIKE CONCAT('%',#{condText},'%')
+				OR A.FAIR_KEYWORD LIKE CONCAT('%',#{condText},'%')
+				)
 		</if>
 	</sql>
 
@@ -62,7 +66,7 @@
 				 A.TEL2,
 				 A.EMAIL,
 				 FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000002', A.FAIR_SEQ) AS BKMK_SEQ,
-				 FN_GET_FILE_PATH(A.THUMB_FILE_GRP_SEQ) AS FILE_URL
+				 FN_GET_FILE_PATH(A.THUMB_FILE_GRP_SEQ) AS FILE_PATH
             FROM CPES_FAIR_MST A
        ]]>
             <include refid="whereCond"/>
@@ -95,16 +99,32 @@
                  A.FAIR_TRNNG_VIEW_YN,
                  A.FAIR_VACANCY_VIEW_YN,
                  A.FAIR_WORKSHOP_VIEW_YN,
+                 C.FILE_SEQS AS SPONSOR_FILE_GRP_SEQ,
+                 D.FILE_SEQS AS SUPPORTER_FILE_GRP_SEQ,
+                 E.FILE_SEQS AS BOOTH_FILE_GRP_SEQ,
 		  CASE WHEN UPPER(#{langCd}) = 'KH' THEN A.FAIR_DTL_EXPLN_KH
 				ELSE A.FAIR_DTL_EXPLN_EN
 				END AS FAIR_DTL_EXPLN_NM,
 		  CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.JC_KH
 				ELSE B.JC_EN
 				END AS JC_NM,
-				FN_GET_FILE_PATH(A.THUMB_FILE_GRP_SEQ) AS FILE_URL
+				FN_GET_FILE_PATH(A.THUMB_FILE_GRP_SEQ) AS FILE_PATH,
+				A.FAIR_KEYWORD
             FROM CPES_FAIR_MST A
             LEFT OUTER JOIN CPES_JOB_CENTER B
             ON A.JC_CD = B.JC_CD
+            LEFT OUTER JOIN (SELECT LI.FILE_GRP_SEQ, GROUP_CONCAT(FN_GET_FILE_PATH(LI.FILE_SEQ) ORDER BY LI.REG_DT ASC SEPARATOR ',') AS FILE_SEQS
+				FROM CPES_ATTACH_FILES LI
+				GROUP BY LI.FILE_GRP_SEQ) C
+            ON A.SPONSOR_FILE_GRP_SEQ = C.FILE_GRP_SEQ
+            LEFT OUTER JOIN (SELECT LI.FILE_GRP_SEQ, GROUP_CONCAT(FN_GET_FILE_PATH(LI.FILE_SEQ) ORDER BY LI.REG_DT ASC SEPARATOR ',') AS FILE_SEQS
+				FROM CPES_ATTACH_FILES LI
+				GROUP BY LI.FILE_GRP_SEQ) D
+            ON A.SUPPORTER_FILE_GRP_SEQ = D.FILE_GRP_SEQ
+            LEFT OUTER JOIN (SELECT LI.FILE_GRP_SEQ, GROUP_CONCAT(FN_GET_FILE_PATH(LI.FILE_SEQ) ORDER BY LI.REG_DT ASC SEPARATOR ',') AS FILE_SEQS
+				FROM CPES_ATTACH_FILES LI
+				GROUP BY LI.FILE_GRP_SEQ) E
+            ON A.BOOTH_FILE_GRP_SEQ = E.FILE_GRP_SEQ
        ]]>
             <include refid="whereCond2"/>
 	</select>
@@ -155,7 +175,7 @@
  				 FN_GET_ISIC_NM(B.ISIC_CD, #{langCd}) AS ISIC_NM,
  				 FN_GET_NEW_YN(B.REG_DT) AS NEW_YN,
 				 FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000001', B.COMPNY_SEQ) AS BKMK_SEQ,
-				 FN_GET_FILE_PATH(B.LOGO_FILE_GRP_SEQ) AS FILE_URL
+				 FN_GET_FILE_PATH(B.LOGO_FILE_GRP_SEQ) AS FILE_PATH
             FROM CPES_FAIR_PATCPTN_COMPNY A
             INNER JOIN CPES_COMPNY B
 			ON A.COMPNY_SEQ = B.COMPNY_SEQ
@@ -230,7 +250,7 @@
 				 ) AS RESUME_SEQ,
 				 FN_GET_NEW_YN(B.REG_DT) AS NEW_YN,
 				 FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000003', B.VACANCY_SEQ) AS BKMK_SEQ,
-				 FN_GET_FILE_PATH(C.LOGO_FILE_GRP_SEQ) AS FILE_URL
+				 FN_GET_FILE_PATH(C.LOGO_FILE_GRP_SEQ) AS FILE_PATH
             FROM CPES_FAIR_PATCPTN_COMPNY_VACANCY A
             INNER JOIN CPES_VACANCY B
             ON A.VACANCY_SEQ = B.VACANCY_SEQ
@@ -249,7 +269,7 @@
 
 	<select id="selectJobFairByEduInsttsCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.jobfair.bean.CondJobFairCenterBean">
         <![CDATA[
-        	/*insttFair.selectJobFairByEduInsttsCnt*/
+        	/*jobFair.selectJobFairByEduInsttsCnt*/
             SELECT
             	 COUNT(1) AS CNT
 			FROM CPES_FAIR_PATCPTN_INSTT A
@@ -266,7 +286,7 @@
   	<!-- 초청받은 채용행사 목록 ,invite fair list -->
 	<select id="selectJobFairByEduInstts" resultType="ony.cpes.external.mypage.privt.bean.InterestBean" parameterType="ony.cpes.external.jobfair.bean.CondJobFairCenterBean">
         <![CDATA[
-        	/*insttFair.selectJobFairByEduInstts*/
+        	/*jobFair.selectJobFairByEduInstts*/
 			SELECT
 			            	 B.INSTT_SEQ,
 			            	 FN_GET_INSTT_NM(B.INSTT_SEQ, #{langCd}) AS INSTT_NM,
@@ -278,7 +298,7 @@
 			            	 B.INSTT_OWNER_CD,
 			            	 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN,
 				 FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000010', B.INSTT_SEQ) AS BKMK_SEQ,
-				 FN_GET_FILE_PATH(B.INSTT_LOGO_FILE_GRP_SEQ) AS FILE_URL
+				 FN_GET_FILE_PATH(B.INSTT_LOGO_FILE_GRP_SEQ) AS FILE_PATH
 			FROM CPES_FAIR_PATCPTN_INSTT A
 			INNER JOIN CPES_INSTT B
 			ON A.INSTT_SEQ = B.INSTT_SEQ
@@ -291,6 +311,197 @@
 		<include refid="sortCond2"/>
 			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
     </select>
+
+    <select id="selectUniqueSeq" resultType="java.lang.String">
+        SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    </select>
+
+	<select id="selectJobFairByWorkShopsCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.jobfair.bean.CondJobFairCenterBean">
+        <![CDATA[
+        	/*jobFair.selectJobFairByWorkShopsCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+			FROM CPES_FAIR_MST A
+			INNER JOIN CPES_FAIR_WORKSHOP B
+			ON A.FAIR_SEQ = B.FAIR_SEQ
+			LEFT OUTER JOIN (SELECT USER_SEQ, FAIR_SEQ, FAIR_WORKSHOP_SEQ, FAIR_WORKSHOP_PATCPTN_SEQ
+				, CANCEL_YN
+				FROM CPES_FAIR_WORKSHOP_PATCPTN
+				WHERE USER_SEQ = #{regUserSeq}
+				AND CANCEL_YN = 'N'
+                AND DEL_YN = 'N') C
+			ON A.FAIR_SEQ = C.FAIR_SEQ AND B.FAIR_WORKSHOP_SEQ = C.FAIR_WORKSHOP_SEQ
+       ]]>
+            <include refid="whereCond2"/>
+			AND B.DEL_YN = 'N'
+			AND B.USE_YN = 'Y'
+		<if test="condText != null and !condText.equals('')">
+		AND B.WORKSHOP_NM LIKE CONCAT('%',#{condText},'%')
+		</if>
+    </select>
+
+  	<!-- 초청받은 채용행사 목록 ,invite fair list -->
+	<select id="selectJobFairByWorkShops" resultType="ony.cpes.external.jobfair.bean.WorkShopBean" parameterType="ony.cpes.external.jobfair.bean.CondJobFairCenterBean">
+        <![CDATA[
+        	/*jobFair.selectJobFairByWorkShops*/
+			SELECT A.FAIR_SEQ
+				, B.FAIR_WORKSHOP_SEQ
+				, B.WORKSHOP_NM
+				, B.EXPLN
+				, CONCAT(DATE_FORMAT(B.WORKSHOP_DT, '%D/%M/%Y'), ' ', B.BGN_HOUR,':',B.BGN_MINUTE,' ',B.BGN_AMPM) AS FAIR_BGN_DT
+				, CONCAT(B.END_HOUR,':',B.END_MINUTE,' ',B.END_AMPM) AS FAIR_END_DT
+				, B.RECURMT_MAN
+				, B.TUITION
+				, B.LECTURE_ROOM
+				, B.WORKSHOP_STS_CD
+				, FN_GET_COMMON_NM('WORKSHOP_STS_CD', B.WORKSHOP_STS_CD, #{langCd}) AS WORKSHOP_STS_NM
+				, FN_GET_FILE_PATH(B.WORKSHOP_THUM_FILE_GRP_SEQ) AS FILE_PATH
+				, FN_GET_NEW_YN(B.REG_DT) AS NEW_YN
+                , C.USER_SEQ
+                , C.CANCEL_YN
+                , C.FAIR_WORKSHOP_PATCPTN_SEQ
+			FROM CPES_FAIR_MST A
+			INNER JOIN CPES_FAIR_WORKSHOP B
+			ON A.FAIR_SEQ = B.FAIR_SEQ
+			LEFT OUTER JOIN (SELECT USER_SEQ, FAIR_SEQ, FAIR_WORKSHOP_SEQ, FAIR_WORKSHOP_PATCPTN_SEQ
+				, CANCEL_YN
+				FROM CPES_FAIR_WORKSHOP_PATCPTN
+				WHERE USER_SEQ = #{regUserSeq}
+				AND CANCEL_YN = 'N'
+                AND DEL_YN = 'N') C
+			ON A.FAIR_SEQ = C.FAIR_SEQ AND B.FAIR_WORKSHOP_SEQ = C.FAIR_WORKSHOP_SEQ
+       ]]>
+            <include refid="whereCond2"/>
+			AND B.DEL_YN = 'N'
+			AND B.USE_YN = 'Y'
+		<if test="condText != null and !condText.equals('')">
+		AND B.WORKSHOP_NM LIKE CONCAT('%',#{condText},'%')
+		</if>
+		<include refid="sortCond2"/>
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+	<select id="selectUserByWorkShopsCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.jobfair.bean.CondWorkShopBean">
+        <![CDATA[
+        	/*jobFair.selectUserByWorkShopsCnt*/
+            SELECT
+            	 COUNT(1) AS CNT
+			FROM CPES_FAIR_WORKSHOP_PATCPTN A
+			INNER JOIN CPES_FAIR_WORKSHOP B
+			ON A.FAIR_SEQ = B.FAIR_SEQ AND A.FAIR_WORKSHOP_SEQ = B.FAIR_WORKSHOP_SEQ
+            WHERE USER_SEQ = #{condUserSeq}
+			AND B.DEL_YN = 'N'
+			AND B.USE_YN = 'Y'
+			AND A.DEL_YN = 'N'
+       ]]>
+    </select>
+
+  	<!-- 초청받은 채용행사 목록 ,invite fair list -->
+	<select id="selectUserByWorkShops" resultType="ony.cpes.external.jobfair.bean.WorkShopBean" parameterType="ony.cpes.external.jobfair.bean.CondWorkShopBean">
+        <![CDATA[
+        	/*jobFair.selectUserByWorkShops*/
+			SELECT A.FAIR_SEQ
+				, B.FAIR_WORKSHOP_SEQ
+				, B.WORKSHOP_NM
+				, B.EXPLN
+				, CONCAT(DATE_FORMAT(B.WORKSHOP_DT, '%D/%M/%Y'), ' ', B.BGN_HOUR,':',B.BGN_MINUTE,' ',B.BGN_AMPM) AS FAIR_BGN_DT
+				, CONCAT(B.END_HOUR,':',B.END_MINUTE,' ',B.END_AMPM) AS FAIR_END_DT
+				, B.RECURMT_MAN
+				, B.TUITION
+				, B.LECTURE_ROOM
+				, B.WORKSHOP_STS_CD
+				, FN_GET_COMMON_NM('WORKSHOP_STS_CD', B.WORKSHOP_STS_CD, #{langCd}) AS WORKSHOP_STS_NM
+				, FN_GET_FILE_PATH(B.WORKSHOP_THUM_FILE_GRP_SEQ) AS FILE_PATH
+				, FN_GET_NEW_YN(B.REG_DT) AS NEW_YN
+                , A.USER_SEQ
+                , A.FAIR_WORKSHOP_PATCPTN_SEQ
+                , A.JC_AGREE_STS_CD
+                , IFNULL(FN_GET_COMMON_NM('JC_AGREE_STS_CD', A.JC_AGREE_STS_CD, #{langCd}), '') AS JC_AGREE_STS_NM
+                , A.CANCEL_YN
+                , A.DEL_YN
+			FROM CPES_FAIR_WORKSHOP_PATCPTN A
+			INNER JOIN CPES_FAIR_WORKSHOP B
+			ON A.FAIR_SEQ = B.FAIR_SEQ AND A.FAIR_WORKSHOP_SEQ = B.FAIR_WORKSHOP_SEQ
+            WHERE USER_SEQ = #{condUserSeq}
+			AND B.DEL_YN = 'N'
+			AND B.USE_YN = 'Y'
+			AND A.DEL_YN = 'N'
+       ]]>
+		<include refid="sortCond2"/>
+			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+	<select id="selectJobFairWorkShop" resultType="ony.cpes.external.jobfair.bean.WorkShopBean" parameterType="ony.cpes.external.jobfair.bean.CondWorkShopBean">
+		<![CDATA[
+        	/*jobFair.selectJobFairWorkShop*/
+			SELECT A.FAIR_SEQ
+				, B.FAIR_WORKSHOP_SEQ
+				, B.WORKSHOP_NM
+				, B.EXPLN
+                , CONCAT(FN_GET_ADDR_NM(SUBSTR(B.WORKSHOP_ADDR_CD,1,3), '2', 'KO'), ' ', B.WORKSHOP_ADDR_DTL) AS ADDR_NM
+                , B.WORKSHOP_ADDR_FULL_NM
+                , B.TEACHER_BHIST1
+                , B.TEACHER_BHIST2
+                , B.TEACHER_NM1
+                , B.TEACHER_NM2
+                , FN_GET_FILE_PATH(B.TEACHER_PHOTO1_FILE_GRP_SEQ) AS TEACHER_FILE_PATH1
+                , FN_GET_FILE_PATH(B.TEACHER_PHOTO2_FILE_GRP_SEQ) AS TEACHER_FILE_PATH2
+                , FN_GET_FILE_PATH(B.TEACH_FILE_GRP_SEQ) AS TEACH_FILE_GRP_SEQ
+                , B.MNGER_NM
+                , B.MNGER_TEL AS CELL
+                , B.MNGER_EMAIL AS EMAIL
+				, CONCAT(DATE_FORMAT(B.WORKSHOP_DT, '%D/%M/%Y'), ' ', B.BGN_HOUR,':',B.BGN_MINUTE,' ',B.BGN_AMPM) AS FAIR_BGN_DT
+				, CONCAT(B.END_HOUR,':',B.END_MINUTE,' ',B.END_AMPM) AS FAIR_END_DT
+				, B.RECURMT_MAN
+				, B.TUITION
+				, B.LECTURE_ROOM
+				, B.WORKSHOP_STS_CD
+				, FN_GET_COMMON_NM('WORKSHOP_STS_CD', B.WORKSHOP_STS_CD, #{langCd}) AS WORKSHOP_STS_NM
+				, FN_GET_FILE_PATH(B.WORKSHOP_THUM_FILE_GRP_SEQ) AS FILE_PATH
+				, FN_GET_NEW_YN(B.REG_DT) AS NEW_YN
+                , C.USER_SEQ
+                , C.FAIR_WORKSHOP_PATCPTN_SEQ
+                , C.CANCEL_YN
+				, FN_GET_REMAIN_CNT(B.WORKSHOP_DT) AS REMAIN_DT
+                , FN_GET_REMAIN_DIV(B.WORKSHOP_DT) AS REMAIN_DIV
+                , B.GOOGLE_MAP_LINK
+                , B.TARGET
+			FROM CPES_FAIR_MST A
+			INNER JOIN CPES_FAIR_WORKSHOP B
+			ON A.FAIR_SEQ = B.FAIR_SEQ
+			LEFT OUTER JOIN (
+	            SELECT FAIR_SEQ, FAIR_WORKSHOP_SEQ, FAIR_WORKSHOP_PATCPTN_SEQ, USER_SEQ
+	            , CANCEL_YN, DEL_YN
+	            FROM CPES_FAIR_WORKSHOP_PATCPTN
+	            WHERE USER_SEQ = #{condUserSeq}
+	            AND DEL_YN = 'N'
+				AND CANCEL_YN = #{newYn}
+            ) C
+			ON A.FAIR_SEQ = C.FAIR_SEQ AND B.FAIR_WORKSHOP_SEQ = C.FAIR_WORKSHOP_SEQ
+       ]]>
+        	WHERE A.FAIR_SEQ = #{condFairSeq}
+        	AND B.FAIR_WORKSHOP_SEQ = #{condFairWorkshopSeq}
+        	<if test="condFairWorkshopPatcptnSeq != null">
+        	AND C.FAIR_WORKSHOP_PATCPTN_SEQ = #{condFairWorkshopPatcptnSeq}
+        	</if>
+	</select>
+
+	<select id="selectJobFairWorkShopCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.jobfair.bean.CondWorkShopBean">
+		<![CDATA[
+			SELECT COUNT(1)
+			FROM CPES_FAIR_MST A
+			INNER JOIN CPES_FAIR_WORKSHOP B
+			ON A.FAIR_SEQ = B.FAIR_SEQ
+			INNER JOIN CPES_FAIR_WORKSHOP_PATCPTN C
+			ON A.FAIR_SEQ = C.FAIR_SEQ AND B.FAIR_WORKSHOP_SEQ = C.FAIR_WORKSHOP_SEQ
+        	WHERE A.FAIR_SEQ = #{condFairSeq}
+        	AND B.FAIR_WORKSHOP_SEQ = #{condFairWorkshopSeq}
+			AND B.DEL_YN = 'N'
+			AND B.USE_YN = 'Y'
+			AND C.DEL_YN = 'N'
+			AND C.CANCEL_YN = 'N'
+       ]]>
+	</select>
 
 	<!-- EX_JF_040101(채용행사사전신청) -->
 

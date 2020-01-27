@@ -42,14 +42,18 @@
 					</c:if>
 
 					<div class="contents_wrap ${genderCdClass}"><!-- 남성일 경우 클래스 male 추가, 여성일 경우 클래스 female 추가 -->
-						<div class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${data.filePath}" alt="image" onerror="fnNoImage(this)"/></div>
+						<div class="img_box">
+							<c:if test="${data.displayYn == 'Y'}">
+							<img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${data.filePath}" alt="image" onerror="fnNoImage(this)"/>
+							</c:if>
+						</div>
 						<div class="contents_box"><!-- 추천일 경우 클래스 referral 추가 -->
 							<div class="title_box <c:if test="${data.newYn == 'Y'}">new</c:if>"><!-- 새글일 경우 클래스 new 추가 -->
 								<span class="tit">${data.iscoNm}</span>
 								<a href="javascript:void(0);" onclick="fnResumeOpen('${data.applicSeq}','${data.vacancySeq}','${data.resumeSeq}');" class="title">${data.resumeTitle}</a>
 							</div>
 							<div class="top_box">
-								<span class="name">${data.userNm}</span>
+								<span class="name">${masking:getNmMasking(data.userNm, data.displayYn)}</span>
 								<span class="age">
 									(<span>${data.genderNm}</span> <span>${data.age}</span>)
 								</span>
@@ -75,7 +79,7 @@
 											</c:forEach>
 										</select>
 									</span>
-									<button type="button" onclick="fnOnlineIntvw('${data.vacancySeq}','${data.resumeSeq}');" class="bbs_btn small">online interview</button>
+									<%-- <button type="button" onclick="fnOnlineIntvw('${data.vacancySeq}','${data.resumeSeq}');" class="bbs_btn small">online interview</button> --%>
 								</span>
 								<span class="bottom_box">
 									<span class="date type3">${data.regDt}</span>

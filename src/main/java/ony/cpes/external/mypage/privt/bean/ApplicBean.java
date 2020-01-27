@@ -57,6 +57,7 @@ public class ApplicBean extends CommonBean{
 	private Integer vacancyDaysLeft;
 	private String delYn;
 	private String failReason;
+	private String displayYn;
 
 
 	public String getTotCareerTermYearCnt() {
@@ -329,5 +330,12 @@ public class ApplicBean extends CommonBean{
 	public void setFailReason(String failReason) {
 		this.failReason = failReason;
 	}
+	public String getDisplayYn() {
+		return displayYn;
+	}
+	public void setDisplayYn(String displayYn) {
+		this.displayYn = displayYn;
+	}
+
 
 }

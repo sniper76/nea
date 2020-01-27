@@ -841,4 +841,46 @@ public class ApplicController extends BaseController{
 		return mv;
 	}
 
+
+	/**
+	 * 입사제의 삭제
+	 * offer delete
+	 * @param req
+	 * @param res
+	 * @return ModelAndView
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unused")
+	@RequestMapping(value = "/intvwDelProcessAjax", method = RequestMethod.POST)
+	public ModelAndView intvwDelProcessAjax(Locale locale,
+				@ModelAttribute("ConditionBean") ConditionBean conditionBean,
+				@ModelAttribute("CondApplicBean") CondApplicBean condApplicBean,
+				Principal principal,
+				HttpServletRequest req,
+				HttpServletResponse res) throws Exception {
+
+		ModelAndView mv = new ModelAndView();
+		AjaxResultBean ajaxResultBean = new AjaxResultBean();
+
+		String userSeq = SessionUtil.getUserSeq(req);
+		condApplicBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
+
+  		condApplicBean.setCondUserSeq(userSeq);
+  		condApplicBean.setRegUserSeq(userSeq);
+  		condApplicBean.setModUserSeq(userSeq);
+
+  		if(applicService.deleteIntvw(condApplicBean) > 0) {
+  			ajaxResultBean.setSuccessYn(ConstVal.YES_VAL);//입력실패,insert fail
+      		ajaxResultBean.setStatCd(ConstVal.STAT_CD_SUCCESS_VAL);
+  		} else {
+  			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);//입력실패,insert fail
+      		ajaxResultBean.setStatCd(ConstVal.CODE_02_VAL);
+  		}
+
+		mv.addObject(ConstVal.RESULT_KEY,ajaxResultBean);
+	  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+
+		return mv;
+	}
+
 }

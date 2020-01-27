@@ -93,7 +93,7 @@
 							<c:forEach var="data" items="${resultList}" varStatus="status">
 								<li>
 									<a href="javascript:fnGoBulletinView('frm','${data.bulletinSeq}');" class="contents_box">
-										<span class="img_box"><img src="${pageContext.request.contextPath}/images/board/dummy2.png" alt="image" /></span>
+										<span class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${data.filePath}" alt="image" onerror="fnNoImage(this)" /></span>
 										<strong class="title"><c:out value="${data.title}"/></strong>
 										<span class="put_box clearfix">
 											<span class="date"><span class="bbs_ico time"><spring:message code="counsel.msg.reg.dt"/></span><c:out value="${data.regDt}"/></span>

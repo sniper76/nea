@@ -1,7 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/jsp/common/inc.jsp"%>
-
 
 <main class="colgroup" id="colgroup">
 <article>
@@ -103,12 +101,12 @@
 											<span class="date_box">
 												<label for="condBgnDt" class="skip">start date</label>
 												<input type="text" id="condBgnDt" name="condBgnDt" title="Start date Select from calendar" placeholder="DD/MM/YYYY" value="<c:out value="${param.condBgnDt}" />" />
-												<button type="button">Start date Select from calendar</button>
+												<button type="button" id="condBgnDtCal"><spring:message code="mypage.compny.vacancy.intvw.video.lbl07" /></button>
 											</span> ~&nbsp;
 											<span class="date_box">
 												<label for="condEndDt" class="skip">end date</label>
 												<input type="text" id="condEndDt" name="condEndDt" title="End date Select from calendar" placeholder="DD/MM/YYYY" value="<c:out value="${param.condEndDt}" />" />
-												<button type="button">End date Select from calendar</button>
+												<button type="button" id="condEndDtCal"><spring:message code="mypage.compny.vacancy.intvw.video.lbl08" /></button>
 											</span>
 										</span>
 										<span class="period_choose">
@@ -140,6 +138,7 @@
 											<option value="NOT_OPEN" <c:if test="${param.condStatTypeCd2 == 'NOT_OPEN'}">selected</c:if>><spring:message code="mypage.compny.vacancy.msg2" /></option><!-- 미열람 -->
 											<option value="CHECK" <c:if test="${param.condStatTypeCd2 == 'CHECK'}">selected</c:if>><spring:message code="mypage.compny.vacancy.msg3" /></option><!-- 검토중 -->
 											<option value="PAPER" <c:if test="${param.condStatTypeCd2 == 'PAPER'}">selected</c:if>><spring:message code="mypage.compny.vacancy.msg4" /></option><!-- 서류합격 -->
+											<option value="INTVW" <c:if test="${param.condStatTypeCd2 == 'INTVW'}">selected</c:if>><spring:message code="offer.interview" /></option><!-- 면접제의 -->
 											<option value="PASS" <c:if test="${param.condStatTypeCd2 == 'PASS'}">selected</c:if>><spring:message code="mypage.compny.vacancy.msg5" /></option><!-- 채용확정 -->
 										</select>
 									</span>
@@ -223,7 +222,7 @@
 								</span>
 								<span class="cont margin_t_10">
 									<!-- 지원이력서 보기 -->
-									<a href="javascript:fnGoCompnyResumeView('${data.resumeSeq}','${data.vacancySeq}');" class="bbs_btn small"><spring:message code="my.application" /></a>
+									<a href="javascript:void(0);" onclick="javascript:fnResumeView('${data.resumeSeq}','N');" class="bbs_btn small"><spring:message code="my.application" /></a>
 								</span>
 							</div>
 							<div class="other_box type2">
@@ -289,7 +288,8 @@
 			});
 			return false;
 		}
-
+		$("#condBgnDtCal").click(function() { $("#condBgnDt").datepicker("show"); });
+		$("#condEndDtCal").click(function() { $("#condEndDt").datepicker("show"); });
 		//검색키워드 enter
 		$("#condText").keypress(function( event ) {
 			if( event.which == 13 ) {

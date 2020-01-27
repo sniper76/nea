@@ -16,8 +16,7 @@
 				}
 			});
 
-			fnSetSelecteBox("condType", "<c:out value="${param.condType}"/>");
-
+			//fnSetSelecteBox("condType", "<c:out value="${param.condType}"/>");
 
     	});
 
@@ -107,7 +106,7 @@
 <div class="srch_box">
 	<div class="srch_area">
 		<div class="box_wrap">
-					<form id="frm" name="frm" action="${pageContext.request.contextPath}/jobStudy/list.do" method="post">
+					<form id="frm" name="frm" action="${pageContext.request.contextPath}/jobStudy/selectJobStudySearch.do" method="post">
 					<input type="hidden" id="condSeq" name="condSeq" value=""/>
 
 				<fieldset>
@@ -115,14 +114,13 @@
 					<div class="contents_box">
 						<label for="condType" class="skip">Category Selection</label>
 						<select id="condType" name="condType" title="Select classification">
-							<option value=""><spring:message code="counsel.msg.all"/></option>
 							<option value="TITLE"><spring:message code="mypage.compny.vacancy.msg13"/></option>
-							<option value="CONTENT"><spring:message code="bulletin.msg.content"/></option>
+							<%-- <option value="CONTENT"><spring:message code="bulletin.msg.content"/></option> --%>
 							<option value="CATE"><spring:message code="mypage.compny.vacancy.msg14"/></option>
 						</select>
 						<label for="condText" class="skip">input the search</label>
 						<input type="text" id="condText" name="condText" value="<c:out value="${param.condText}"/>" class="text" placeholder="<spring:message code="mypage.compny.vacancy.msg15"/>" maxlength="50" />
-						<button type="submit" class="submit" onclick="fnGoList('frm');">Search</button>
+						<button type="button" class="submit" onclick="fnGoList('frm');">Search</button>
 
 					</div>
 				</fieldset>
@@ -144,6 +142,9 @@
 		<c:forEach var="data" items="${resultList}" varStatus="status">
 		<li>
 			<button type="button" class="cont_box" title="Contents View" onclick="fnJobStudyTwoLvl('${data.cdLvl}','2','${data.iscoNm}');">
+				<span class="img_box">
+					<img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${data.filePath}" alt="image" onerror="fnNoImage(this)"/>
+				</span>
 				<span class="cont">${data.iscoNm}</span>
 			</button>
 		</li>

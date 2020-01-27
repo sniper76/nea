@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import ony.cmm.common.bean.CustomUserDetailsBean;
+import ony.cmm.common.util.EncryptUtil;
 import ony.cpes.external.login.dao.LoginDAO;
 
 @Service
@@ -30,6 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
     	// 여기서의 username 은 mngId 이다.
+    	username = EncryptUtil.getAes256Enc(username);
         CustomUserDetailsBean user = userAuthDAO.selectUserById(username);
 
         if(user==null) {

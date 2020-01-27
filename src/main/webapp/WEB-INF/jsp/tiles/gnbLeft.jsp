@@ -49,6 +49,7 @@
 	        	<ul>
 		            <li><a href="${pageContext.request.contextPath}/index.do?lang=en">English</a></li>
 		            <li><a href="${pageContext.request.contextPath}/index.do?lang=kh">Khmer</a></li>
+		            <li><a href="${pageContext.request.contextPath}/index.do?lang=ko">Korea</a></li>
 	            </ul>
 	        </div>
         </div>

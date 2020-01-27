@@ -61,6 +61,14 @@
 			}
 
 
+			//채용시작일
+			if($("#bgnDt").val() == "") {
+				alertify.alert("<spring:message code="compny.vacancy.errors.msg46"/>", function (e){
+					$("#bgnDt").focus();
+				});
+				return false;
+			}
+
 			//채용마감일
 			if($("#endDt").val() == "") {
 				alertify.alert("<spring:message code="compny.vacancy.errors.msg5"/>", function (e){
@@ -69,6 +77,14 @@
 				return false;
 			}
 
+
+			if($("#bgnDt").val() > $("#endDt").val()) {
+				alertify.alert("<spring:message code="mypage.instt.eduTrnng.erros.msg7"/>", function (e){
+					$("#endDt").focus();
+				});
+
+				return false;
+			}
 
 			//모집인원
 			if($("#recrumtMemb").val() == "") {
@@ -392,7 +408,7 @@
 				return false;
 			}
 
-			if($("#minSalaryAmt").val() > $("#maxSalaryAmt").val()) {
+			if(Number($("#minSalaryAmt").val()) > Number($("#maxSalaryAmt").val())) {
 				alertify.alert("<spring:message code="compny.vacancy.errors.msg25"/>", function (e){
 					$("#maxSalaryAmt").focus();
 				});

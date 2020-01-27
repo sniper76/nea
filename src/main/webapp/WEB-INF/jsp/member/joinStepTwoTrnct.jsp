@@ -267,7 +267,7 @@
 				return false;
 			}
 
-	  		var val = $("input:radio[name='confirmDiv']").val();
+	  		var confirmDivVal = $("input:radio[name='confirmDiv']").val();
 
 
 
@@ -308,7 +308,7 @@
 
 
 	  		var data = {
-	  			sendDivision: val,
+	  			sendDivision: confirmDivVal,
 	  			userEmail: $("#insttEmail").val(),
 	  			userCell: $("#insttCell").val()
 	  		}
@@ -321,7 +321,7 @@
 	  		})
 	  		.done(function(data) {
 	  			var msg = "<spring:message code="login.stop.msg.email"/>";//email
-	  			if($("input:radio[name='confirmDiv']").val() == "S") {//sms
+	  			if(confirmDivVal == "S") {//sms
 	  				msg = "<spring:message code="login.stop.msg.sms"/>";
 	  			}
 

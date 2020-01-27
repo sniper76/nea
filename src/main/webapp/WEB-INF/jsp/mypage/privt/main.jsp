@@ -125,154 +125,13 @@
 
 			<div class="tab_menu count3 action">
 			    <ul class="clearfix">
-			        <li class="on"><a href="#tab_contents1" onclick="fnSearch('auto')"><spring:message code="auto.matching" /></a></li><!-- Auto Matching -->
-			        <li><a href="#tab_contents2" onclick="fnSearch('book')"><spring:message code="mypage.private.interest.title" /></a></li><!-- My Saved -->
-			        <li><a href="#tab_contents3" onclick="fnSearch('match')"><spring:message code="lnb.mypage.left.menu1" /></a></li><!-- Tailored Matching -->
+			        <li class="on"><a href="#tab_contents1" onclick="fnSearch('book')"><spring:message code="mypage.private.interest.title" /></a></li><!-- My Saved -->
+			        <li><a href="#tab_contents2" onclick="fnSearch('match')"><spring:message code="lnb.mypage.left.menu1" /></a></li><!-- Tailored Matching -->
+			        <li><a href="#tab_contents3" onclick="fnSearch('auto')"><spring:message code="auto.matching" /></a></li><!-- Auto Matching -->
 			    </ul>
 			</div>
 
 			<div id="tab_contents1" class="tab_contents">
-				<div class="bbs_info clearfix"><!-- 서브페이지에 탭 메뉴가 있을 경우 클래스 tab_confirm 추가  -->
-					<div class="bbs_left bbs_count">
-						<strong class="currently">1</strong>&nbsp;&nbsp;/
-						<span class="total">1</span>
-						<span class="order">
-							<strong class="skip">Change list order</strong>
-							<button type="button" onclick="fnSearch('auto', 'LATEST')"><spring:message code="counsel.msg.sortBy.latest"/></button><!-- Latest -->
-							<button type="button" onclick="fnSearch('auto', 'VIEW')"><spring:message code="counsel.msg.sortBy.view"/></button><!-- Views -->
-							<button type="button" onclick="fnSearch('auto', 'LIKE')"><spring:message code="counsel.msg.sortBy.like"/></button><!-- Likes -->
-						</span>
-					</div>
-				</div>
-				<!-- //bbs_info -->
-
-				<div class="bbs_basic">
-					<ul class="recruitment_list clearfix"><!-- 인기채용공고 목록일 경우 클래스 popularity 추가, 교육기관,교육프로그램일 경우 클래스 adu 추가 -->
-					<li>
-						<div class="contents_wrap">
-							<div class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></div>
-							<div class="contents_box"><!-- 모집중일 경우 클래스 recruiting , 교육 마감일 경우 클래스 closed 추가, 삭제된 글일 경우 클래스 deleted 추가 -->
-								<div class="title_box new"><!-- 새글일 경우 클래스 new 추가 -->
-									<span class="tit">SAMSUNG Cambodiagy</span>
-									<a href="" class="title">Construction Project Planning Manager</a>
-								</div>
-								<div class="cont_box">
-									<span class="con">Part time</span>
-									<span class="con">Vacancy&nbsp;:&nbsp;<strong>1</strong></span>
-									<span class="con">Phonm Penh</span>
-									<span class="con">$300</span>
-								</div>
-								<div class="other_box">
-									<span class="top_box">
-										<span class="day">30</span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
-										<button type="button" class="interest on">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-									</span>
-								</div>
-							</div>
-						</div>
-					</li>
-					<li>
-						<div class="contents_wrap">
-							<div class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></div>
-							<div class="contents_box"><!-- 모집중일 경우 클래스 recruiting , 교육 마감일 경우 클래스 closed 추가, 삭제된 글일 경우 클래스 deleted 추가 -->
-								<div class="title_box"><!-- 새글일 경우 클래스 new 추가 -->
-									<span class="tit">SAMSUNG Cambodiagy</span>
-									<a href="" class="title">Construction Project Planning Manager</a>
-								</div>
-								<div class="cont_box">
-									<span class="con">Part time</span>
-									<span class="con">Vacancy&nbsp;:&nbsp;<strong>1</strong></span>
-									<span class="con">Phonm Penh</span>
-									<span class="con">$300</span>
-								</div>
-								<div class="other_box">
-									<span class="top_box">
-										<span class="hurry">18Hour</span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
-										<button type="button" class="interest">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-									</span>
-								</div>
-							</div>
-						</div>
-					</li>
-					<li>
-						<div class="contents_wrap">
-							<div class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></div>
-							<div class="contents_box"><!-- 모집중일 경우 클래스 recruiting , 교육 마감일 경우 클래스 closed 추가, 삭제된 글일 경우 클래스 deleted 추가 -->
-								<div class="title_box"><!-- 새글일 경우 클래스 new 추가 -->
-									<span class="tit">SAMSUNG Cambodiagy</span>
-									<a href="" class="title">Construction Project Planning Manager</a>
-								</div>
-								<div class="cont_box">
-									<span class="con">Part time</span>
-									<span class="con">Vacancy&nbsp;:&nbsp;<strong>1</strong></span>
-									<span class="con">Phonm Penh</span>
-									<span class="con">$300</span>
-								</div>
-								<div class="other_box">
-									<span class="top_box">
-										<span class="close">Closed</span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
-										<button type="button" class="interest close">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-									</span>
-								</div>
-							</div>
-						</div>
-					</li>
-					<li>
-						<div class="contents_wrap">
-							<div class="img_box"><img src="../../images/contents/recruitment_dummy.png" alt="image" /></div>
-							<div class="contents_box deleted"><!-- 모집중일 경우 클래스 recruiting , 교육 마감일 경우 클래스 closed 추가, 삭제된 글일 경우 클래스 deleted 추가 -->
-								<div class="title_box"><!-- 새글일 경우 클래스 new 추가 -->
-									<span class="tit">SAMSUNG Cambodiagy</span>
-									<a href="" class="title">Construction Project Planning Manager</a>
-								</div>
-								<div class="other_box">
-									<span class="top_box">
-										<span class="close">Closed</span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
-										<button type="button" class="interest close">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
-									</span>
-								</div>
-							</div>
-						</div>
-					</li>
-					</ul>
-				</div>
-				<!-- //bbs_basic list -->
-
-				<div class="bbs_empty">
-					<p>
-						<spring:message code="private.member.main.msg01" /><br />
-						<spring:message code="private.member.main.msg02" />
-					</p>
-					<div class="bbs_btn_wrap">
-						<div class="bbs_center">
-							<a href="" class="bbs_btn type01"><spring:message code="resume.text.resumeInsert" /></a>
-						</div>
-					</div>
-				</div>
-				<!-- //bbs_empty -->
-
-				<div class="pagination">
-					<a href="" class="prev_end">First page</a>
-					<a href="" class="prev_one">Prev page</a>
-					<strong title="Current page">1</strong>
-					<a href="" title="Go to page 2">2</a>
-					<a href="" title="Go to page 3">3</a>
-					<a href="" title="Go to page 4">4</a>
-					<a href="" title="Go to page 5">5</a>
-					<a href="" title="Go to page 6">6</a>
-					<a href="" title="Go to page 7">7</a>
-					<a href="" title="Go to page 8">8</a>
-					<a href="" title="Go to page 9">9</a>
-					<a href="" title="Go to page 10">110</a>
-					<a href="" class="next_one">Next page</a>
-					<a href="" class="next_end">Last page</a>
-				</div>
-				<!--  //pagination -->
-
-			</div>
-			<!-- //tab_contents1 -->
-
-			<div id="tab_contents2" class="tab_contents">
 				<div class="bbs_info clearfix">
 					<div class="bbs_left bbs_count">
 						<strong class="currently">1</strong>&nbsp;&nbsp;/
@@ -300,9 +159,9 @@
 				<div class="pagination"></div>
 				<!--  //pagination -->
 			</div>
-			<!-- //tab_contents2 -->
+			<!-- //tab_contents1 -->
 
-			<div id="tab_contents3" class="tab_contents">
+			<div id="tab_contents2" class="tab_contents">
 				<div class="bbs_info clearfix">
 					<div class="bbs_left bbs_count">
 						<strong class="currently">1</strong>&nbsp;&nbsp;/
@@ -311,7 +170,7 @@
 							<strong class="skip">Change list order</strong>
 							<button type="button" onclick="fnSearch('match', 'LATEST')"><spring:message code="counsel.msg.sortBy.latest"/></button><!-- Latest -->
 							<button type="button" onclick="fnSearch('match', 'VIEW')"><spring:message code="counsel.msg.sortBy.view"/></button><!-- Views -->
-							<button type="button" onclick="fnSearch('match', 'LIKE')"><spring:message code="counsel.msg.sortBy.like"/></button><!-- Likes -->
+							<button type="button" onclick="fnSearch('match', 'POPULAR')"><spring:message code="counsel.msg.sortBy.like"/></button><!-- Likes -->
 						</span>
 					</div>
 				</div>
@@ -350,7 +209,50 @@
 				<div class="pagination"></div>
 				<!--  //pagination -->
 			</div>
+			<!-- //tab_contents2 -->
+
+			<div id="tab_contents3" class="tab_contents">
+				<div class="bbs_info clearfix">
+					<div class="bbs_left bbs_count">
+						<strong class="currently">1</strong>&nbsp;&nbsp;/
+						<span class="total">1</span>
+						<span class="order">
+<!-- 							<strong class="skip">Change list order</strong> -->
+							<!-- Latest -->
+<%-- 							<button type="button" onclick="fnSearch('auto', 'LATEST')"><spring:message code="counsel.msg.sortBy.latest"/></button> --%>
+							<!-- Views -->
+<%-- 							<button type="button" onclick="fnSearch('auto', 'VIEW')"><spring:message code="counsel.msg.sortBy.view"/></button> --%>
+							<!-- Likes -->
+<%-- 							<button type="button" onclick="fnSearch('auto', 'LIKE')"><spring:message code="counsel.msg.sortBy.like"/></button> --%>
+						</span>
+					</div>
+				</div>
+				<!-- //bbs_info -->
+
+				<div class="bbs_basic">
+					<ul class="recruitment_list clearfix"></ul>
+				</div>
+				<!-- //bbs_basic list -->
+
+				<div class="bbs_empty">
+					<p>
+						<spring:message code="private.member.main.msg01" /><br />
+						<spring:message code="private.member.main.msg02" />
+					</p>
+					<div class="bbs_btn_wrap">
+						<div class="bbs_center">
+							<a href="" class="bbs_btn type01"><spring:message code="resume.text.resumeInsert" /></a>
+						</div>
+					</div>
+				</div>
+				<!-- //bbs_empty -->
+
+				<div class="pagination"></div>
+				<!--  //pagination -->
+
+			</div>
 			<!-- //tab_contents3 -->
+
 		</div>
     	<!-- //contents -->
     </article>
@@ -364,10 +266,11 @@
 	var vacancyCnt = "<spring:message code="compny.vacancy.msg.title8" />"; //모집인원
 	var currentPageNo = "1";
 	var condSort = "LATEST";
-	var condTab = "auto";
+	var condTab = "book";
 
 	$(document).ready(function() {
 		$(".bbs_empty").hide();
+		fnSearch(condTab, condSort);
 	});
 
 	function fnSearch(flag, sort) {
@@ -375,7 +278,7 @@
 		condTab = flag;
 		condSort = sort;
 
-		if(condTab == null || $.trim(condTab) == "") condTab = "auto";
+		if(condTab == null || $.trim(condTab) == "") condTab = "book";
 		if(condSort == null || $.trim(condSort) == "") condSort = "LATEST";
 
 		if(condTab == "auto") {
@@ -387,11 +290,8 @@
 		}
 	}
 
-	function fnSearchAuto(pageNo) {
-		if(!pageNo) currentPageNo = 1;
-
-	}
 	function fnSearchInterest(pageNo) {
+		var divArea = "tab_contents1";
 		if(!pageNo) currentPageNo = 1;
 		$.ajax({
 			type: METHOD_POST, dataType: AJAX_DATA_TYPE_JSON,
@@ -402,7 +302,7 @@
 			},
 			success: function(data) {
 	   			if (data.result.successYn != "Y") {
-	   				var msg = "<spring:message code="login.findId.no.data"/>";
+	   				var msg = "<spring:message code="mypage.compny.vacancy.intvw.video.msg11"/>";
 // 	   				if(data.result.statCd == "03") {
 // 	   					msg = "<spring:message code="errors.ajax.fail"/>";
 // 	   				}
@@ -411,18 +311,18 @@
 	   			}
 
 	   			// Pagination
-	   			$("#tab_contents2 .currently").text(data.paginationInfo.currentPageNo);
-	   			$("#tab_contents2 .total").text(data.paginationInfo.totalPageCount);
-	   			fnPagination(data.paginationInfo, "fnSearchMatch", "#tab_contents2 .pagination");
+	   			$("#"+divArea+" .currently").text(data.paginationInfo.currentPageNo);
+	   			$("#"+divArea+" .total").text(data.paginationInfo.totalPageCount);
+	   			fnPagination(data.paginationInfo, "fnSearchMatch", "#"+divArea+" .pagination");
 
 				// Data List
-				$("#tab_contents2 .bbs_basic >ul").empty();
+				$("#"+divArea+" .bbs_basic >ul").empty();
 				if(!data.resultList || data.resultList.length == 0) {
-					$("#tab_contents2 .bbs_basic").hide();
-					$("#tab_contents2 .bbs_empty").show();
+					$("#"+divArea+" .bbs_basic").hide();
+					$("#"+divArea+" .bbs_empty").show();
 				} else {
-					$("#tab_contents2 .bbs_basic").show();
-					$("#tab_contents2 .bbs_empty").hide();
+					$("#"+divArea+" .bbs_basic").show();
+					$("#"+divArea+" .bbs_empty").hide();
 
 					var cnt = 0;
 					var dataList = "", classNew = "", classBkmk = "", classRemain="", remainDays= "";
@@ -464,7 +364,7 @@
 						dataList += '					<span class="'+classRemain+'">'+remainDays+'</span>';
 						}
 						//<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">
-						//dataList += '					<span id="bkmkSapn_'+cnt+'"><button type="button" id="btnBkmk_'+cnt+'" onclick="fnBkmkType2(\''+((item.bkmkSeq) ? item.bkmkSeq : "")+'\',\''+item.vacancySeq+'\',LIKE_CATEGORY_VACANCY,\'btnBkmk_'+cnt+'\',\'bkmkSapn_'+cnt+'\');" class="interest '+classBkmk+'">interest</button></span>';
+						//dataList += '					<span id="bkmkSapnInterest_'+cnt+'"><button type="button" id="btnBkmkInterest_'+cnt+'" onclick="fnBkmkType2(\''+((item.bkmkSeq) ? item.bkmkSeq : "")+'\',\''+item.vacancySeq+'\',LIKE_CATEGORY_VACANCY,\'btnBkmkInterest_'+cnt+'\',\'bkmkSapnInterest_'+cnt+'\');" class="interest '+classBkmk+'">interest</button></span>';
 						//</sec:authorize>
 						dataList += '				</span>';
 						dataList += '			</div>';
@@ -472,7 +372,7 @@
 						dataList += '	</div>';
 						dataList += '</li>';
 					});
-					$("#tab_contents2 .bbs_basic >ul").append(dataList);
+					$("#"+divArea+" .bbs_basic >ul").append(dataList);
 				}
 			},
 			error: function(xhr, status, error) {
@@ -482,6 +382,7 @@
 	}
 
 	function fnSearchMatch(pageNo) {
+		var divArea = "tab_contents2";
 		if(!pageNo) currentPageNo = 1;
 		$.ajax({
 			type: METHOD_POST, dataType: AJAX_DATA_TYPE_JSON,
@@ -492,7 +393,7 @@
 			},
 			success: function(data) {
 	   			if (data.result.successYn != "Y") {
-	   				var msg = "<spring:message code="login.findId.no.data"/>";
+	   				var msg = "<spring:message code="mypage.compny.vacancy.intvw.video.msg11"/>";
 // 	   				if(data.result.statCd == "03") {
 // 	   					msg = "<spring:message code="errors.ajax.fail"/>";
 // 	   				}
@@ -501,25 +402,25 @@
 	   			}
 
 	   			// Pagination
-	   			$("#tab_contents3 .currently").text(data.paginationInfo.currentPageNo);
-	   			$("#tab_contents3 .total").text(data.paginationInfo.totalPageCount);
-	   			fnPagination(data.paginationInfo, "fnSearchMatch", "#tab_contents3 .pagination");
+	   			$("#"+divArea+" .currently").text(data.paginationInfo.currentPageNo);
+	   			$("#"+divArea+" .total").text(data.paginationInfo.totalPageCount);
+	   			fnPagination(data.paginationInfo, "fnSearchMatch", "#"+divArea+" .pagination");
 
 				// Data List
-				$("#tab_contents3 .bbs_basic >ul").empty();
+				$("#"+divArea+" .bbs_basic >ul").empty();
 
 				if(!data.matchSetCnt || parseInt(data.matchSetCnt) < 1) {
-					$("#tab_contents3 .bbs_empty.noMatchSet").show();
+					$("#"+divArea+" .bbs_empty.noMatchSet").show();
 				} else {
-					$("#tab_contents3 .bbs_empty.noMatchSet").hide();
+					$("#"+divArea+" .bbs_empty.noMatchSet").hide();
 				}
 
 				if(!data.resultList || data.resultList.length == 0) {
-					$("#tab_contents3 .bbs_basic").hide();
-					$("#tab_contents3 .bbs_empty.data").show();
+					$("#"+divArea+" .bbs_basic").hide();
+					$("#"+divArea+" .bbs_empty.data").show();
 				} else {
-					$("#tab_contents3 .bbs_basic").show();
-					$("#tab_contents3 .bbs_empty.data").hide();
+					$("#"+divArea+" .bbs_basic").show();
+					$("#"+divArea+" .bbs_empty.data").hide();
 
 					var cnt = 0;
 					var dataList = "", classNew = "", classBkmk = "", classRemain="", remainDays= "";
@@ -561,7 +462,7 @@
 						dataList += '					<span class="'+classRemain+'">'+remainDays+'</span>';
 						}
 						<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">
-						dataList += '					<span id="bkmkSapn_'+cnt+'"><button type="button" id="btnBkmk_'+cnt+'" onclick="fnBkmkType2(\''+((item.bkmkSeq) ? item.bkmkSeq : "")+'\',\''+item.vacancySeq+'\',LIKE_CATEGORY_VACANCY,\'btnBkmk_'+cnt+'\',\'bkmkSapn_'+cnt+'\');" class="interest '+classBkmk+'">interest</button></span>';
+						dataList += '					<span id="bkmkSapnMatch_'+cnt+'"><button type="button" id="btnBkmkMatch_'+cnt+'" onclick="fnBkmkType2(\''+((item.bkmkSeq) ? item.bkmkSeq : "")+'\',\''+item.vacancySeq+'\',LIKE_CATEGORY_VACANCY,\'btnBkmkMatch_'+cnt+'\',\'bkmkSapnMatch_'+cnt+'\');" class="interest '+classBkmk+'">interest</button></span>';
 						</sec:authorize>
 						dataList += '				</span>';
 						dataList += '			</div>';
@@ -569,7 +470,105 @@
 						dataList += '	</div>';
 						dataList += '</li>';
 					});
-					$("#tab_contents3 .bbs_basic >ul").append(dataList);
+					$("#"+divArea+" .bbs_basic >ul").append(dataList);
+				}
+			},
+			error: function(xhr, status, error) {
+				alertify.alert("error to connecting server");
+			}
+		});
+	}
+
+	function fnSearchAuto(pageNo) {
+		var divArea = "tab_contents3";
+		if(!pageNo) currentPageNo = 1;
+		$.ajax({
+			type: METHOD_POST, dataType: AJAX_DATA_TYPE_JSON,
+			url: contextPath + "/cpes/private/matching/autoMatchListAjax.do",
+			data: {
+		   		"condSort": condSort,
+		   		"currentPageNo": currentPageNo
+			},
+			success: function(data) {
+	   			if (data.result.successYn != "Y") {
+	   				var msg = "<spring:message code="mypage.compny.vacancy.intvw.video.msg11"/>";
+// 	   				if(data.result.statCd == "03") {
+// 	   					msg = "<spring:message code="errors.ajax.fail"/>";
+// 	   				}
+	   				alertify.alert(msg);
+	   				return;
+	   			}
+
+	   			// Pagination
+	   			$("#"+divArea+" .currently").text(data.paginationInfo.currentPageNo);
+	   			$("#"+divArea+" .total").text(data.paginationInfo.totalPageCount);
+	   			fnPagination(data.paginationInfo, "fnSearchMatch", "#"+divArea+" .pagination");
+
+				// Data List
+				$("#"+divArea+" .bbs_basic >ul").empty();
+
+				if(!data.matchSetCnt || parseInt(data.matchSetCnt) < 1) {
+					$("#"+divArea+" .bbs_empty.noMatchSet").show();
+				} else {
+					$("#"+divArea+" .bbs_empty.noMatchSet").hide();
+				}
+
+				if(!data.resultList || data.resultList.length == 0) {
+					$("#"+divArea+" .bbs_basic").hide();
+					$("#"+divArea+" .bbs_empty.data").show();
+				} else {
+					$("#"+divArea+" .bbs_basic").show();
+					$("#"+divArea+" .bbs_empty.data").hide();
+
+					var cnt = 0;
+					var dataList = "", classNew = "", classBkmk = "", classRemain="", remainDays= "";
+					$.each(data.resultList, function(index, item) {
+						cnt = index + 1;
+						classNew = (item.newYn == 'Y') ? "new" : "";
+						classBkmk = (item.bkmkSeq != null && item.bkmkSeq != '') ? "on" : "";
+
+						classRemain = item.remainDiv;
+						if(item.remainDiv == 'hurry' && item.remainDt && parseInt(item.remainDt) < 24) {
+							if(parseInt(item.remainDt) == 1) {
+								remainDays = item.remainDt+ "Hour";
+							} else {
+								remainDays = item.remainDt+ "Hours";
+							}
+						} else {
+							remainDays = item.remainDt;
+						}
+
+						dataList += '<li>';
+						dataList += '	<div class="contents_wrap">';
+						dataList += '		<div class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url='+item.filePath+'" alt="image" onerror="fnNoImage(this)" /></div>';
+						dataList += '		<div class="contents_box">';
+						dataList += '			<div class="title_box '+classNew+'">';
+						dataList += '				<span class="tit">'+nvl(item.compnyNm)+'</span>';
+						dataList += '				<a href="javascript:void(0);" onclick="fnVacancyView(\''+item.vacancySeq+'\',\'frm\');" class="title">'+item.vacancyTitle+'</a>';
+						dataList += '			</div>';
+						dataList += '			<div class="cont_box">';
+						dataList += '				<span class="con">'+nvl(item.preferEmploymtTypeNm)+'</span>';
+						dataList += '				<span class="con">'+vacancyCnt+'&nbsp;:&nbsp;<strong>'+fnNumberWithCommas(nvl(item.recrumtMemb,0))+'</strong></span>';
+						dataList += '				<span class="con">'+nvl(item.addrFullNm)+'</span>';
+						dataList += '				<span class="con">$'+fnNumberWithCommas(nvl(item.minSalaryAmt,0))+' ~ $'+fnNumberWithCommas(nvl(item.maxSalaryAmt,0))+'</span>';
+						dataList += '			</div>';
+						dataList += '			<div class="other_box">';
+						dataList += '				<span class="top_box">';
+						if(item.vacancyStsCd == 'VCS0000000002') {
+						dataList += '					<span class="close">'+nvl(item.vacancyStsNm)+'</span>';
+						} else {
+						dataList += '					<span class="'+classRemain+'">'+remainDays+'</span>';
+						}
+						<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">
+						dataList += '					<span id="bkmkSapnAuto_'+cnt+'"><button type="button" id="btnBkmkAuto_'+cnt+'" onclick="fnBkmkType2(\''+((item.bkmkSeq) ? item.bkmkSeq : "")+'\',\''+item.vacancySeq+'\',LIKE_CATEGORY_VACANCY,\'btnBkmkAuto_'+cnt+'\',\'bkmkSapnAuto_'+cnt+'\');" class="interest '+classBkmk+'">interest</button></span>';
+						</sec:authorize>
+						dataList += '				</span>';
+						dataList += '			</div>';
+						dataList += '		</div>';
+						dataList += '	</div>';
+						dataList += '</li>';
+					});
+					$("#"+divArea+" .bbs_basic >ul").append(dataList);
 				}
 			},
 			error: function(xhr, status, error) {

@@ -724,6 +724,7 @@ function fnInputValidation(classNm, flag){
  * 숫자 콤마 처리
  */
 function fnNumberWithCommas(val) {
+	if(!val) return "";
     return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
@@ -1072,7 +1073,8 @@ function commonPopup(flag, lastDepthFlag){
 		"commonFullCd" : "",
 		"commonFullNm" : "",
 		"commonCd" : "",
-		"commonNm" : ""
+		"commonNm" : "",
+		"upperCd" : ""
 	};
 	this.valueList = [];
 	this.config = flag;
@@ -1122,7 +1124,7 @@ function commonPopup(flag, lastDepthFlag){
 						if(data.result.length > 0){
 							for(var i in data.result){
 								var resultObj = data.result[i];
-								html += "<li><button type='button' class='common_selectRow' value='" + resultObj.cd +"'>" + resultObj.cdNm + "</button></li>";
+								html += "<li><button type='button' class='common_selectRow' id='" + resultObj.upperCd + "' value='" + resultObj.cd +"'>" + resultObj.cdNm + "</button></li>";
 							}
 						}
 
@@ -1172,6 +1174,7 @@ function commonPopup(flag, lastDepthFlag){
 			$(e.target).closest('.popup_box').find('.dep1').each(function(i){
 				var selectText = $(this).find('.on').find('button').text();
 				var selectVal = $(this).find('.on').find('button').val();
+				var selectUpperVal = $(this).find('.on').find('button').attr('id');
 
 				if(selectText != "" && selectVal != ""){
 					if(selectValHtml == ""){
@@ -1188,6 +1191,7 @@ function commonPopup(flag, lastDepthFlag){
 
 					values.commonCd = selectVal;
 					values.commonNm = selectText;
+					values.upperCd = selectUpperVal;
 				}
 
 			});
@@ -1609,4 +1613,35 @@ function nvl(val, rep) {
 		ret = val;
 	}
 	return ret;
+}
+
+// Message 치환
+function fnMsg(val, ...detail) {
+	if(!val) return "";
+	if(detail.length > 0) {
+		val = val.replace(/\{(\d+)\}/g, function(a, b) {
+			return detail[b];
+		});
+	}
+	return val;
+}
+
+function fnJobFairDivNm(fairDivCd) {
+	var ret = "";
+	if(fairDivCd == 'FDC0000000001') {
+		ret = "ncpf";
+	} else if(fairDivCd == 'FDC0000000002') {
+		ret = "pcpf";
+	} else if(fairDivCd == 'FDC0000000003') {
+		ret = "ep";
+	} else if(fairDivCd == 'FDC0000000004') {
+		ret = "mj";
+	} else if(fairDivCd == 'FDC0000000005') {
+		ret = "rf";
+	}
+	return ret;
+}
+
+function fnIsNew(newYn) {
+	return (newYn == 'Y') ? "new" : "";
 }

@@ -22,12 +22,6 @@
 	    		dext5AddUploadFile(resumeFileGrpSeq);
     		}
 
-			if("<c:out value="${userExistYn}"/>" == "N") {//사용자가 존재하지않음
-				alertify.alert("<spring:message code="login.findId.no.data"/>", function (e){
-					fnGoMain();
-				});
-				return false;
-			}
 
 			if("<c:out value="${connYn}"/>" == "N") {//잘못된 접근
 				alertify.alert("<spring:message code="errors.wrong.approach.msg"/>", function (e){
@@ -45,6 +39,15 @@
     		$('#workBgnDt').datepicker('setDate', 'today'); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, -1M:한달후, -1Y:일년후)
 
 
+    		$("#bgnDt").datepicker({
+    			dateFormat: 'dd/mm/yy', //Input Display Format 변경
+    			showOn: "both",
+    			minDate: "0M", //최소 선택일자(-1D:하루전, -1M:한달전, -1Y:일년전)
+    			maxDate: "3M", //최소 선택일자(-1D:하루전, -1M:한달전, -1Y:일년전)
+    		});
+
+    		$('#bgnDt').datepicker('setDate', 'today'); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, -1M:한달후, -1Y:일년후)
+
     		$("#endDt").datepicker({
     			dateFormat: 'dd/mm/yy', //Input Display Format 변경
     			showOn: "both",
@@ -58,6 +61,10 @@
     		<c:if test="${!empty result}">
 	    		if("${result.workBgnDt}" != null && "${result.workBgnDt}" != "") {
 	    			$('#workBgnDt').val("${result.workBgnDt}");
+	    		}
+
+	    		if("${result.bgnDt}" != null && "${result.bgnDt}" != "") {
+	    			$('#bgnDt').val("${result.bgnDt}");
 	    		}
 
 	    		if("${result.endDt}" != null && "${result.endDt}" != "") {
@@ -285,12 +292,27 @@
 				return false;
 			}
 
+			//채용시작일
+			if($("#bgnDt").val() == "") {
+				alertify.alert("<spring:message code="compny.vacancy.errors.msg46"/>", function (e){
+					$("#bgnDt").focus();
+				});
+				return false;
+			}
 
 			//채용마감일
 			if($("#endDt").val() == "") {
 				alertify.alert("<spring:message code="compny.vacancy.errors.msg5"/>", function (e){
 					$("#endDt").focus();
 				});
+				return false;
+			}
+
+			if($("#bgnDt").val() > $("#endDt").val()) {
+				alertify.alert("<spring:message code="mypage.instt.eduTrnng.erros.msg7"/>", function (e){
+					$("#endDt").focus();
+				});
+
 				return false;
 			}
 
@@ -1217,6 +1239,8 @@
 								<th scope="row"><span class="exactly y"><spring:message code="member.join.msg.required"/></span> <spring:message code="compny.vacancy.msg.title7"/></th>
 								<td>
 									<span class="bbs_time type2">
+										<label for="bgnDt" class="skip">date</label>
+										<input type="text" id="bgnDt" name="bgnDt" readonly> ~
 										<label for="endDt" class="skip">date</label>
 										<input type="text" id="endDt" name="endDt" readonly>
 									</span>

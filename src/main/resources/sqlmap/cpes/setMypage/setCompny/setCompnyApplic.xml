@@ -175,6 +175,7 @@
 			, REFERRAL_YN
 			, REG_DT
 			, REG_USER_SEQ
+			, DEL_YN
 		) VALUES (
 			  #{applicSeq}
 			, #{content}
@@ -189,6 +190,8 @@
 			, #{referralYn}
 			, NOW()
 			, #{regUserSeq}
+			, 'N'
 		)
 	</insert>
+
 </mapper>

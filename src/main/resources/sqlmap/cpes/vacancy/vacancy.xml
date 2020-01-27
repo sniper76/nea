@@ -199,6 +199,28 @@
 	</sql>
 
 
+	<!-- 채용공고 메인 조건 -->
+	<sql id="whereIndexVacancyCond">
+		WHERE A.VACANCY_STS_CD = 'VCS0000000001'
+		AND A.USE_YN = 'Y'
+		AND A.DEL_YN = 'N'
+		AND B.USE_YN = 'Y'
+		AND B.DEL_YN = 'N'
+	</sql>
+
+
+	<!-- 메인 오늘의 채용공고 조건 -->
+	<sql id="whereIndexTodayVacancyCond">
+		  WHERE A.REG_DT <![CDATA[ >= ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL -1 DAY)
+		  AND A.REG_DT <![CDATA[ <  ]]> DATE_ADD(NOW(), INTERVAL 0 DAY)
+		  AND B.VACANCY_STS_CD = 'VCS0000000001'
+		  AND B.JC_AGREE_STS_CD = 'JAS0000000001'
+		  AND B.DEL_YN = 'N'
+		  AND B.USE_YN = 'Y'
+		  AND C.DEL_YN = 'N'
+		  AND C.USE_YN = 'Y'
+	</sql>
+
 	<!-- 정렬 조건 -->
 	<sql id="sortVacancyCond">
 		ORDER BY
@@ -268,7 +290,7 @@
 				A.ETC_INSU_YN,
 				A.ETC_INSU_SPEC,
 				A.MIN_EDU_DEGREE_CD,
-				FN_GET_COMMON_NM('MIN_EDU_DEGREE_CD', A.MIN_EDU_DEGREE_CD, #{langCd}) AS MIN_EDU_DEGREE_NM,
+				FN_GET_COMMON_NM('EDU_DEGREE_CD', A.MIN_EDU_DEGREE_CD, #{langCd}) AS MIN_EDU_DEGREE_NM,
 				A.ISCED_CD,
 				FN_GET_COMMON_NM('ISCED_CD', A.ISCED_CD, #{langCd}) AS ISCED_NM,
 				A.PRO_LICNS_YN,
@@ -337,13 +359,7 @@
                 B.COMPNY_WEBSITE,
                 FN_GET_ISIC_NM(B.ISIC_CD, #{langCd}) AS COMPNY_ISIC_NM,
                 B.BKMK_CNT AS COMPNY_BMK_CNT,
-	          	(
-	          	 	SELECT F.BKMK_SEQ
-	          	 	FROM CPES_BKMK F
-	          	 	WHERE F.CATE_CD = 'BCT0000000003'
-	          	 	AND F.TABLE_KEY_SEQ = A.VACANCY_SEQ
-	          	 	AND F.USER_SEQ = #{condUserSeq}
-	          	 ) AS BKMK_SEQ,
+                FN_GET_BKMK_SEQ(#{condUserSeq}, 'BCT0000000003', A.VACANCY_SEQ) AS BKMK_SEQ,
 	          	(
 	          	 	SELECT F.RESUME_SEQ
 	          	 	FROM CPES_RESUME F
@@ -351,7 +367,8 @@
 	          	 	AND F.USE_YN = 'Y'
 	          	 	AND F.PRI_RESUME_YN = 'Y'
 	          	 ) AS RESUME_SEQ,
-	          	 FN_GET_FILE_PATH(B.LOGO_FILE_GRP_SEQ) AS FILE_PATH
+	          	 FN_GET_FILE_PATH(B.LOGO_FILE_GRP_SEQ) AS FILE_PATH,
+	          	 FN_GET_MASKING_DISPLAY_YN2(A.VACANCY_SEQ, #{condUserSeq}) AS DISPLAY_YN
             FROM CPES_VACANCY A
             INNER JOIN CPES_COMPNY B
             ON A.COMPNY_SEQ = B.COMPNY_SEQ
@@ -385,6 +402,7 @@
 		 		AND G.USE_YN = 'Y'
 		 		AND G.PRI_RESUME_YN = 'Y'
             )
+            LIMIT 1
         ]]>
     </select>
 
@@ -433,6 +451,7 @@
 			 		AND G.USE_YN = 'Y'
 			 		AND G.PRI_RESUME_YN = 'Y'
 		 		)
+		 		LIMIT 1
             )
             AND A.DEL_YN = 'N'
         ]]>
@@ -565,7 +584,7 @@
 	<!-- 오늘의 인기기업 수 -->
 	<select id="selectVacancyPopulateCompnyTodayListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
 		/*vacancy.selectVacancyPopulateCompnyTodayListCnt*/
-		SELECT COUNT(1) AS CNT
+		SELECT COUNT(DISTINCT A.COMPNY_SEQ) AS CNT
 		  FROM CPES_BATCH_TODAY_POPUL_COMPNY A
 		       INNER JOIN
 		       CPES_COMPNY B
@@ -583,7 +602,8 @@
 	<!-- 오늘의 인기기업 목록 -->
 	<select id="selectVacancyPopulateCompnyTodayList" resultType="ony.cpes.external.vacancy.bean.PopulCompnyBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
        	/*vacancy.selectVacancyPopulateCompnyTodayList*/
-		SELECT A.COMPNY_SEQ
+		SELECT DISTINCT
+		       A.COMPNY_SEQ
 		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.COMPNY_NM_KH ELSE B.COMPNY_NM_EN END AS COMPNY_NM
 		     , A.COMPNY_BKMK_CNT AS BKMK_CNT
 		     , A.RANKING
@@ -617,7 +637,7 @@
 	<!-- 이주의 인기기업 수 -->
 	<select id="selectVacancyPopulateCompnyByWeekListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
 		/*vacancy.selectVacancyPopulateCompnyByWeekListCnt*/
-		SELECT COUNT(1) AS CNT
+		SELECT COUNT(DISTINCT A.COMPNY_SEQ) AS CNT
 		  FROM CPES_BATCH_WEEK_POPUL_COMPNY A
 		       INNER JOIN
 		       CPES_COMPNY B
@@ -635,7 +655,8 @@
 	<!-- 이주의 인기기업 목록 -->
 	<select id="selectVacancyPopulateCompnyByWeekList" resultType="ony.cpes.external.vacancy.bean.PopulCompnyBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
        	/*vacancy.selectVacancyPopulateCompnyByWeekList*/
-		SELECT A.COMPNY_SEQ
+		SELECT DISTINCT
+		       A.COMPNY_SEQ
 		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.COMPNY_NM_KH ELSE B.COMPNY_NM_EN END AS COMPNY_NM
 		     , A.COMPNY_BKMK_CNT AS BKMK_CNT
 		     , A.RANKING
@@ -670,7 +691,7 @@
 	<!-- 이달의 인기기업 수 -->
 	<select id="selectVacancyPopulateCompnyByMonthListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
 		/*vacancy.selectVacancyPopulateCompnyByMonthListCnt*/
-		SELECT COUNT(1) AS CNT
+		SELECT COUNT(DISTINCT A.COMPNY_SEQ) AS CNT
 		  FROM CPES_BATCH_MONTH_POPUL_COMPNY A
 		       INNER JOIN
 		       CPES_COMPNY B
@@ -688,7 +709,8 @@
 	<!-- 이달의 인기기업 목록 -->
 	<select id="selectVacancyPopulateCompnyByMonthList" resultType="ony.cpes.external.vacancy.bean.PopulCompnyBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
        	/*vacancy.selectVacancyPopulateCompnyByMonthList*/
-		SELECT A.COMPNY_SEQ
+		SELECT DISTINCT
+		       A.COMPNY_SEQ
 		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.COMPNY_NM_KH ELSE B.COMPNY_NM_EN END AS COMPNY_NM
 		     , A.COMPNY_BKMK_CNT AS BKMK_CNT
 		     , A.RANKING
@@ -767,7 +789,7 @@
 		   AND B.ADDR_CD = #{condArea}
 		 </if>
 		 ORDER BY A.RANKING
-		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+		 LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
     </select>
 
 	<!-- 인기채용공고 목록 -->
@@ -839,6 +861,113 @@
 		</if>
 		 ORDER BY RANKING
 		 LIMIT 100
+	</select>
+
+
+	<!-- 검색메인 최신공고 60개  -->
+	<select id="selectMainVacancyList" resultType="ony.cpes.external.vacancy.bean.VacancyBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+		/*vacancy.selectMainVacancyList*/
+		SELECT
+				  FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+				, FN_GET_FILE_PATH(B.LOGO_FILE_GRP_SEQ) AS FILE_PATH
+				, FN_GET_BKMK_SEQ(#{condUserSeq}, 'BCT0000000003', A.VACANCY_SEQ) AS BKMK_SEQ
+                , A.VACANCY_SEQ
+                , A.COMPNY_SEQ
+                , A.VACANCY_TITLE
+                , A.RECRUMT_MEMB
+                , FN_GET_COMPNY_NM(B.COMPNY_SEQ, #{langCd}) AS COMPNY_NM
+                , FN_GET_BASE_DATE_CHAR(A.END_DT, #{langCd}) AS END_DT
+                , A.MIN_WORK_EXP_YN
+                , A.MIN_WORK_EXP
+		FROM CPES_VACANCY A
+		INNER JOIN CPES_COMPNY B
+		ON A.COMPNY_SEQ = B.COMPNY_SEQ
+		<include refid="whereIndexVacancyCond"/>
+		ORDER BY A.REG_DT DESC
+		LIMIT #{condLimit}
+	</select>
+
+	<!-- 이달의 인기기업기업  -->
+	<select id="selectMonthCompnyList" resultType="ony.cpes.external.vacancy.bean.PopulCompnyBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+		/*vacancy.selectMonthCompnyList*/
+		SELECT A.COMPNY_SEQ
+		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.COMPNY_NM_KH ELSE B.COMPNY_NM_EN END AS COMPNY_NM
+		     , FN_GET_FILE_PATH(B.LOGO_FILE_GRP_SEQ) AS FILE_PATH
+		FROM CPES_BATCH_MONTH_POPUL_COMPNY A
+		INNER JOIN CPES_COMPNY B
+		ON B.COMPNY_SEQ = A.COMPNY_SEQ
+		WHERE A.REG_DT <![CDATA[ >= ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL -30 DAY)
+		AND A.REG_DT <![CDATA[ <  ]]> DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL   0 DAY)
+		ORDER BY A.RANKING
+		LIMIT 6
+	</select>
+
+
+	<!-- 오늘의  인기 채용공고  -->
+	<select id="selectTodayVacancyListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+		/*vacancy.selectTodayVacancyListCnt*/
+		SELECT COUNT(1)
+		FROM (
+			SELECT A.VACANCY_SEQ
+			FROM CPES_BATCH_TODAY_POPUL_VACANCY A
+			INNER JOIN CPES_VACANCY B
+			ON B.VACANCY_SEQ = A.VACANCY_SEQ
+			INNER JOIN CPES_COMPNY C
+			ON C.COMPNY_SEQ = B.COMPNY_SEQ
+			<include refid="whereIndexTodayVacancyCond"/>
+			LIMIT #{condLimit}
+		) A
+	</select>
+
+
+	<!-- 오늘의  인기 채용공고  -->
+	<select id="selectTodayVacancyList" resultType="ony.cpes.external.vacancy.bean.PopulVacancyBean" parameterType="ony.cpes.external.vacancy.bean.CondVacancyBean">
+		/*vacancy.selectTodayVacancyList*/
+		SELECT    A.VACANCY_SEQ
+				, A.RANKING
+				, A.BKMK_SEQ
+				, A.COMPNY_NM
+				, A.LOGO_FILE_PATH
+				, A.VACANCY_TITLE
+				, A.RECRUMT_MEMB
+				, A.MIN_SALARY_AMT
+				, A.MAX_SALARY_AMT
+				, A.VACANCY_STS_CD
+				, A.EMPLOY_FORM_NM
+				, A.ADDR_NM
+				, A.REMAIN_DT
+				, A.REMAIN_DIV
+		FROM (
+			SELECT A.VACANCY_SEQ
+			     , A.RANKING
+			     , FN_GET_BKMK_SEQ(#{condUserSeq}, 'BCT0000000003', B.VACANCY_SEQ) AS BKMK_SEQ
+			     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN C.COMPNY_NM_KH ELSE C.COMPNY_NM_EN END AS COMPNY_NM
+			     , FN_GET_FILE_PATH(C.LOGO_FILE_GRP_SEQ) AS LOGO_FILE_PATH
+			     , B.VACANCY_TITLE
+			     , B.RECRUMT_MEMB
+			     , B.MIN_SALARY_AMT
+			     , B.MAX_SALARY_AMT
+			     , B.VACANCY_STS_CD
+			     , FN_GET_COMMON_NM('EMPLOY_FORM_CD', B.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_NM
+				 , (
+					 	SELECT FN_GET_ADDR_NM(SUBSTR(F.ADDR_FULL_CD,1,3), '2', #{langCd})
+					 	FROM CPES_VACANCY_LOC F
+					 	WHERE F.VACANCY_SEQ = B.VACANCY_SEQ
+					 	LIMIT 1
+				  ) AS ADDR_NM
+			     , FN_GET_REMAIN_CNT(B.END_DT) AS REMAIN_DT
+			     , FN_GET_REMAIN_DIV(B.END_DT) AS REMAIN_DIV
+			  FROM CPES_BATCH_TODAY_POPUL_VACANCY A
+			  INNER JOIN CPES_VACANCY B
+			  ON B.VACANCY_SEQ = A.VACANCY_SEQ
+			  INNER JOIN CPES_COMPNY C
+			  ON C.COMPNY_SEQ = B.COMPNY_SEQ
+			  <include refid="whereIndexTodayVacancyCond"/>
+			  ORDER BY A.RANKING
+		  	  LIMIT #{condLimit}
+		) A
+		LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+
 	</select>
 
 </mapper>

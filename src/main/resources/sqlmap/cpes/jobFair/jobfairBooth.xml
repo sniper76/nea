@@ -51,7 +51,7 @@
     <!-- jobfair booth Reservation Waiting information -->
 	<select id="selectJobFairBoothResvWait" resultType="ony.cpes.external.jobfair.bean.JobFairBoothResvWaitBean" parameterType="hashmap">
 		/*jobFairBooth.selectJobFairBoothResvWait*/
-		SELECT FAIR_BOOTH_RESV_WAIT_SEQ
+		SELECT FAIR_BOOTH_WAIT_SEQ
 		     , COMPNY_INSTT_SEQ
 		     , COMPNY_INSTT_DIV_CD
 		     , FAIR_SEQ
@@ -60,9 +60,9 @@
 		     , MNGER_CELL
 		     , REG_USER_SEQ
 		     , REG_DT
-		  FROM CPES_FAIR_BOOTH_RESV_WAIT A
+		  FROM CPES_FAIR_BOOTH_WAIT_REQ A
 		 WHERE A.FAIR_SEQ = #{fairSeq}
-		   <if test="compnyInsttDivCd.equals('CIDC000000001')">
+		   <if test="compnyInsttDivCd.equals('CID0000000001')">
 		   AND A.COMPNY_INSTT_SEQ = (
 				SELECT COMPNY_SEQ
 				  FROM CPES_COMPNY
@@ -70,7 +70,7 @@
 				 LIMIT 1
 		       )
 		   </if>
-		   <if test="compnyInsttDivCd.equals('CIDC000000002')">
+		   <if test="compnyInsttDivCd.equals('CID0000000002')">
 		   AND A.COMPNY_INSTT_SEQ = (
 				SELECT INSTT_SEQ
 				  FROM CPES_INSTT

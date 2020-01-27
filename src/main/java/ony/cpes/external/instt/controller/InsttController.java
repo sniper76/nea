@@ -236,7 +236,7 @@ public class InsttController extends BaseController{
 
 			CpesPaginationTag pTag = new CpesPaginationTag();
 
-			mv.addObject("totalPageCount", paginationInfo.getTotalPageCount());
+			mv.addObject("totalPageCount", paginationInfo.getTotalRecordCount());
 			mv.addObject("currentPageNo", paginationInfo.getCurrentPageNo());
 			mv.addObject(ConstVal.PAGINATION_INFO_KEY, pTag.getPagination(req, paginationInfo, "fnGoSrch"));
 

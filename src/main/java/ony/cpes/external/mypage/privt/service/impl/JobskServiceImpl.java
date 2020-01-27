@@ -83,6 +83,7 @@ public class JobskServiceImpl implements JobskService {
 			condJobskBean.setCondStatCd("JSC0000000002");
 			condJobskBean.setModUserSeq(param.getModUserSeq());
 			condJobskBean.setCondSeq(param.getModUserSeq());
+			condJobskBean.setCondUserSeq(param.getModUserSeq());
 			result += jobskDAO.updateUserJobskYn(condJobskBean);
 		}
 

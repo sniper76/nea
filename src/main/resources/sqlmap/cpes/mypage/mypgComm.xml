@@ -3,6 +3,7 @@
 <mapper namespace="mypgComm">
 
 	<select id="selectResumeApplic" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.ApplicBean">
+		/*mypgComm.selectResumeApplic*/
 		SELECT AP.APPLIC_SEQ
 			 , AP.APPLIC_PROC_CD
 		FROM CPES_APPLIC AP
@@ -16,6 +17,7 @@
 	</select>
 
 	<select id="selectResumeIntvw" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.IntvwBean">
+		/*mypgComm.selectResumeIntvw*/
 		SELECT INTV.INTVW_SEQ
 
 		FROM CPES_INTVW INTV
@@ -28,9 +30,11 @@
 		WHERE AP.RESUME_SEQ = #{resumeSeq}
 		AND COMPNY.USER_SEQ = #{userSeq}
 		AND VAC.VACANCY_SEQ = #{vacancySeq}
+		AND INTV.DEL_YN = 'N'
 	</select>
 
 	<select id="selectResumeOffer" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="ony.cpes.external.mypage.privt.bean.OfferBean">
+		/*mypgComm.selectResumeOffer*/
 		SELECT OFF.OFFER_SEQ
 			 , OFF.OFFER_ACPT_YN
 		FROM CPES_OFFER OFF
@@ -44,12 +48,21 @@
 	</select>
 
 	<select id="selectVacancycheck" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="int">
+		/*mypgComm.selectVacancycheck*/
 		SELECT COUNT(1) AS CNT
 		FROM CPES_VACANCY VAC
 			LEFT JOIN CPES_COMPNY COMPNY
 			ON VAC.COMPNY_SEQ = COMPNY.COMPNY_SEQ
 		WHERE COMPNY.USER_SEQ = #{userSeq}
 		AND VAC.VACANCY_SEQ = #{vacancySeq}
+	</select>
+
+	<select id="selectResumeOpenCompanyCnt" parameterType="ony.cpes.external.mypage.privt.bean.ResumeBean" resultType="string">
+		/*mypgComm.selectResumeOpenCompanyCnt*/
+		SELECT RESUME_OPEN_COMPNY_SEQ
+		FROM CPES_RESUME_OPEN_COMPNY
+		WHERE RESUME_SEQ = #{resumeSeq}
+		AND COMPNY_SEQ = (SELECT COMPNY_SEQ FROM CPES_COMPNY WHERE USER_SEQ = #{userSeq})
 	</select>
 
 </mapper>

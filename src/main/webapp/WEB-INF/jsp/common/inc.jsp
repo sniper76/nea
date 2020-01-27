@@ -6,6 +6,8 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec" %>
 <%@ taglib uri="/WEB-INF/tlds/CustomFunctionTag.tld" prefix="cFun" %>
+<%@ taglib prefix="masking" uri="tld/MaskingUtil.tld"%>
+
 <%
 	response.setHeader("Cache-Control","no-store");
 	response.setHeader("Pragma","no-cache");

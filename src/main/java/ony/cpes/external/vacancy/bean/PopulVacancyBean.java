@@ -40,6 +40,7 @@ public class PopulVacancyBean extends CommonBean {
 	private String remainDiv;
 	private String preferEmploymtTypeNm;
 	private String addrFullNm;
+	private String addrNm;
 
 	public String getVacancySeq() {
 		return vacancySeq;
@@ -160,6 +161,12 @@ public class PopulVacancyBean extends CommonBean {
 	}
 	public void setAddrFullNm(String addrFullNm) {
 		this.addrFullNm = addrFullNm;
+	}
+	public String getAddrNm() {
+		return addrNm;
+	}
+	public void setAddrNm(String addrNm) {
+		this.addrNm = addrNm;
 	}
 
 }

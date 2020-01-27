@@ -2,6 +2,7 @@ package ony.cpes.external.vacancy.service;
 
 import java.util.List;
 
+import ony.cpes.external.member.bean.CompanyBean;
 import ony.cpes.external.mypage.privt.bean.ApplicBean;
 import ony.cpes.external.mypage.privt.bean.IntvwBean;
 import ony.cpes.external.mypage.privt.bean.OfferBean;
@@ -147,5 +148,43 @@ public interface VacancyService {
 	 * @throws Exception
 	 */
 	public List<PopulVacancyBean> selectVacancyPopulateList(CondVacancyBean param) throws Exception;
+
+
+
+
+
+	/**
+	 * 채용공고  최신 60개
+	 * vacancy list
+	 * @param param
+	 * @return List<VacancyBean>
+	 */
+	public List<VacancyBean> selectMainVacancyList(CondVacancyBean param) throws Exception;
+
+
+	/**
+	 * 이달의 인기기업
+	 * month company list
+	 * @param param
+	 * @return List<PopulCompnyBean>
+	 */
+	public List<PopulCompnyBean> selectMonthCompnyList(CondVacancyBean param) throws Exception;
+
+
+	/**
+	 * 오늘의 인기 채용공고
+	 * vacancy today list
+	 * @param param
+	 * @return int
+	 */
+	public int selectTodayVacancyListCnt(CondVacancyBean param) throws Exception;
+
+	/**
+	 * 오늘의 인기 채용공고
+	 * vacancy today list
+	 * @param param
+	 * @return List<PopulVacancyBean>
+	 */
+	public List<PopulVacancyBean> selectTodayVacancyList(CondVacancyBean param) throws Exception;
 
 }

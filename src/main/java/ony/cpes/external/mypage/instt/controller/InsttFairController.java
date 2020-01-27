@@ -265,6 +265,88 @@ public class InsttFairController extends BaseController{
 		return mv;
 	}
 
+	/**
+	 * 참가 채용행사 관리
+	 * join fair list
+	 * @param req
+	 * @param res
+	 * @return ModelAndView
+	 * @throws Exception
+	 */
+	  @RequestMapping("/joinList")
+	  public ModelAndView joinList(Locale locale,
+	  			@RequestParam(required = false, defaultValue = "1") int currentPageNo,
+	  			@RequestParam(required = false, defaultValue = "10") int pageUnit,
+	  			@RequestParam(required = false, defaultValue = "10") int pageSize,
+				@ModelAttribute("ConditionBean") ConditionBean conditionBean,
+				@ModelAttribute("CondFairBean") CondFairBean condFairBean,
+				Principal principal,
+				HttpServletRequest req,
+				HttpServletResponse res) throws Exception {
 
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("mypage/instt/fair/joinList.left");
+
+
+		condFairBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
+		condFairBean.setCondUserSeq(SessionUtil.getUserSeq(req));
+
+      	PaginationInfo paginationInfo = PageUtil.getPageInfo(currentPageNo, pageUnit, pageSize);
+      	condFairBean.setFirstIndex(paginationInfo.getFirstRecordIndex());
+      	condFairBean.setLastIndex(paginationInfo.getLastRecordIndex());
+      	condFairBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+      	int totCnt = insttFairService.selectJoinListCnt(condFairBean);
+      	paginationInfo.setTotalRecordCount(totCnt);
+    	mv.addObject(ConstVal.PAGINATION_INFO_KEY, paginationInfo);
+
+    	if(totCnt > 0) {
+    		mv.addObject(ConstVal.RESULT_LIST_KEY, insttFairService.selectJoinList(condFairBean));
+    	}
+
+		return mv;
+
+	}
+
+
+	/**
+	 * 채용행사 취소
+	 * cancel fair request
+	 * @param req
+	 * @param res
+	 * @return ModelAndView
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unused")
+	@RequestMapping(value = "/fairCancelProcessAjax", method = RequestMethod.POST)
+	public ModelAndView inviteCancelProcessAjax(Locale locale,
+				@ModelAttribute("ConditionBean") ConditionBean conditionBean,
+				@ModelAttribute("CondFairBean") CondFairBean condFairBean,
+				Principal principal,
+				HttpServletRequest req,
+				HttpServletResponse res) throws Exception {
+
+		ModelAndView mv = new ModelAndView();
+		AjaxResultBean ajaxResultBean = new AjaxResultBean();
+
+		String userSeq = SessionUtil.getUserSeq(req);
+		condFairBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
+		condFairBean.setCondUserSeq(userSeq);
+  		condFairBean.setRegUserSeq(userSeq);
+  		condFairBean.setModUserSeq(userSeq);
+
+  		if(insttFairService.updateFairCancel(condFairBean) > 0) {
+  			ajaxResultBean.setSuccessYn(ConstVal.YES_VAL);//입력실패,insert fail
+      		ajaxResultBean.setStatCd(ConstVal.STAT_CD_SUCCESS_VAL);
+  		} else {
+  			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);//입력실패,insert fail
+      		ajaxResultBean.setStatCd(ConstVal.CODE_02_VAL);
+  		}
+
+		mv.addObject(ConstVal.RESULT_KEY,ajaxResultBean);
+	  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+
+		return mv;
+	}
 
 }

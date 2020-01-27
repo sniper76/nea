@@ -18,7 +18,7 @@ package ony.cpes.external.jobfair.bean;
  */
 public class JobFairBoothResvWaitBean {
 
-	private String fairBoothResvWaitSeq;
+	private String fairBoothWaitSeq;
 	private String compnyInsttSeq;
 	private String compnyInsttDivCd;
 	private String fairSeq;
@@ -28,11 +28,11 @@ public class JobFairBoothResvWaitBean {
 	private String regUserSeq;
 	private String regDt;
 
-	public String getFairBoothResvWaitSeq() {
-		return fairBoothResvWaitSeq;
+	public String getFairBoothWaitSeq() {
+		return fairBoothWaitSeq;
 	}
-	public void setFairBoothResvWaitSeq(String fairBoothResvWaitSeq) {
-		this.fairBoothResvWaitSeq = fairBoothResvWaitSeq;
+	public void setFairBoothWaitSeq(String fairBoothWaitSeq) {
+		this.fairBoothWaitSeq = fairBoothWaitSeq;
 	}
 	public String getCompnyInsttSeq() {
 		return compnyInsttSeq;

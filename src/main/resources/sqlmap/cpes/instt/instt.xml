@@ -165,7 +165,7 @@
                  , CASE WHEN A.INSTT_OWNER_CD = 'IOS0000000001' THEN 'private'
 	                 WHEN A.INSTT_OWNER_CD = 'IOS0000000002' THEN 'ngo'
 	                 WHEN A.INSTT_OWNER_CD = 'IOS0000000003' THEN 'government' end AS INSTT_DIV_CLASS
-                 , A.INSTT_LOGO_FILE_GRP_SEQ
+                 , FN_GET_FILE_PATH(A.INSTT_LOGO_FILE_GRP_SEQ) AS FILE_PATH
 	          	 , FN_GET_BKMK_SEQ(#{condUserSeq}, #{condCateCd}, A.INSTT_SEQ) AS BKMK_SEQ
 	             , FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
 			FROM CPES_INSTT A

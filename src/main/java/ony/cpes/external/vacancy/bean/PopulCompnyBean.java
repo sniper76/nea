@@ -29,6 +29,7 @@ public class PopulCompnyBean extends CommonBean {
 	private String bkmkSeq;
 	private String logoFileGrpSeq;
 	private String logoFilePath;
+	private String filePath;
 
 	public String getCompnySeq() {
 		return compnySeq;
@@ -83,6 +84,12 @@ public class PopulCompnyBean extends CommonBean {
 	}
 	public void setLogoFilePath(String logoFilePath) {
 		this.logoFilePath = logoFilePath;
+	}
+	public String getFilePath() {
+		return filePath;
+	}
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
 	}
 
 }

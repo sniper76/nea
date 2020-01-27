@@ -96,7 +96,7 @@
 							<c:forEach var="data" items="${resultList}" varStatus="status">
 								<li>
 									<div class="contents_box <c:if test="${data.ntcYn == 'Y'}">notice</c:if>"><!-- 공지일 경우 클래스 noitce 추가 -->
-										<div class="img_box"><img src="${pageContext.request.contextPath}/images/board/dummy.png" alt=" image" /></div>
+										<div class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${data.filePath}" alt=" image" onerror="fnNoImage(this)"/></div>
 										<div class="title_box <c:if test="${data.newYn == 'Y'}">new</c:if>"><!-- 새 게시물일 경우 클래스  new 추가 -->
 											<a href="javascript:fnGoView('${data.bulletinSeq}')">
 												<strong class="title"><c:out value="${data.title}"/></strong>
@@ -139,10 +139,10 @@
 													<span id="likeCnt_${status.count}"><fmt:formatNumber type="number" maxFractionDigits="3" value="${data.likeCnt}" /></span>
 												</span>
 											</c:if>
-											<c:if test="${result.fileYn == 'Y'}">
+											<c:if test="${result.fileYn == 'Y' && data.fileGrpSeq != ''}">
 											<span class="cont">
 												<span class="bbs_ico attachments"><spring:message code="counsel.msg.download"/>
-													<span>2</span>
+													<span><c:out value="${data.fileCnt }" /></span>
 												</span>
 											</span><!-- 첨부파일 있을 경우 표기 사용(첨부파일이 2개 이상일 경우 <span>2</span>) -->
 											</c:if>

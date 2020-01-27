@@ -3,6 +3,7 @@ package ony.cpes.external.jobfair.service;
 import java.util.List;
 
 import ony.cpes.external.jobfair.bean.CondJobFairCenterBean;
+import ony.cpes.external.jobfair.bean.CondWorkShopBean;
 import ony.cpes.external.jobfair.bean.JobFairBoothBean;
 import ony.cpes.external.jobfair.bean.JobFairBoothHistBean;
 import ony.cpes.external.jobfair.bean.JobFairBoothResvWaitBean;
@@ -11,6 +12,7 @@ import ony.cpes.external.jobfair.bean.JobFairPatcptnBean;
 import ony.cpes.external.jobfair.bean.JobFairPatcptnCompnyBean;
 import ony.cpes.external.jobfair.bean.JobFairPatcptnInsttBean;
 import ony.cpes.external.jobfair.bean.JobFairPatcptnOnlineBean;
+import ony.cpes.external.jobfair.bean.WorkShopBean;
 import ony.cpes.external.mypage.privt.bean.InterestBean;
 
 public interface JobFairService {
@@ -79,6 +81,20 @@ public interface JobFairService {
 	public List<InterestBean> selectJobFairByEduInstts (CondJobFairCenterBean param) throws Exception;
 
 	/**
+	 * jobfair detail by work shop count
+	 * @param param
+	 * @return int
+	 */
+	public int selectJobFairByWorkShopsCnt (CondJobFairCenterBean param) throws Exception;
+
+	/**
+	 * jobfair detail by work shop
+	 * @param param
+	 * @return List<CompanyBean>
+	 */
+	public List<InterestBean> selectJobFairByWorkShops (CondJobFairCenterBean param) throws Exception;
+
+	/**
 	 * jobfair apply list count
 	 * @param param
 	 * @return int
@@ -100,6 +116,46 @@ public interface JobFairService {
 	public JobFairCenterBean selectJobFairApplyInfo(CondJobFairCenterBean param) throws Exception;
 
 	/**
+	 * jobFair by workshop count
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+	public int selectJobFairWorkShopCnt(CondWorkShopBean param) throws Exception;
+
+	/**
+	 * jobFair by workshop detail
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+	public WorkShopBean selectJobFairWorkShop(CondWorkShopBean param) throws Exception;
+
+	/**
+	 * jobFair by user workshop count
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+	public int selectUserByWorkShopsCnt(CondWorkShopBean param) throws Exception;
+
+	/**
+	 * user by workshop delete
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+	public int deleteUserByWorkshop(CondWorkShopBean param) throws Exception;
+
+	/**
+	 * user by workshop list
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+	public List<WorkShopBean> selectUserByWorkShops(CondWorkShopBean param) throws Exception;
+
+	/**
 	 * 참가신청 (일반/학생)
 	 * Participate job fair (Online)
 	 * @param param
@@ -107,6 +163,8 @@ public interface JobFairService {
 	 * @throws Exception
 	 */
 	public int insertJobFairApplyPatcptnOnline(JobFairPatcptnBean param) throws Exception;
+
+	public int insertFairWorkshopPatcptn(WorkShopBean param) throws Exception;
 
 	/**
 	 * Job Fair Participate information (online)

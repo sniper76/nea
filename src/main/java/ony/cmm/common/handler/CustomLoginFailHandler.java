@@ -25,6 +25,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ony.cmm.common.ConstVal;
+import ony.cmm.common.util.EncryptUtil;
 import ony.cpes.external.login.service.LoginService;
 import ony.cpes.external.user.bean.UserBean;
 
@@ -51,7 +52,7 @@ public class CustomLoginFailHandler implements AuthenticationFailureHandler {
     	String statCd = "";
 
     	UserBean ub = new UserBean();
-    	ub.setMngId(userEmail);
+    	ub.setMngId(EncryptUtil.getAes256Enc(userEmail));
 
 
 

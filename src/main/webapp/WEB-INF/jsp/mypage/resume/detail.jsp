@@ -83,20 +83,20 @@
 				</div>
 				<div class="contents_box">
 					<div class="title_box">
-						<strong class="title"><c:out value="${memberBean.userNmKh }" escapeXml="false"/></strong>
+						<strong class="title">${masking:getNmMasking(memberBean.userNm, resumeDetail.displayYn)}</strong>
 					</div>
 					<div class="cont_box">
 						<ul class="clearfix">
 						<li>
 							<div class="cont">
 								<strong class="title">email</strong>
-								<span class="con"><c:out value="${memberBean.userEmail }" escapeXml="false"/></span>
+								<span class="con">${masking:getEmailMasking(memberBean.userEmail, resumeDetail.displayYn)}</span>
 							</div>
 						</li>
 						<li>
 							<div class="cont">
 								<strong class="title">Mobile</strong>
-								<span class="con"><c:out value="${memberBean.userCell }" escapeXml="false"/></span>
+								<span class="con">${masking:getPhoneNumberMasking(memberBean.userCell, resumeDetail.displayYn)}</span>
 							</div>
 						</li>
 						<li>
@@ -615,15 +615,15 @@
 					<div class="contents_box">
 						<div class="view_form">
 							<strong class="title">Job Center</strong>
-							<p class="cont_box">Street Kmapuchea</p>
+							<p class="cont_box"><c:out value="${jobskReqDetail.jcNm }" /></p>
 						</div>
 						<div class="view_form">
 							<strong class="title">Job Center Officer Name</strong>
-							<p class="cont_box">Street Kmapuchea</p>
+							<p class="cont_box"><c:out value="${jobskReqDetail.jcUserNm }" /></p>
 						</div>
 						<div class="view_form">
 							<strong class="title">Signed</strong>
-							<p class="cont_box">31/12/2019</p>
+							<p class="cont_box"><c:out value="${jobskReqDetail.jcAgreeDt }" /></p>
 						</div>
 					</div>
 					<div class="contents_box">
@@ -645,7 +645,7 @@
 					<a href="javascript:goResumeList();" class="bbs_btn list">LIST</a>
 				</span>
 				<span class="bbs_right on">
-					<c:if test="${memberBean.userSeq eq resumeDetail.userSeq }">
+					<c:if test="${loginMember.userSeq eq resumeDetail.userSeq }">
 						<a href="javascript:goResumeUpdate();" class="bbs_btn modify">MODIFY</a>
 					</c:if>
 				</span>
@@ -698,9 +698,12 @@
 						</c:if>
 					</span>
 					<div class="recruitment_btnbox">
-						<div class="bbs_center on">
-							<button type="button" class="button save on btn_bookMark">SAVE</button>
-						</div>
+					<div class="bbs_center" id="bkmkDiv">
+						<sec:authorize access="hasAnyRole('ROLE_CMPNY')">
+							<button type="button" id="btnBkmk" onclick="fnBkmk('${resumeDetail.bkmkSeq}','${resumeDetail.resumeSeq}',LIKE_CATEGORY_RESUME, 'bkmkDiv', 'btnBkmk');" class="button save <c:if test="${!empty resumeDetail.bkmkSeq}">on</c:if>"><spring:message code="mypage.compny.profile.title13"/></button>
+						</sec:authorize>
+					</div>
+
 					</div>
 				</sec:authorize>
 			</div>

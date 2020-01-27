@@ -482,18 +482,17 @@
             	 , IFNULL(A.EDU_TRNNG_NM, '') AS EDU_TRNNG_NM
             	 , A.ADDR_CD
                  , FN_GET_ADDR_NM(SUBSTR(A.ADDR_CD,1,3), '2', #{langCd}) AS ADDR_NM
-            	 , A.TRNNG_NATNEXP_DIV_CD
-            	 , FN_GET_COMMON_NM('TRNNG_NATNEXP_DIV_CD', A.TRNNG_NATNEXP_DIV_CD, #{langCd}) AS TRNNG_NATNEXP_DIV_NM
+                 , A.ADDR_DTL
+                 , A.ADDR_FULL_CD
+                 , A.ADDR_FULL_NM
+            	 , A.NEA_EDU_DIV_CD AS TRNNG_NATNEXP_DIV_CD
+            	 , FN_GET_COMMON_NM('NEA_EDU_DIV_CD', A.NEA_EDU_DIV_CD, #{langCd}) AS TRNNG_NATNEXP_DIV_NM
             	 , A.ISCO_CD
             	 , FN_GET_ISCO_NM(ISCO_CD, #{langCd}) AS ISCO_NM
             	 , A.RECRUMT_STS_CD
             	 , FN_GET_COMMON_NM('RECRUMT_STS_CD', A.RECRUMT_STS_CD, #{langCd}) AS RECRUMT_STS_NM
-            	 , FN_GET_BASE_DATE_CHAR(A.RECURMT_BGN_DT, #{langCd}) AS RECURMT_BGN_DT
-            	 , FN_GET_BASE_DATE_CHAR(A.RECURMT_END_DT, #{langCd}) AS RECURMT_END_DT
-            	 , FN_GET_BASE_DATE_CHAR(A.EDU_BGN_DT, #{langCd}) AS EDU_BGN_DT
-            	 , FN_GET_BASE_DATE_CHAR(A.EDU_END_DT, #{langCd}) AS EDU_END_DT
-				 , FN_GET_REMAIN_CNT(A.EDU_END_DT) AS REMAIN_DT
-                 , FN_GET_REMAIN_DIV(A.EDU_END_DT) AS REMAIN_DIV
+				 , FN_GET_REMAIN_CNT(A.RECURMT_END_DT) AS REMAIN_DT
+                 , FN_GET_REMAIN_DIV(A.RECURMT_END_DT) AS REMAIN_DIV
             	 , A.VIEW_CNT
             	 , A.BKMK_CNT
 				 , IFNULL(FN_GET_BKMK_SEQ(#{condUserSeq}, #{condCateCd}, A.EDU_TRNNG_SEQ), '') AS BKMK_SEQ
@@ -524,29 +523,36 @@
             	 , C.ENROL_METHOD
             	 , C.GOOGLE_MAP_LINK
                  , C.RECRUMT_MEMB
-                 , C.MNGER_NM
+                 , A.MNGER_NM
+                 , A.MNGER_EMAIL AS EMAIL
+                 , A.MNGER_CELL AS CELL
                  , C.CONTENT
                  , C.MATR
-                 , C.EMAIL
-                 , C.CELL
+                 , C.AREA
                  , C.CURRICL
                  , C.FILE_GRP_SEQ
                  , C.LECTURE_PHOTO_FILE_GRP_SEQ
-                 , C.TEACHER_1_PHOTO_FILE_GRP_SEQ AS TEACHER_PHOTO_FILE_GRP_SEQ_1
-                 , C.TEACHER_2_PHOTO_FILE_GRP_SEQ AS TEACHER_PHOTO_FILE_GRP_SEQ_2
+                 , FN_GET_FILE_PATH(C.TEACHER_1_PHOTO_FILE_GRP_SEQ) AS TEACHER_PHOTO_FILE_GRP_SEQ_1
+                 , FN_GET_FILE_PATH(C.TEACHER_2_PHOTO_FILE_GRP_SEQ) AS TEACHER_PHOTO_FILE_GRP_SEQ_2
                  , C.TEACHER_1_CAREER AS TEACHER_CAREER_1
                  , C.TEACHER_2_CAREER AS TEACHER_CAREER_2
                  , C.TEACHER_NM_1
                  , C.TEACHER_NM_2
-                 , D.SAVE_FILE_PATH AS LECTURE_PHOTO_PATH
+
+            	 , FN_GET_BASE_DATE_CHAR(A.RECURMT_BGN_DT, #{langCd}) AS RECURMT_BGN_DT
+            	 , FN_GET_BASE_DATE_CHAR(A.RECURMT_END_DT, #{langCd}) AS RECURMT_END_DT
+
+			     , CONCAT(DATE_FORMAT(C.TEACH_DT, '%d/%m/%Y'), ' ', C.TEACH_BGN_HOUR,':',C.TEACH_BGN_MINUTE,' ',C.TEACH_BGN_AMPM) AS EDU_BGN_DT
+			     , CONCAT(C.TEACH_END_HOUR,':',C.TEACH_END_MINUTE,' ',C.TEACH_END_AMPM) AS EDU_END_DT
+                 , FN_GET_FILE_PATH(D.SAVE_FILE_PATH) AS LECTURE_PHOTO_PATH
                  , D.SAVE_NM AS LECTURE_PHOTO_NM
                  , D.ORIGINAL_NM AS LECTURE_PHOTO_ORG_NM
 
-                 , E.SAVE_FILE_PATH AS TEACHER_PHOTO_PATH_1
+                 , FN_GET_FILE_PATH(E.SAVE_FILE_PATH) AS TEACHER_PHOTO_PATH_1
                  , E.SAVE_NM AS TEACHER_PHOTO_NM_1
                  , E.ORIGINAL_NM AS TEACHER_PHOTO_ORG_NM_1
 
-                 , F.SAVE_FILE_PATH AS TEACHER_PHOTO_PATH_2
+                 , FN_GET_FILE_PATH(F.SAVE_FILE_PATH) AS TEACHER_PHOTO_PATH_2
                  , F.SAVE_NM AS TEACHER_PHOTO_NM_2
                  , F.ORIGINAL_NM AS TEACHER_PHOTO_ORG_NM_2
                  , G.EDU_TRNNG_SEQ AS USER_EDU_TRNNG_SEQ

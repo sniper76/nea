@@ -3,10 +3,6 @@
     <script>
 	var addrArr = new Array;
     	$(document).ready(function() {
-			<c:forEach var="data" items="${resultList}" >
-				addrArr.push("${data.addrNm}");
-			</c:forEach>
-			$("#eduTrnngArea").html(addrArr.join(","));
     	});
 
     	function fnApply(seq, stsCd) {
@@ -62,7 +58,7 @@
 									<li>
 										<div class="cont">
 											<strong class="tit"><spring:message code="mypage.instt.eduTrnng.title9"/></strong>
-											<span class="con">${result.recurmtBgnDt}~${result.recurmtEndDt}</span>
+											<span class="con">${result.eduBgnDt}~${result.eduEndDt}</span>
 										</div>
 									</li>
 									<li>
@@ -74,13 +70,13 @@
 									<li>
 										<div class="cont">
 											<strong class="tit"><spring:message code="compny.vacancy.msg.title8"/></strong>
-											<span class="con">${result.recrumtMemb }</span>
+											<span class="con"><fmt:formatNumber type="number" maxFractionDigits="3" value="${result.recrumtMemb }"/></span>
 										</div>
 									</li>
 									<li>
 										<div class="cont">
 											<strong class="tit"><spring:message code="mypage.instt.eduTrnng.title12"/></strong>
-											<span class="con" id="eduTrnngArea"></span>
+											<span class="con"><c:out value="${result.area }" escapeXml="false" /></span>
 										</div>
 									</li>
 									</ul>
@@ -135,7 +131,12 @@
 							<div class="view_box">
 								<div class="view_form">
 									<strong class="title"><spring:message code="eduTrnng.free.search.title15"/></strong>
-									<p class="cont_box">${result.curricl }</p>
+									<p class="cont_box">
+										<c:set var="cmt" value="${fn:replace(result.curricl,crcn,br)}" />
+										<c:set var="cmt" value="${fn:replace(cmt,cr,br)}" />
+										<c:set var="cmt" value="${fn:replace(cmt,cn,br)}" />
+										<c:set var="cmt" value="${fn:replace(cmt,' ',sp)}" />
+										<c:out value="${cmt}" escapeXml="false"/></p>
 								</div>
 							</div>
 							<!-- //view_box -->
@@ -143,7 +144,12 @@
 							<div class="view_box">
 								<div class="view_form">
 									<strong class="title"><spring:message code="eduTrnng.free.search.title16"/></strong>
-									<p class="cont_box">${result.matr }</p>
+									<p class="cont_box">
+										<c:set var="cmt" value="${fn:replace(result.matr,crcn,br)}" />
+										<c:set var="cmt" value="${fn:replace(cmt,cr,br)}" />
+										<c:set var="cmt" value="${fn:replace(cmt,cn,br)}" />
+										<c:set var="cmt" value="${fn:replace(cmt,' ',sp)}" />
+										<c:out value="${cmt}" escapeXml="false"/></p>
 								</div>
 							</div>
 							<!-- //view_box -->
@@ -151,7 +157,7 @@
 							<div class="view_box">
 								<div class="view_form">
 									<strong class="title"><spring:message code="mypage.instt.eduTrnng.title9"/></strong>
-									<p class="cont_box">${result.eduBgnDt} ~ ${result.eduEndDt}</p>
+									<p class="cont_box">${result.eduBgnDt}~${result.eduEndDt}</p>
 								</div>
 							</div>
 							<!-- //view_box -->
@@ -159,7 +165,7 @@
 							<div class="view_box">
 								<div class="view_form">
 									<strong class="title"><spring:message code="mypage.instt.eduTrnng.title12"/></strong>
-									<p class="cont_box" id="eduTrnngArea2"></p>
+									<p class="cont_box"><c:out value="${result.area }" escapeXml="false" /></p>
 								</div>
 							</div>
 							<!-- //view_box -->
@@ -167,7 +173,7 @@
 							<div class="view_box">
 								<div class="view_form">
 									<strong class="title"><spring:message code="mypage.compny.profile.title12"/></strong>
-									<p class="cont_box">${result.addrFullNm }</p>
+									<p class="cont_box"><c:out value="${result.addrFullNm }" escapeXml="false" /></p>
 									<div class="margin_t_5">
 										<a href="javascript:void(0);" onclick="javascript:fnViewMap('<c:out value="${result.googleMapLink}"/>', 1024, 768, 'MapWin');" class="bbs_btn_map"><spring:message code="jobcenter.list.button1"/></a>
 									</div>
@@ -192,7 +198,7 @@
 								</div>
 								<div class="view_form">
 									<strong class="title"><spring:message code="compny.vacancy.msg.title8"/></strong>
-									<p class="cont_box">${result.recrumtMemb }</p>
+									<p class="cont_box"><fmt:formatNumber type="number" maxFractionDigits="3" value="${result.recrumtMemb }"/></p>
 								</div>
 							</div>
 							<!-- //view_box -->
@@ -205,7 +211,7 @@
 										<c:if test="${result.teacherNm1 != null }">
 										<li>
 											<div class="box_wrap">
-												<div class="img_box"><img src="${pageContext.request.contextPath}${result.teacherPhotoPath1 }/${result.teacherPhotoNm1 }" alt=" image" onerror="fnNoImage(this)" /></div>
+												<div class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${result.teacherPhotoPath1 }" alt=" image" onerror="fnNoImage(this)" /></div>
 												<div class="contents_box">
 													<div class="title_box">
 														<strong class="title">${result.teacherNm1 }</strong>
@@ -217,7 +223,12 @@
 														</div>
 														<div class="cont">
 															<strong class="title"><spring:message code="eduTrnng.free.search.title21"/></strong>
-															<span class="con">${result.teacherCareer1 }</span>
+															<span class="con">
+										<c:set var="cmt" value="${fn:replace(result.teacherCareer1,crcn,br)}" />
+										<c:set var="cmt" value="${fn:replace(cmt,cr,br)}" />
+										<c:set var="cmt" value="${fn:replace(cmt,cn,br)}" />
+										<c:set var="cmt" value="${fn:replace(cmt,' ',sp)}" />
+										<c:out value="${cmt}" escapeXml="false"/></span>
 														</div>
 													</div>
 												</div>
@@ -227,7 +238,7 @@
 										<c:if test="${result.teacherNm2 != null }">
 										<li>
 											<div class="box_wrap">
-												<div class="img_box"><img src="${pageContext.request.contextPath}${result.teacherPhotoPath2 }/${result.teacherPhotoNm2 }" alt=" image" onerror="fnNoImage(this)" /></div>
+												<div class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${result.teacherPhotoPath2 }" alt=" image" onerror="fnNoImage(this)" /></div>
 												<div class="contents_box">
 													<div class="title_box">
 														<strong class="title">${result.teacherNm2 }</strong>
@@ -239,7 +250,12 @@
 														</div>
 														<div class="cont">
 															<strong class="title"><spring:message code="eduTrnng.free.search.title21"/></strong>
-															<span class="con">${result.teacherCareer2 }</span>
+															<span class="con">
+										<c:set var="cmt" value="${fn:replace(result.teacherCareer2,crcn,br)}" />
+										<c:set var="cmt" value="${fn:replace(cmt,cr,br)}" />
+										<c:set var="cmt" value="${fn:replace(cmt,cn,br)}" />
+										<c:set var="cmt" value="${fn:replace(cmt,' ',sp)}" />
+										<c:out value="${cmt}" escapeXml="false"/></span>
 														</div>
 													</div>
 												</div>
@@ -262,8 +278,8 @@
 											<div class="img_box">
 												<div class="box_img">
 													<div class="inner">
-														<img src="${pageContext.request.contextPath}${result.lecturePhotoPath }/${result.lecturePhotoNm }" alt=" image" onerror="fnNoImage(this)" />
-														<span class="img_zoom"><a href="${pageContext.request.contextPath}${result.lecturePhotoPath }/${result.lecturePhotoNm }" target="_blank" title="New window open">View larger image</a></span>
+														<img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${result.lecturePhotoPath }" alt=" image" onerror="fnNoImage(this)" />
+														<span class="img_zoom"><a href="${pageContext.request.contextPath}/common/imgLoading.do?url=${result.lecturePhotoPath }" target="_blank" title="New window open">View larger image</a></span>
 													</div>
 												</div>
 											</div>

@@ -43,13 +43,12 @@
 		<choose>
    			<when test="condStatTypeCd != null and condStatTypeCd.equals('CONTINUE')"><!-- 채용공고 진행 -->
    				<![CDATA[
-   				AND B.BGN_DT <= now()  /* 채용공고 시작일 */
-   				AND B.END_DT >= now()  /* 채용공고 종료일 */
+   				AND B.VACANCY_STS_CD = 'VCS0000000001' /* 채용공고 진행중 */
    				]]>
 			</when>
 			<when test="condStatTypeCd != null and condStatTypeCd.equals('END')"><!-- 채용공고 마감-->
    				<![CDATA[
-   				AND B.END_DT < now()  /* 채용공고 종료일 */
+   				AND B.VACANCY_STS_CD = 'VCS0000000002' /* 채용공고 마감 */
    				]]>
 			</when>
 		</choose>
@@ -64,9 +63,15 @@
 			<when test="condStatTypeCd2 != null and condStatTypeCd2.equals('NOT_OPEN')"><!-- 미열람-->
    				AND A.APPLIC_PROC_CD = 'APC0000000001' /* 미열람 */
 			</when>
+			<when test="condStatTypeCd2 != null and condStatTypeCd2.equals('INTVW')"><!-- 면접제의-->
+   				AND A.APPLIC_PROC_CD = 'APC0000000005' /* 면접제의 */
+			</when>
 			<when test="condStatTypeCd2 != null and condStatTypeCd2.equals('PASS')"><!-- 채용확정-->
    				AND A.APPLIC_PROC_CD = 'APC0000000004' /* 채용확정 */
 			</when>
+			<otherwise>
+				AND A.APPLIC_PROC_CD IN ('APC0000000001','APC0000000002','APC0000000003','APC0000000004','APC0000000005')
+			</otherwise>
 		</choose>
 
   		<if test="cd != null and !cd.equals('')">
@@ -104,24 +109,27 @@
 
 	<!-- 입사제의  조건 -->
 	<sql id="whereOfferCond">
-		WHERE D.RESUME_SEQ = (SELECT RESUME_SEQ FROM CPES_RESUME WHERE RESUME_SEQ = D.RESUME_SEQ AND USER_SEQ = #{condUserSeq})
+		WHERE D.RESUME_SEQ = (SELECT RESUME_SEQ FROM CPES_RESUME WHERE RESUME_SEQ = D.RESUME_SEQ AND USER_SEQ = #{condUserSeq} AND USE_YN = 'Y')
 		AND C.USE_YN = 'Y'
 		AND C.DEL_YN = 'N'
 	</sql>
 
 	<!-- 면접제의  조건 -->
 	<sql id="whereIntvwCond">
-		WHERE B.RESUME_SEQ IN (SELECT RESUME_SEQ FROM CPES_RESUME WHERE RESUME_SEQ = B.RESUME_SEQ AND USER_SEQ = #{condUserSeq})
+		WHERE B.RESUME_SEQ IN (SELECT RESUME_SEQ FROM CPES_RESUME WHERE RESUME_SEQ = B.RESUME_SEQ AND USER_SEQ = #{condUserSeq} AND USE_YN = 'Y')
+		AND B.DEL_YN = 'N' /* 입사지원 삭제 여부 */
+		AND A.DEL_YN = 'N' /* 면접삭제 여부 */
 		AND C.USE_YN = 'Y'
 		AND C.DEL_YN = 'N'
 	</sql>
 
-	<!-- 면접제의  조건 -->
+	<!-- 이력서  오픈 조건 -->
 	<sql id="whereResumeOpenCond">
         WHERE B.USER_SEQ = #{condUserSeq}
 		AND C.USE_YN = 'Y'
 		AND C.DEL_YN = 'N'
 	</sql>
+
 
 
 	<!-- 정렬 조건 -->
@@ -391,7 +399,16 @@
                  FN_GET_BASE_DATE_CHAR(A.REG_DT, #{langCd}) AS REG_DT,
                  C.VACANCY_SEQ,
                  C.VACANCY_STS_CD,
-                 FN_GET_COMMON_NM('VACANCY_STS_CD', C.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM
+                 FN_GET_COMMON_NM('VACANCY_STS_CD', C.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM,
+				 FN_GET_REMAIN_CNT(C.END_DT) REMAIN_DT,
+                 FN_GET_REMAIN_DIV(C.END_DT) REMAIN_DIV,
+                 (
+                 	SELECT G.VIDEO_INTVW_PATCPTN_SEQ
+                 	FROM CPES_VIDEO_INTVW_PATCPTN G
+                 	WHERE G.INTVW_SEQ = A.INTVW_SEQ
+                 	AND G.USER_SEQ = #{condUserSeq}
+
+                 ) AS VIDEO_INTVW_PATCPTN_SEQ
             FROM CPES_INTVW A
             INNER JOIN CPES_APPLIC B
             ON A.APPLIC_SEQ = B.APPLIC_SEQ
@@ -399,13 +416,12 @@
             ON B.VACANCY_SEQ = C.VACANCY_SEQ
             INNER JOIN CPES_COMPNY D
             ON C.COMPNY_SEQ = D.COMPNY_SEQ
-
-
        ]]>
             <include refid="whereIntvwCond"/>
             ORDER BY A.REG_DT DESC
 			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
     </select>
+
 
 
   	<!-- 면접제의 상세,interview detail -->
@@ -432,6 +448,7 @@
             INNER JOIN CPES_COMPNY D
             ON C.COMPNY_SEQ = D.COMPNY_SEQ
             WHERE A.INTVW_SEQ = #{condSeq}
+            AND A.DEL_YN = 'N'
 			AND D.USE_YN = 'Y'
 			AND D.DEL_YN = 'N'
        ]]>

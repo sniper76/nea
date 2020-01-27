@@ -709,7 +709,7 @@
 						<div class="bbs_center">
 							<input type="button" onClick="javascript:fnGoList('frmSearch');" class="bbs_btn type01" value="<spring:message code="button.list"/>"/>
 							<c:if test="${result.modifyYn == 'Y'}">
-								<button type="button" onClick="fnGoMoveUrl('frmSearch','${pageContext.request.contextPath}/cpes/compny/vacancy/modify.do');" class="bbs_btn type02">수정</button>
+								<button type="button" onClick="fnGoMoveUrl('frmSearch','${pageContext.request.contextPath}/cpes/compny/vacancy/modify.do');" class="bbs_btn type02"><spring:message code="button.modify"/></button>
 							</c:if>
 						</div>
 					</div>

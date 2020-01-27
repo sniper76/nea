@@ -86,7 +86,9 @@ public class PrivtMatchingController extends BaseController{
 		srchBean.setWorkTimeFullCd(bean.getWorkTimeFullCd());
 		srchBean.setWorkTimePartCd(bean.getWorkTimePartCd());
 		srchBean.setHopeSalary(bean.getHopeSalary());
-		srchBean.setMinWorkExp(bean.getMinWorkExp());
+
+		changeMinWorkExp(bean, srchBean);
+
 		srchBean.setIscoCdStr(bean.getIscoCdStr());
 		srchBean.setLangCdStr(bean.getLangCdStr());
 		srchBean.setPrivilegeCdStr(bean.getPrivilegeCdStr());
@@ -96,6 +98,35 @@ public class PrivtMatchingController extends BaseController{
 		mv.addObject("srchBean", srchBean);
 		mv.setViewName("mypage/matching/list.left");
 		return mv;
+	}
+
+	private void changeMinWorkExp(MatchingBean arg1, MatchingSrchBean arg2) {
+		if(StringUtil.isEmpty(arg1.getMinWorkExp())) {
+			return;
+		}
+		String min = arg1.getMinWorkExp();
+		switch (min) {
+		case "+5":
+			arg2.setMinWorkExp("61");
+			arg2.setMaxWorkExp(""+Integer.MAX_VALUE);
+			break;
+		case "-5":
+			arg2.setMinWorkExp("25");
+			arg2.setMaxWorkExp("60");
+			break;
+		case "-2":
+			arg2.setMinWorkExp("13");
+			arg2.setMaxWorkExp("24");
+			break;
+		case "-1":
+			arg2.setMinWorkExp("1");
+			arg2.setMaxWorkExp("12");
+			break;
+		default:
+			arg2.setMinWorkExp("0");
+			arg2.setMaxWorkExp("0");
+			break;
+		}
 	}
 
 	@RequestMapping("/regist")
@@ -166,17 +197,17 @@ public class PrivtMatchingController extends BaseController{
 			if(locCd.length() > 5) {
 				mBean.setLocCdStr(locCd.substring(0, 3)+","+locCd.substring(0, 5));
 			}
-			String iscoCd = "";
-			if(mBean.getIscoCdStr() != null) {
-				if(mBean.getIscoCdStr().indexOf(",") > -1) {
-					String[] temp = mBean.getIscoCdStr().split(",");
-					iscoCd = temp[0];
-				}
-				else {
-					iscoCd = mBean.getIscoCdStr();
-				}
-			}
-			mBean.setIscoCdStr(iscoCd);
+//			String iscoCd = "";
+//			if(mBean.getIscoCdStr() != null) {
+//				if(mBean.getIscoCdStr().indexOf(",") > -1) {
+//					String[] temp = mBean.getIscoCdStr().split(",");
+//					iscoCd = temp[0];
+//				}
+//				else {
+//					iscoCd = mBean.getIscoCdStr();
+//				}
+//			}
+//			mBean.setIscoCdStr(parseIscoCd(iscoCd));
 		}
 
 		// location
@@ -262,13 +293,13 @@ public class PrivtMatchingController extends BaseController{
 		conditionBean.setLastIndex(paginationInfo.getLastRecordIndex());
 		conditionBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
 
-		if(conditionBean.getLocCdStr().indexOf(",") > -1) {
-			String[] temp = conditionBean.getLocCdStr().split(",");
-			conditionBean.setCondAddrCd(temp[temp.length-1]);
-		}
-		else {
-			conditionBean.setCondAddrCd(conditionBean.getLocCdStr());
-		}
+//		if(conditionBean.getLocCdStr().indexOf(",") > -1) {
+//			String[] temp = conditionBean.getLocCdStr().split(",");
+//			conditionBean.setCondAddrCd(temp[temp.length-1]);
+//		}
+//		else {
+//			conditionBean.setCondAddrCd(conditionBean.getLocCdStr());
+//		}
 
 		int totCnt = privtMatchingService.selectMatchingByVacancysCnt(conditionBean);
 		paginationInfo.setTotalRecordCount(totCnt);
@@ -280,7 +311,7 @@ public class PrivtMatchingController extends BaseController{
 
 		CpesPaginationTag pTag = new CpesPaginationTag();
 
-		mv.addObject("totalPageCount", paginationInfo.getTotalPageCount());
+		mv.addObject("totalPageCount", paginationInfo.getTotalRecordCount());
 		mv.addObject("currentPageNo", paginationInfo.getCurrentPageNo());
 		mv.addObject(ConstVal.PAGINATION_INFO_KEY, pTag.getPagination(req, paginationInfo, "fnGoSrch"));
 

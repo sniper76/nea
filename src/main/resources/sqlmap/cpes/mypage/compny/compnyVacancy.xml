@@ -73,15 +73,30 @@
 		</choose>
 	</sql>
 
-
-
 	<!-- 면접제의  조건 -->
 	<sql id="whereIntvwCond">
-		WHERE D.USER_SEQ = #{condUserSeq}
-		AND D.USE_YN = 'Y' /* 기업 사용여부 */
-		AND D.DEL_YN = 'N' /* 기업 삭제여부 */
+	    WHERE C.VACANCY_SEQ = #{condSeq}
+	    AND A.DEL_YN = 'N' /* 면접 삭제 여부 */
+		AND B.DEL_YN = 'N' /* 입사지원 삭제 여부*/
 		AND C.USE_YN = 'Y' /* 채용공고 사용여부 */
 		AND C.DEL_YN = 'N' /* 채용공고 삭제여부 */
+		AND D.USER_SEQ = #{condUserSeq}
+		AND D.USE_YN = 'Y' /* 기업 사용여부 */
+		AND D.DEL_YN = 'N' /* 기업 삭제여부 */
+ 		AND E.USE_YN = 'Y' /* 이력서 사용 여부 */
+ 		AND F.DEL_YN = 'N' /* 사용자 삭제여부 */
+
+		<if test="condType != null and !condType.equals('')">
+			AND A.INTVW_STS_CD = #{condType}
+		</if>
+
+		<if test="condText != null and !condText.equals('')">
+			AND (
+				E.RESUME_TITLE LIKE CONCAT('%',#{condText},'%') OR
+				F.USER_NM_EN LIKE CONCAT('%',#{condText},'%') OR
+				F.USER_NM_KH LIKE CONCAT('%',#{condText},'%')
+			)
+		</if>
 	</sql>
 
 	<!-- 채용공고 간단 목록,vacancy simple list -->
@@ -213,7 +228,7 @@
 				A.ETC_INSU_YN,
 				A.ETC_INSU_SPEC,
 				A.MIN_EDU_DEGREE_CD,
-				FN_GET_COMMON_NM('MIN_EDU_DEGREE_CD', A.MIN_EDU_DEGREE_CD, #{langCd}) AS MIN_EDU_DEGREE_NM,
+				FN_GET_COMMON_NM('EDU_DEGREE_CD', A.MIN_EDU_DEGREE_CD, #{langCd}) AS MIN_EDU_DEGREE_NM,
 				A.ISCED_CD,
 				(
 					SELECT F.UPPER_CD
@@ -350,12 +365,12 @@
                   	   WHEN A.JC_AGREE_STS_CD = 'JAS0000000003' THEN 'R'
                   END AS STAT_NM,
                   A.BKMK_CNT,
-                  (SELECT COUNT(1) FROM CPES_APPLIC D WHERE D.VACANCY_SEQ = A.VACANCY_SEQ AND D.APPLIC_CANCEL_YN = 'N' AND D.DEL_YN = 'N') AS JOB_TOT_CNT,
-                  (SELECT COUNT(1) FROM CPES_APPLIC D WHERE D.VACANCY_SEQ = A.VACANCY_SEQ AND D.APPLIC_CANCEL_YN = 'N' AND D.DEL_YN = 'N' AND D.APPLIC_PROC_CD = 'APC0000000001') AS NOT_OPEN_CNT,
-                  (SELECT COUNT(1) FROM CPES_APPLIC D WHERE D.VACANCY_SEQ = A.VACANCY_SEQ AND D.APPLIC_CANCEL_YN = 'N' AND D.DEL_YN = 'N' AND D.APPLIC_PROC_CD = 'APC0000000002') AS CHECK_CNT,
-                  (SELECT COUNT(1) FROM CPES_APPLIC D WHERE D.VACANCY_SEQ = A.VACANCY_SEQ AND D.APPLIC_CANCEL_YN = 'N' AND D.DEL_YN = 'N' AND D.APPLIC_PROC_CD = 'APC0000000003') AS DOC_CNT,
-                  (SELECT COUNT(1) FROM CPES_APPLIC D WHERE D.VACANCY_SEQ = A.VACANCY_SEQ AND D.APPLIC_CANCEL_YN = 'N' AND D.DEL_YN = 'N' AND D.APPLIC_PROC_CD = 'APC0000000005') AS INTVW_CNT,
-                  (SELECT COUNT(1) FROM CPES_APPLIC D WHERE D.VACANCY_SEQ = A.VACANCY_SEQ AND D.APPLIC_CANCEL_YN = 'N' AND D.DEL_YN = 'N' AND D.APPLIC_PROC_CD = 'APC0000000004') AS YES_CNT,
+                  FN_GET_APPLIC_STAT_CNT(A.VACANCY_SEQ, 'ALL') AS JOB_TOT_CNT,
+                  FN_GET_APPLIC_STAT_CNT(A.VACANCY_SEQ, 'APC0000000001') AS NOT_OPEN_CNT,
+                  FN_GET_APPLIC_STAT_CNT(A.VACANCY_SEQ, 'APC0000000002') AS CHECK_CNT,
+                  FN_GET_APPLIC_STAT_CNT(A.VACANCY_SEQ, 'APC0000000003') AS DOC_CNT,
+                  FN_GET_APPLIC_STAT_CNT(A.VACANCY_SEQ, 'APC0000000005') AS INTVW_CNT,
+                  FN_GET_APPLIC_STAT_CNT(A.VACANCY_SEQ, 'APC0000000004') AS YES_CNT,
                   'N' AS TEMP_YN,
                   CASE WHEN B.USER_SEQ = #{condUserSeq} AND A.JC_AGREE_STS_CD = 'JAS0000000003' THEN 'Y' /* reject stataus modify possible */
                   	   ELSE 'N'
@@ -365,7 +380,6 @@
             INNER JOIN CPES_COMPNY B
             ON A.COMPNY_SEQ = B.COMPNY_SEQ
             WHERE B.USER_SEQ = #{condUserSeq}
-
      ]]>
             <include refid="whereCond"/>
 			<include refid="sortCond"/>
@@ -472,7 +486,7 @@
 				A.ETC_INSU_YN,
 				A.ETC_INSU_SPEC,
 				A.MIN_EDU_DEGREE_CD,
-				FN_GET_COMMON_NM('MIN_EDU_DEGREE_CD', A.MIN_EDU_DEGREE_CD, #{langCd}) AS MIN_EDU_DEGREE_NM,
+				FN_GET_COMMON_NM('EDU_DEGREE_CD', A.MIN_EDU_DEGREE_CD, #{langCd}) AS MIN_EDU_DEGREE_NM,
 				A.ISCED_CD,
 				FN_GET_COMMON_NM('ISCED_CD', A.ISCED_CD, #{langCd}) AS ISCED_NM,
 				A.PRO_LICNS_YN,
@@ -677,6 +691,8 @@
 
     </select>
 
+
+
   	<!-- 면접제의 목록,interview list -->
 	<select id="selectIntvwList" resultType="ony.cpes.external.mypage.privt.bean.IntvwBean" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
         <![CDATA[
@@ -706,7 +722,18 @@
 				 FN_GET_COMMON_NM('GENDER_CD', F.GENDER_CD, #{langCd}) AS GENDER_NM,
 				 FN_GET_ADDR_NM(SUBSTR(F.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM,
 				 FN_GET_ISCO_NM(E.ISCO_CD, #{langCd}) AS ISCO_NM,
-				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+				 FN_GET_NEW_YN(A.REG_DT) AS NEW_YN,
+				 FN_GET_FILE_PATH(E.FILE_GRP_SEQ) AS FILE_PATH,
+				 FN_GET_MASKING_DISPLAY_YN(B.APPLIC_SEQ) AS DISPLAY_YN,
+				 A.INTVW_STS_CD,
+				 FN_GET_COMMON_NM('INTVW_STS_CD', A.INTVW_STS_CD, #{langCd}) AS INTVW_STS_NM,
+				 A.REFERRAL_YN,
+                 (
+                 	SELECT G.VIDEO_INTVW_PATCPTN_SEQ
+                 	FROM CPES_VIDEO_INTVW_PATCPTN G
+                 	WHERE G.INTVW_SEQ = A.INTVW_SEQ
+
+                 ) AS VIDEO_INTVW_PATCPTN_SEQ
             FROM CPES_INTVW A
             INNER JOIN CPES_APPLIC B
             ON A.APPLIC_SEQ = B.APPLIC_SEQ
@@ -718,8 +745,6 @@
             ON B.RESUME_SEQ = E.RESUME_SEQ
             INNER JOIN CPES_USER F
             ON E.USER_SEQ = F.USER_SEQ
-
-
        ]]>
             <include refid="whereIntvwCond"/>
             ORDER BY A.REG_DT DESC

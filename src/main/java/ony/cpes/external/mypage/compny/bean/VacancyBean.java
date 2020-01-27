@@ -167,6 +167,7 @@ public class VacancyBean extends CommonBean {
 	private String isicCdLvlOne;
 	private String remainDiv;
 	private String failReason;
+	private String displayYn;
 
 
 	private String originalNm;
@@ -1052,6 +1053,12 @@ public class VacancyBean extends CommonBean {
 	}
 	public void setFailReason(String failReason) {
 		this.failReason = failReason;
+	}
+	public String getDisplayYn() {
+		return displayYn;
+	}
+	public void setDisplayYn(String displayYn) {
+		this.displayYn = displayYn;
 	}
 
 

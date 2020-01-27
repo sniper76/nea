@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -63,6 +64,10 @@ public class ResumeController extends BaseController{
 		// 현재 로그인한 유저의 개인 정보 조회
 		conditionBean.setCondUserEmail(EncryptUtil.getAes256Enc(principal.getName()));//email or cell phone
       	MemberBean memberBean = commonService.selectMemberInfo(conditionBean);
+      	if(!StringUtils.isEmpty(memberBean)) {
+      		memberBean.setUserCell(EncryptUtil.getAes256Dec(memberBean.getUserCell()));
+      		memberBean.setUserEmail(EncryptUtil.getAes256Dec(memberBean.getUserEmail()));
+      	}
       	mv.addObject("memberBean", memberBean);
 
       	/*FileBean fileBean = new FileBean();
@@ -338,6 +343,11 @@ public class ResumeController extends BaseController{
 		// 현재 로그인한 유저의 개인 정보 조회
 		conditionBean.setCondUserEmail(EncryptUtil.getAes256Enc(principal.getName()));//email or cell phone
       	MemberBean memberBean = commonService.selectMemberInfo(conditionBean);
+      	if(!StringUtils.isEmpty(memberBean)) {
+      		memberBean.setUserCell(EncryptUtil.getAes256Dec(memberBean.getUserCell()));
+      		memberBean.setUserEmail(EncryptUtil.getAes256Dec(memberBean.getUserEmail()));
+      	}
+
       	mv.addObject("memberBean", memberBean);
 
       	/*FileBean fileBean = new FileBean();
@@ -345,6 +355,7 @@ public class ResumeController extends BaseController{
       	mv.addObject("memberImg", commonService.selectAttachFiles(fileBean));*/
 
       	resumeBean.setUserSeq(memberBean.getUserSeq());
+
 		mv.addObject("resumeDetail", resumeService.selectResumeDetail(resumeBean));
 		mv.addObject("hopeWorkLocList", resumeService.selectResumeHopeWorkLocDetail(resumeBean));
 		mv.addObject("specialStudyList", resumeService.selectResumeSpecialStudyDetail(resumeBean));

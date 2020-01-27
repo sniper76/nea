@@ -4,25 +4,21 @@
     	$(document).ready(function() {
     	    // 라디오버튼 클릭시 이벤트 발생
     	    $("input:radio[name=rdo]").click(function(){
-
-    	    	//fnVacancyChange();
+    	    	$("#condSeq").val($("input:radio[name=rdo]:checked").val());
     	    })
 
+    	    if($('input:radio[name="rdo"]:checked').length == 0) {//checked  된게 없다면
+    	    	$('input:radio[name=rdo]').eq(0).attr("checked", true);
+    	    }
 
-			var $obj = $('input:radio[name="rdo"]:checked'),
-			$this=$obj.parents('li'),
-			$this_contents=$this.find('.contents_wrap'),
-			$this_clone=$this_contents.clone(true),
-			$target=$('.search_matching .open'),
-			$target_contents=$target.find('.contents_wrap'),
-			$target_clone=$target_contents.clone(true);
+    	    if("<c:out value="${param.condSeq}"/>" != null && "<c:out value="${param.condSeq}"/>" != "") {//JobVacancy Management에서 클릭해서온경우만 처리
+    	    	//$("input:radio[name='rdo']:radio[value='${param.condSeq}']").prop('checked', true); // 선택하기
+    	    	$("input:radio[name='rdo']:radio[value='${param.condSeq}']").click();
+    	    } else if($('input:radio[name="rdo"]:checked').length == 0) {//checked  된게 없다면
+    	    	$('input:radio[name=rdo]').eq(0).attr("checked", true);
+    	    }
 
-			if("<c:out value="${param.condSeq}"/>" != null && "<c:out value="${param.condSeq}"/>" != "") {//JobVacancy Management에서 클릭해서온경우만 처리
-				$target_contents.remove();
-				$this_contents.remove();
-				$target.append($this_clone);
-				$this.append($target_clone);
-			}
+
 			fnVacancyChange();
 
 
@@ -33,7 +29,15 @@
 			$("#currentPageNo").val(1);
 			$("#condText").val("");
 			$("#condText2").val("");
-			$("#condSeq").val($("input:radio[name=rdo]:checked").val());
+			//console.log("###################fnVacancyChange rdo value="+$('input:radio[name="rdo"]:checked').val());
+
+			var rdoVal = $('input:radio[name="rdo"]:checked').val();
+			//console.log("###################rdoVal="+rdoVal);
+
+			if(typeof rdoVal != "undefined" && rdoVal != null && rdoVal != "") {
+				$("#condSeq").val($("input:radio[name=rdo]:checked").val());
+			}
+			//console.log("###################condSeq="+$("#condSeq").val());
 
 			fnGetApplicList();
     	}

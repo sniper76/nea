@@ -7,7 +7,7 @@ jQuery(function(){
 			$(this).removeClass('on').parents('.side_box').find('.side_cont').slideUp(300);
 		}else{
 			$(this).addClass('on').parents('.side_box').find('.side_cont').slideDown(300);
-		}; */		
+		}; */
 	});
 	$('.side_cont li:last-child a').on('focusout',function(event){
 		$(this).parents('.side_cont').slideUp(300).siblings('button').removeClass('on');
@@ -67,7 +67,7 @@ jQuery(function(){
 		var $target=$(event.target),
 			tab=$(this).parents('.tab_menu'),
 			nums=$(this).parents('li').index();
-		
+
 		if($target.is('.on a')){
 			return false;
 		}else{
@@ -81,7 +81,7 @@ jQuery(function(){
 					$('.tab_contents').hide();
 					$('.tab_contents').eq(nums).show();
 					return false;
-				};				
+				};
 			}else{
 				return true;
 			};
@@ -105,7 +105,7 @@ jQuery(function(){
 		var $target=$(event.target),
 			tab=$(this).parents('.other_tab'),
 			nums=$(this).index();
-		
+
 		if($target.is('.on')){
 			return false;
 		}else{
@@ -123,7 +123,7 @@ jQuery(function(){
 		$(this).parent().next('.reply_depth2').addClass('active');
 	});
 
-	
+
 });
 
 /*  게시판 */
@@ -248,7 +248,7 @@ $(function (){
 			$(this).parents('.profile_title').removeClass('on');
 		};
 	});
-	
+
 	//form_title
 	$('.form_title button').on('click', function(event){
 		var $target=$(event.target),
@@ -266,13 +266,13 @@ $(function (){
 
 	//form_element
 	var $form=$('.form_element');
-	
+
 	//text
 	$form.find('input:text').on('focusin', function(event){
 		var $target=$(event.target);
 
 		if($target.is('.keyword input:text')){
-			
+
 		}else{
 			$('.form_element').removeClass('on');
 			$(this).parents('.form_element').addClass('active on');
@@ -281,9 +281,9 @@ $(function (){
 	$form.find('input:text').on('focusout', function(event){
 		var $target=$(event.target),
 			$val=$(this).val();
-		
+
 		if($target.is('.keyword input:text')){
-			
+
 		}else{
 			if($val==''){
 				$(this).parents('.form_element').removeClass('active on');
@@ -309,7 +309,7 @@ $(function (){
 			return false;
 		};
 	});
-	
+
 	//sleelct radio
 	$form.find('.open').on('click', function(){
 		$('.form_element').removeClass('on');
@@ -368,7 +368,7 @@ $(function (){
 	//pick
 	$form.find('.text_box').on('click', 'button', function(){
 		$number=$(this).parents('.text_box').find('span').length;
-		
+
 		if($number==1){
 			$(this).parents('.form_element').removeClass('active');
 		};
@@ -378,7 +378,7 @@ $(function (){
 	//child_open
 	$form.find('.child_open').on('click', function(event){
 		var $target=$(event.target);
-		
+
 		$('.form_element').removeClass('on');
 		if($target.is('.show .child_open')){
 			$(this).parents('.form_element').removeClass('show');
@@ -386,7 +386,7 @@ $(function (){
 			$(this).parents('.form_element').addClass('show');
 		};
 	});
-	
+
 	//add_program
 	$('.add_program .del').on('click', function(){
 		$(this).parents('.contents_box').parent().remove();
@@ -396,7 +396,7 @@ $(function (){
 	$('.bbs_add_box .del').on('click', function(){
 		$(this).parents('.bbs_add_box').remove();
 	});
-	
+
 	//advanced_search
 	$('.advanced_search').on('click', function(event){
 		var $target=$(event.target);
@@ -418,7 +418,7 @@ $(function (){
 	$('.detail_close').on('click', function(event){
 		$('.advanced_search').removeClass('on').parents('.srch_area').next('.detail_area').removeClass('active').parents('#container').removeClass('active_srch');
 	});
-	
+
 	//company_list
 	var $shortcut_box = $('.company_list'),
 		$shortcut = $shortcut_box.find('.slide_box'),
@@ -431,7 +431,7 @@ $(function (){
 		var show_num = slick.slickGetOption('slidesToShow');
 			slideCount = Math.ceil(slick.slideCount/show_num);
 			currentSlide = Math.ceil((slick.currentSlide+1)/show_num);
-		
+
 		setSlideCount(slideCount);
 		setCurrentSlideNumber(currentSlide);
 	});
@@ -446,14 +446,14 @@ $(function (){
 	function setSlideCount(el) {
 		var slideCount=el;
 		var $el = $('.count_box').find('.total');
-		
+
 		$el.text(slideCount);
 	};
 
 	function setCurrentSlideNumber(currentSlide) {
 		var box_width=$('#footer .wrap').innerWidth();
 		var $el = $('.count_box').find('.current');
-		
+
 		$el.text(currentSlide);
 	};
 
@@ -464,7 +464,7 @@ $(function (){
 		slidesToShow: 4,
 		slidesToScroll: 4,
 		draggable : false,
-			
+
 		responsive: [
 			{
 				breakpoint: 1200,
@@ -472,7 +472,7 @@ $(function (){
 					slidesToShow: 4,
 					slidesToScroll: 4
 				}
-					
+
 			},
 			{
 				breakpoint: 1000,
@@ -498,34 +498,42 @@ $(function (){
 			}
 		]
 	});
-	
+
 	//dictionary_depth1
 	$('.dictionary_depth1 button').on('click', function(event){
 		$('.dictionary_child').addClass('active');
 	});
-	
+
 	//search_matching
 	$('.search_matching .open').on('click', function(event){
 		var $target=$(event.target);
 
 		if($target.is('.on,.on span,.on strong')){
 			$(this).removeClass('on').next('.child_box').slideUp('fast');
+		}else if($target.is('input')){
+			$(this).removeClass('on').next('.child_box').slideUp('fast');
 		}else{
 			$(this).addClass('on').next('.child_box').slideDown('fast');
-		};		
+		};
 	});
-	$('.search_matching input:radio').on('click', function(){
-		var $this=$(this).parents('li'),
-			$this_contents=$this.find('.contents_wrap'),
-			$this_clone=$this_contents.clone(true),
-			$target=$('.search_matching .open'),
-			$target_contents=$target.find('.contents_wrap'),
-			$target_clone=$target_contents.clone(true);
+	$('.search_matching input:radio').on('click', function(event){
+		var $target=$(event.target);
 		
-		$target_contents.remove();
-		$this_contents.remove();
-		$target.append($this_clone);
-		$this.append($target_clone);
-		$('.search_matching .open').removeClass('on').next('.child_box').slideUp('fast');
+		if($target.is('.child_box input:radio')){
+			var $this=$(this).parents('li'),
+				$this_contents=$this.find('.contents_wrap'),
+				$this_clone=$this_contents.clone(true),
+				$target=$('.search_matching .open'),
+				$target_contents=$target.find('.contents_wrap'),
+				$target_clone=$target_contents.clone(true);
+	
+			$target_contents.remove();
+			$this_contents.remove();
+			$target.append($this_clone);
+			$this.append($target_clone);
+			$('.search_matching .open').removeClass('on').next('.child_box').slideUp('fast');
+		}else{
+			return false;			
+		};
 	});
 });

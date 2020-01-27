@@ -33,6 +33,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ony.cmm.common.ConstVal;
+import ony.cmm.common.util.EncryptUtil;
 import ony.cpes.external.login.service.LoginService;
 import ony.cpes.external.user.bean.UserBean;
 
@@ -99,7 +100,9 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 	    	System.out.println("=======================authentication.getPrincipal()="+(String)authentication.getPrincipal());
 	    	System.out.println("=======================authentication.getCredentials()="+authentication.getCredentials());
 
-			param.setMngId((String) authentication.getPrincipal());
+	    	String mngId = (String) authentication.getPrincipal();
+
+			param.setMngId(EncryptUtil.getAes256Enc(mngId));
 			param.setLangCd(ConstVal.LANG_EN_VAL);
 
 			try {

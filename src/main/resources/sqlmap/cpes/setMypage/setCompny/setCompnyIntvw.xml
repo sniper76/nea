@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setCompnyIntvw">
+
+	<!-- 화상면접신청관리::삭제-->
+	<delete id="deleteVacancyIntwvVideo" parameterType="ony.cpes.external.mypage.compny.bean.VacancyIntvwBean">
+		/*setCompnyIntvw.deleteVacancyIntwvVideo*/
+		DELETE
+		  FROM CPES_VIDEO_INTVW_PATCPTN
+		 WHERE VIDEO_INTVW_PATCPTN_SEQ = #{videoIntvwPatcptnSeq}
+		   AND EXISTS (
+				SELECT 1
+				  FROM CPES_COMPNY
+				 WHERE COMPNY_SEQ = CPES_VIDEO_INTVW_PATCPTN.COMPNY_SEQ
+				   AND USER_SEQ = #{regUserSeq}
+		       )
+		   AND VIDEO_INTVW_DT <![CDATA[ > ]]> CURDATE()
+	</delete>
+
+	<insert id="insertVacancyIntwvVideo" parameterType="ony.cpes.external.mypage.compny.bean.VideoIntvwPatcptnBean">
+		/*setCompnyIntvw.insertVacancyIntwvVideo*/
+		<selectKey resultType="string" keyProperty="videoIntvwPatcptnSeq" order="BEFORE">
+        	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
+    	</selectKey>
+		INSERT INTO CPES_VIDEO_INTVW_PATCPTN(
+		       VIDEO_INTVW_PATCPTN_SEQ
+		     , INTVW_SEQ, COMPNY_JC_CD, COMPNY_SEQ, JOBSK_JC_CD, USER_SEQ, VIDEO_INTVW_DT, VIDEO_TIME_TABLE_CD
+		     , REG_DT, REG_USER_SEQ
+		) VALUES(
+		       #{videoIntvwPatcptnSeq}
+		     , #{intvwSeq}
+		     , #{compnyJcCd}
+		     , (
+				SELECT COMPNY_SEQ
+				  FROM CPES_COMPNY
+				 WHERE USER_SEQ = #{regUserSeq}
+				 LIMIT 1
+		       )
+		     , #{jobskJcCd}
+		     , #{userSeq}
+		     , STR_TO_DATE(#{videoIntvwDt},'%d/%m/%Y')
+		     , #{videoTimeTableCd}
+		     , NOW()
+		     , #{regUserSeq}
+		)
+	</insert>
+
+</mapper>

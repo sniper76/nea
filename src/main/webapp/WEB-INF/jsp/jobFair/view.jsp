@@ -2,65 +2,433 @@
 <%@ include file="/WEB-INF/jsp/common/inc.jsp" %>
 
     <script>
-    	$(document).ready(function() {
+    var firstIndex = 1;
+    var pageUnit = 10;
+    var pageSize = 10;
 
-			$('div#contents .tab_menu .clearfix li').removeClass('on');
-			$('div#contents .tab_menu .clearfix li:eq(${tabNo})').addClass('on');
+    	$(document).ready(function() {
+    		$('div.tab_contents').hide();
+
+	    	fnGoSrch(1, 0);
+
+			$('div#contents .tab_menu .clearfix li a').click(function(e) {
+				$('div#contents .tab_menu .clearfix li').removeClass('on');
+				$('div#contents .tab_menu .clearfix li:eq('+this.id+')').addClass('on');
+
+		    	fnGoSrch(1, parseInt(this.id,10));
+			});
+
+			$('div#tab_contents2 div.bbs_info .bbs_count span.order button').click(function() {
+				fnSortOrder(1, this.id);
+			});
+
+			$('div#tab_contents3 div.bbs_info .bbs_count span.order button').click(function() {
+				fnSortOrder(2, this.id);
+			});
+
+			$('div#tab_contents4 div.bbs_info .bbs_count span.order button').click(function() {
+				fnSortOrder(3, this.id);
+			});
+
+			$('div#tab_contents5 div.bbs_info .bbs_count span.order button').click(function() {
+				fnSortOrder(4, this.id);
+			});
 
 			$("#condText1").keypress(function( event ) {
 				if( event.which == 13 ) {
-		    		fnGoSrch(1);
+		    		fnGoSrch(1, 1);
 				}
 			});
 			$("#condText2").keypress(function( event ) {
 				if( event.which == 13 ) {
-		    		fnGoSrch(2);
+		    		fnGoSrch(1, 2);
 				}
 			});
 			$("#condText3").keypress(function( event ) {
 				if( event.which == 13 ) {
-		    		fnGoSrch(3);
+		    		fnGoSrch(1, 3);
 				}
 			});
 			$("#condText4").keypress(function( event ) {
 				if( event.which == 13 ) {
-		    		fnGoSrch(4);
+		    		fnGoSrch(1, 4);
 				}
 			});
 		});
 
-    	function fnTabChange(val, isTab) {
-    		if(isTab) {
-           		$('form#frm input#condSort').val('');
+    	function fnGoSrch(page, tabNo) {
+    		if(tabNo == undefined) {
+    			tabNo = 0;
     		}
-    		$("#tabNo").val(val);
-    		fnSetPageing("1");
-    	}
+    		var selector = '';
 
-       	function fnSetPageing(curPage) {
-       		$("#currentPageNo").val(curPage);
-       		if($("#tabNo").val() == 1) {
-       			$("#pageUnit").val(12);
-       		}
-       		else {
-       			$("#pageUnit").val(10);
-       		}
-    		fnGoList("frm");
-    	}
-
-       	function fnGoSrch(tabNo) {
+	    	switch(tabNo) {
+	    	case 1:
+	    		$('div#tab_contents1').hide();
+	    		$('div#tab_contents2').show();
+	    		$('div#tab_contents3').hide();
+	    		$('div#tab_contents4').hide();
+	    		$('div#tab_contents5').hide();
+	    		selector = 'div#tab_contents2';
+	    		break;
+	    	case 2:
+	    		$('div#tab_contents1').hide();
+	    		$('div#tab_contents2').hide();
+	    		$('div#tab_contents3').show();
+	    		$('div#tab_contents4').hide();
+	    		$('div#tab_contents5').hide();
+	    		selector = 'div#tab_contents3';
+	    		break;
+	    	case 3:
+	    		$('div#tab_contents1').hide();
+	    		$('div#tab_contents2').hide();
+	    		$('div#tab_contents3').hide();
+	    		$('div#tab_contents4').show();
+	    		$('div#tab_contents5').hide();
+	    		selector = 'div#tab_contents4';
+	    		break;
+	    	case 4:
+	    		$('div#tab_contents1').hide();
+	    		$('div#tab_contents2').hide();
+	    		$('div#tab_contents3').hide();
+	    		$('div#tab_contents4').hide();
+	    		$('div#tab_contents5').show();
+	    		selector = 'div#tab_contents5';
+	    		break;
+	    	default:
+	    		$('div#tab_contents1').show();
+	    		$('div#tab_contents2').hide();
+	    		$('div#tab_contents3').hide();
+	    		$('div#tab_contents4').hide();
+	    		$('div#tab_contents5').hide();
+	    		selector = 'div#tab_contents1';
+	    		break;
+	    	}
+    		if(tabNo == 0) {
+    			return;
+    		}
        		$('form#frm input[name=condText]').val($('input#condText'+tabNo).val());
-       		fnTabChange(tabNo, true);
+			var params = {
+					pageIndex : page,
+					pageUnit : pageUnit,
+					pageSize : (tabNo == 1 ? 12 : pageSize),
+					condLvl : tabNo,
+					condSeq : $('form#frm input#condSeq').val(),
+					condText : $('form#frm input[name=condText]').val(),
+					condSort : $('form#frm input#condSort').val(),
+			};
+			var that = this;
+
+			//console.log('params', params);
+
+			$.ajax({
+				type: METHOD_POST,
+				url: contextPath + "/jobFair/viewAjax.do",
+				dataType: AJAX_DATA_TYPE_JSON,
+				data: params,
+				success: function(data) {
+					//console.log('data', data);
+					if(data.result) {
+						switch(tabNo) {
+						case 1:
+						fnMakeHtml1(data.result, selector);
+							break;
+						case 2:
+						fnMakeHtml2(data.result, selector);
+							break;
+						case 3:
+						fnMakeHtml3(data.result, selector);
+							break;
+						case 4:
+						fnMakeHtml4(data.result, selector);
+							break;
+						}
+
+						$(selector + ' div.pagination').empty();
+						$(selector + ' div.pagination').append(data.paginationInfo);
+
+						$(selector + ' div.bbs_empty').hide();
+						if(tabNo == 1) {
+							$(selector + ' div.company_list').show();
+						}
+						else {
+							$(selector + ' div.bbs_basic').show();
+						}
+					}
+					else {
+						$(selector + ' div.bbs_empty').show();
+						if(tabNo == 1) {
+							$(selector + ' div.company_list').hide();
+						}
+						else {
+							$(selector + ' div.bbs_basic').hide();
+						}
+					}
+
+					$(selector + ' div.bbs_info strong.currently').text(fnNumberWithCommas(data.currentPageNo));
+					$(selector + ' div.bbs_info span.total').text('/ '+fnNumberWithCommas(data.totalPageCount));
+				},
+				error: function(xhr, status, error) {
+					alertify.alert("error to connecting server");
+				}
+			});
+    	}
+
+       	function fnMakeHtml1(lst, selector) {
+       		//console.log('lst', lst);
+       		//console.log('selector', selector);
+			$(selector+' div.company_list ul.clearfix').empty();
+
+       		for (var k=0; k<lst.length; k++) {
+       			var data = lst[k];
+       			var newClass = '', onClass = '';
+       			if (data.newYn == 'Y') {
+       				newClass = 'new';
+       			}
+       			if (data.bkmkSeq != '') {
+       				onClass = 'on';
+       			}
+       			var imgUrl = '${pageContext.request.contextPath}/common/imgLoading.do?url='+data.filePath;
+       			var html = '';
+				html += '<li>';
+				html += '	<div class="contents_box">';
+				html += '		<span class="img_box"><img src="'+imgUrl+'" alt="image" onerror="fnNoImage(this)"/></span>';
+				html += '		<a href="javascript:void(0)" onclick="fnGoView(1,\''+data.compnySeq+'\')" class="title_box">';
+				html += '			<strong class="title">'+data.compnyNm+'</strong>';
+				html += '		</a>                                                                                                                                                                                                                                                                                                                                                              ';
+				html += '		<span class="cont_box">                                                                                                                                                                                                                                                                                                                                           ';
+				html += '			<span class="cont">'+nvl(data.isicNm)+'</span>                                                                                                                                                                                                                                                                                               ';
+				html += '			<span class="cont">'+data.addrNm+'</span>                                                                                                                                                                                                                                                                                               ';
+				html += '		</span>                                                                                                                                                                                                                                                                                                                                                           ';
+				html += '		<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">                                                                                                                                                                                                                                                                                   ';
+                html += '           <span id="bkmkSapn_c_'+k+'"><button type="button" id="btnBkmk_c_'+k+'" onclick="fnBkmkType2(\''+data.bkmkSeq+'\',\''+data.compnySeq+'\',LIKE_CATEGORY_COMPNY,\'btnBkmk_c_'+k+'\',\'bkmkSapn_c_'+k+'\');" class="interest '+onClass+'">interest</button>';
+                html += '           </span>                                                                                                                                                                                                                                                                                                                                                       ';
+                html += '       </sec:authorize>                                                                                                                                                                                                                                                                                                                                                 ';
+				html += '	</div>                                                                                                                                                                                                                                                                                                                                                                ';
+				html += '</li>                                                                                                                                                                                                                                                                                                                                                                    ';
+
+				$(selector+' div.company_list ul.clearfix').append(html);
+       		}
+
        	}
+
+       	function fnMakeHtml2(lst, selector) {
+
+			$(selector+' div.bbs_basic ul.recruitment_list').empty();
+
+       		for (var k=0; k<lst.length; k++) {
+       			var data = lst[k];
+       			var newClass = '', onClass = '', hurryStr = '';
+       			if (data.newYn == 'Y') {
+       				newClass = 'new';
+       			}
+       			if (data.bkmkSeq != '') {
+       				onClass = 'on';
+       			}
+       			if (data.remainDiv == 'hurry') {
+       				hurryStr = 'Hour';
+       			}
+       			var imgUrl = '${pageContext.request.contextPath}/common/imgLoading.do?url='+data.filePath;
+       			var html = '';
+
+				html += '<li>                                                                                                                                                                                                                                                                                                                                                                           ';
+				html += '	<div class="contents_wrap">                                                                                                                                                                                                                                                                                                                                                 ';
+				html += '		<div class="img_box"><img src="'+imgUrl+'" alt="image" onerror="fnNoImage(this)"/></div>                                                                                                                                                                                                           ';
+				html += '		<div class="contents_box">                                                                                                                                                                                                                                                                                                                                              ';
+				html += '			<div class="title_box '+newClass+'">                                                                                                                                                                                                                                                                                                       ';
+				html += '				<span class="tit">'+data.compnyNm+'</span>                                                                                                                                                                                                                                                                                                 ';
+				html += '				<a href="javascript:void(0)" onclick="fnGoView(2,\''+data.vacancySeq+'\')" class="title">'+data.vacancyTitle+'</a>                                                                                                                                                                                                                         ';
+				html += '			</div>                                                                                                                                                                                                                                                                                                                                                              ';
+				html += '			<div class="cont_box">                                                                                                                                                                                                                                                                                                                                              ';
+				html += '				<span class="con">'+data.employFormNm+'</span>                                                                                                                                                                                                                                                                                             ';
+				html += '				<span class="con">'+data.recrumtMemb+'</span>                                                                                                                                                                                                                                                                                              ';
+				html += '				<span class="con">'+data.addrNm+'</span>                                                                                                                                                                                                                                                                                                   ';
+				html += '				<span class="con">$'+fnNumberWithCommas(data.minSalaryAmt)+' ~ $'+fnNumberWithCommas(data.maxSalaryAmt)+'</span>                                                                                                                                                  ';
+				html += '			</div>                                                                                                                                                                                                                                                                                                                                                              ';
+				html += '			<div class="other_box">                                                                                                                                                                                                                                                                                                                                             ';
+				html += '				<span class="top_box">                                                                                                                                                                                                                                                                                                                                          ';
+				if(data.vacancyStsCd == 'VCS0000000002') {
+				html += '					<span class="close">'+data.vacancyStsNm+'</span>                                                                                                                                                                                                                                                                                       ';
+				}
+				else {
+				html += '					<span class="'+data.remainDiv+'">'+data.remainDt+' '+hurryStr+'</span>                                                                                                                                                                                                                    ';
+				}
+				html += '				<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">                                                                                                                                                                                                                                                                                                     ';
+		        html += '                   <span id="bkmkSapn_v_'+k+'"><button type="button" id="btnBkmk_v_'+k+'" onclick="fnBkmkType2(\''+data.bkmkSeq+'\',\''+data.vacancySeq+'\',LIKE_CATEGORY_VACANCY,\'btnBkmk_v_'+k+'\',\'bkmkSapn_v_'+k+'\');" class="interest '+onClass+'">interest</button>';
+		        html += '                   </span>                                                                                                                                                                                                                                                                                                                                                     ';
+		        html += '               </sec:authorize>                                                                                                                                                                                                                                                                                                                                               ';
+				html += '				</span>                                                                                                                                                                                                                                                                                                                                                         ';
+				html += '			</div>                                                                                                                                                                                                                                                                                                                                                              ';
+				html += '		</div>                                                                                                                                                                                                                                                                                                                                                                  ';
+				html += '	</div>                                                                                                                                                                                                                                                                                                                                                                      ';
+				html += '</li>                                                                                                                                                                                                                                                                                                                                                                          ';
+
+				$(selector+' div.bbs_basic ul.recruitment_list').append(html);
+       		}
+
+       	}
+
+       	function fnMakeHtml3(lst, selector) {
+
+			$(selector+' div.bbs_basic ul.recruitment_list').empty();
+
+       		for (var k=0; k<lst.length; k++) {
+       			var data = lst[k];
+       			var newClass = '', onClass = '', hurryStr = '';
+       			if (data.newYn == 'Y') {
+       				newClass = 'new';
+       			}
+       			if (data.bkmkSeq != '') {
+       				onClass = 'on';
+       			}
+       			if (data.remainDiv == 'hurry') {
+       				hurryStr = 'Hour';
+       			}
+       			var imgUrl = '${pageContext.request.contextPath}/common/imgLoading.do?url='+data.filePath;
+       			var html = '';
+
+				html += '<li>                                                                                                                                                                                                                                                                                                                                                                               ';
+				html += '	<div class="contents_wrap">                                                                                                                                                                                                                                                                                                                                                     ';
+				html += '		<div class="img_box"><img src="'+imgUrl+'" alt="image" onerror="fnNoImage(this)"/></div>                                                                                                                                                                                                              ';
+				html += '		<div class="contents_box ngo">                                                                                                                                                                                                                                                                                                                                              ';
+				html += '			<div class="title_box '+newClass+'">                                                                                                                                                                                                                                                                                                          ';
+				html += '				<a href="javascript:void(0)" onclick="fnGoView(3, \''+data.insttSeq+'\')" class="title">'+data.insttNm+'</a>                                                                                                                                                                                                                                 ';
+				html += '			</div>                                                                                                                                                                                                                                                                                                                                                                  ';
+				html += '			<div class="cont_box">                                                                                                                                                                                                                                                                                                                                                  ';
+				html += '				<span class="cont">                                                                                                                                                                                                                                                                                                                                                 ';
+				html += '					<span class="con">'+nvl(data.insttOwnerNm)+'</span>                                                                                                                                                                                                                                                                                            ';
+				html += '					<span class="con">'+data.insttTypeNm+'</span>                                                                                                                                                                                                                                                                                             ';
+				html += '				</span>                                                                                                                                                                                                                                                                                                                                                             ';
+				html += '				<span class="cont">                                                                                                                                                                                                                                                                                                                                                 ';
+				html += '					<span class="con">'+data.addrNm+'</span>                                                                                                                                                                                                                                                                                                  ';
+				html += '					<span class="con"><a href="tel:000000000" class="mobile_phone">'+data.tel1+'</a></span>                                                                                                                                                                                                                                                   ';
+				html += '				</span>                                                                                                                                                                                                                                                                                                                                                             ';
+				html += '			</div>                                                                                                                                                                                                                                                                                                                                                                  ';
+				html += '			<div class="other_box">                                                                                                                                                                                                                                                                                                                                                 ';
+				html += '				<span class="top_box">                                                                                                                                                                                                                                                                                                                                              ';
+				html += '					<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">                                                                                                                                                                                                                                                                                                     ';
+			    html += '                       <span id="bkmkSapn_i_'+k+'"><button type="button" id="btnBkmk_i_'+k+'" onclick="fnBkmkType2(\''+data.bkmkSeq+'\',\''+data.insttSeq+'\',LIKE_CATEGORY_INSTT,\'btnBkmk_i_'+k+'\',\'bkmkSapn_i_'+k+'\');" class="interest '+onClass+'">interest</button>';
+			    html += '                       </span>                                                                                                                                                                                                                                                                                                                                                     ';
+			    html += '                   </sec:authorize>                                                                                                                                                                                                                                                                                                                                               ';
+				html += '				</span>                                                                                                                                                                                                                                                                                                                                                             ';
+				html += '			</div>                                                                                                                                                                                                                                                                                                                                                                  ';
+				html += '		</div>                                                                                                                                                                                                                                                                                                                                                                      ';
+				html += '	</div>                                                                                                                                                                                                                                                                                                                                                                          ';
+				html += '</li>                                                                                                                                                                                                                                                                                                                                                                              ';
+
+				$(selector+' div.bbs_basic ul.recruitment_list').append(html);
+       		}
+
+       	}
+
+       	function fnMakeHtml4(lst, selector) {
+
+			$(selector+' ul.recruitment_list').empty();
+
+       		for (var k=0; k<lst.length; k++) {
+       			var data = lst[k];
+       			var newClass = '', onClass = '', hurryStr = '';
+       			if (data.newYn == 'Y') {
+       				newClass = 'new';
+       			}
+       			if (data.bkmkSeq != '') {
+       				onClass = 'on';
+       			}
+       			if (data.remainDiv == 'hurry') {
+       				hurryStr = 'Hour';
+       			}
+       			var imgUrl = '${pageContext.request.contextPath}/common/imgLoading.do?url='+data.filePath;
+       			var html = '';
+
+				html += '<li>                                                                                                                                                                                                                                                                                ';
+				html += '	<div class="contents_wrap">                                                                                                                                                                                                                                                      ';
+				html += '		<div class="img_box"><img src="'+imgUrl+'" alt="image" onerror="fnNoImage(this)" /></div>                                                                                                             ';
+				html += '		<div class="contents_box">                                                                                                                                                                                                                                                   ';
+				html += '			<div class="title_box '+newClass+'">                                                                                                                                                                                                          ';
+				html += '				<a href="javascript:void(0)" onclick="fnGoView(4, \''+data.fairSeq+'\', \''+data.fairWorkshopSeq+'\', \''+data.fairWorkshopPatcptnSeq+'\')" class="title">'+data.workshopNm+'</a>                                                       ';
+				html += '			</div>                                                                                                                                                                                                                                                                   ';
+				html += '			<div class="cont_box">                                                                                                                                                                                                                                                   ';
+				html += '				<span class="cont">                                                                                                                                                                                                                                                  ';
+				html += '					<span class="con">'+data.lectureRoom+'</span>                                                                                                                                                                                               ';
+				html += '					<span class="con"><spring:message code="compny.vacancy.msg.title8"/>:'+data.recurmtMan+'</span>                                                                                                                                             ';
+				html += '					<span class="con">$'+fnNumberWithCommas(data.tuition)+'</span>                                                                                                                                                                                                   ';
+				html += '				</span>                                                                                                                                                                                                                                                              ';
+				html += '				<span class="cont">                                                                                                                                                                                                                                                  ';
+				html += '					<span class="con"><strong>'+data.fairBgnDt+' ~ '+data.fairEndDt+'</strong></span>                                                                                                                                                                          ';
+				html += '				</span>                                                                                                                                                                                                                                                              ';
+				html += '			</div>                                                                                                                                                                                                                                                                   ';
+				html += '			<div class="other_box">                                                                                                                                                                                                                                                  ';
+				html += '				<span class="top_box">                                                                                                                                                                                                                                               ';
+				html += '				<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">                                                                                                                                                                                                          ';
+				if(data.userSeq != '') {
+				html += '					<span class="bbs_btn type08 small"><spring:message code="button.request.completed"/></span>                                                                                                                                                                      ';
+				}
+				else if(data.workshopStsCd == 'WSC0000000002') {
+				html += '					<button type="button" class="bbs_btn type08 small" onclick="javascript:fnApply(\''+data.fairSeq+'\', \''+data.fairWorkshopSeq+'\', \''+data.fairWorkshopPatcptnSeq+'\', \''+data.workshopStsCd+'\');"><spring:message code="apply.participate"/></button>';
+				}
+				else {
+				html += '					<span class="close">'+data.workshopStsNm+'</span>                                                                                                                                                                                          ';
+				}
+				html += '				</sec:authorize>                                                                                                                                                                                                                                                     ';
+				html += '				</span>                                                                                                                                                                                                                                                              ';
+				html += '			</div>                                                                                                                                                                                                                                                                   ';
+				html += '		</div>                                                                                                                                                                                                                                                                       ';
+				html += '	</div>                                                                                                                                                                                                                                                                           ';
+				html += '</li>                                                                                                                                                                                                                                                                               ';
+
+				$(selector+' ul.recruitment_list').append(html);
+       		}
+
+       	}
+
+    	function fnApply(seq, workshopSeq, workshopPatcptnSeq, stsCd) {
+    		if('WSC0000000002' != stsCd) {
+				alertify.alert("<spring:message code="eduTrnng.free.search.title33"/>", function (e){
+
+				});
+				return false;
+    		}
+			alertify.confirm("<spring:message code="eduTrnng.free.search.title32"/>", function (e) {
+    			if (e) {
+    	    		var params = {
+    	    				fairSeq : seq,
+    	    				fairWorkshopSeq : workshopSeq,
+    	    				fairWorkshopPatcptnSeq : workshopPatcptnSeq,
+    	    				cancelYn : 'N',
+    	    				delYn : 'N',
+    	    		};
+
+    				$.ajax({
+    					type: METHOD_POST,
+    					url: contextPath + '/jobFair/workshopApply.do',
+    					dataType: AJAX_DATA_TYPE_JSON,
+    					data: params,
+    					success: function(data) {
+    						if(data.result == "Y"){
+        						alertify.alert("<spring:message code="counsel.msg.update.ok"/>", function (e){
+	    							fnGoSrch(1, 4);
+    							});
+    						}
+    					},
+    					error: function(xhr, status, error) {
+    						alertify.alert("error to connecting server");
+    					},
+    				});
+    			}
+			});
+    	}
 
        	function fnSortOrder(tabNo, condSort) {
-       		$('form#frm input[name=condText]').val($('input#condText'+tabNo).val());
        		$('form#frm input#condSort').val(condSort);
-       		fnTabChange(tabNo, false);
+
+       		fnGoSrch(1, tabNo);
        	}
 
-       	function fnGoView(tabNo, seq) {
+       	function fnGoView(tabNo, seq, seq2, seq3) {
        		var viewUrl = '${pageContext.request.contextPath}';
+       		var f = $("form#frm");
+       		f.empty();
+
        		switch(tabNo) {
        		case 1:
        			viewUrl += '/compny/view.do';
@@ -71,9 +439,14 @@
        		case 3:
        			viewUrl += '/instt/view.do';
        			break;
+       		case 4:
+       			viewUrl += '/jobFair/workshopView.do';
+       		f.append($('<input/>').attr('name', 'condFairSeq').attr('type','hidden').val(seq));
+       		f.append($('<input/>').attr('name', 'condFairWorkshopSeq').attr('type','hidden').val(seq2));
+       		f.append($('<input/>').attr('name', 'condFairWorkshopPatcptnSeq').attr('type','hidden').val(seq3));
+       		f.append($('<input/>').attr('name', 'newYn').attr('type','hidden').val('N'));
+       			break;
        		}
-       		var f = $("form#frm");
-       		f.empty();
 
        		f.append($('<input/>').attr('name', 'condSeq').attr('type','hidden').val(seq));
 			f.attr('action', viewUrl);
@@ -160,8 +533,8 @@
 								<div class="cont">
 									<strong class="tit"><spring:message code="jobfair.type.detail.title4"/></strong>
 									<span class="con">
-										<span><a href="tel:000000000" class="mobile_phone"><c:out value="${jobFairInfo.tel1 }" /></a></span>
-										<span><a href="tel:000000000" class="mobile_phone"><c:out value="${jobFairInfo.tel2 }" /></a></span>
+										<span><a href="tel:${jobFairInfo.tel1 }" class="mobile_phone"><c:out value="${jobFairInfo.tel1 }" /></a></span>
+										<span><a href="tel:${jobFairInfo.tel2 }" class="mobile_phone"><c:out value="${jobFairInfo.tel2 }" /></a></span>
 									</span>
 								</div>
 							</li>
@@ -174,113 +547,85 @@
 				<div class="recruitment_btnbox">
 					<div class="bbs_center" id="bkmkDiv">
 					<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">
-						<button type="button" id="btnBkmk" class="button save <c:if test="${!empty result.bkmkSeq}">on</c:if>" onclick="fnBkmk('${jobFairInfo.bkmkSeq}','${jobFairInfo.fairSeq}', LIKE_CATEGORY_FAIR, 'bkmkDiv', 'btnBkmk');"><spring:message code="button.save"/></button>
-						</sec:authorize>
+						<button type="button" id="btnBkmk" class="button save <c:if test="${!empty jobFairInfo.bkmkSeq}">on</c:if>" onclick="fnBkmk('${jobFairInfo.bkmkSeq}','${jobFairInfo.fairSeq}', LIKE_CATEGORY_FAIR, 'bkmkDiv', 'btnBkmk');"><spring:message code="button.save"/></button>
+					</sec:authorize>
 					</div>
 				</div>
 
 				<div class="tab_menu action count5 margin_t_40 margin_b_0">
 				    <ul class="clearfix">
-				        <li><a onclick="fnTabChange('0',true);"><spring:message code="jobfair.type.detail.title5"/></a></li>
+				        <li><a id="0" href="javascript:void(0);"><spring:message code="jobfair.type.detail.title5"/></a></li>
 						<c:if test="${jobFairInfo.fairCompnyViewYn == 'Y' }">
-				        <li><a onclick="fnTabChange('1',true);"><spring:message code="jobfair.type.detail.title6"/></a></li>
+				        <li><a id="1" href="javascript:void(0);"><spring:message code="jobfair.type.detail.title6"/></a></li>
 						</c:if>
 						<c:if test="${jobFairInfo.fairVacancyViewYn == 'Y' }">
-						<li><a onclick="fnTabChange('2',true);"><spring:message code="jobfair.type.detail.title7"/></a></li>
+						<li><a id="2" href="javascript:void(0);"><spring:message code="jobfair.type.detail.title7"/></a></li>
 						</c:if>
 						<c:if test="${jobFairInfo.fairInsttViewYn == 'Y' }">
-						<li><a onclick="fnTabChange('3',true);"><spring:message code="jobfair.type.detail.title8"/></a></li>
+						<li><a id="3" href="javascript:void(0);"><spring:message code="jobfair.type.detail.title8"/></a></li>
 						</c:if>
 						<c:if test="${jobFairInfo.fairWorkshopViewYn == 'Y' }">
-						<li><a onclick="fnTabChange('4',true);"><spring:message code="jobfair.type.detail.title9"/></a></li>
+						<li><a id="4" href="javascript:void(0);"><spring:message code="jobfair.type.detail.title9"/></a></li>
 						</c:if>
 				    </ul>
 				</div>
 
-				<c:choose>
-					<c:when test="${tabNo == 1 }">
 				<div id="tab_contents2" class="tab_contents">
 
 				<div class="bbs_info clearfix margin_t_20">
-				<div class="bbs_left bbs_count">
-					<strong class="currently"><fmt:formatNumber type="number" maxFractionDigits="3" value="${paginationInfo.currentPageNo}" /></strong>
-					<span class="total">/&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${paginationInfo.totalRecordCount}" /></span>
-					<span class="order">
-						<h3 class="h0 skip"><spring:message code="jobfair.type.detail.title10"/></h3>
-						<button type="button" onclick="fnSortOrder(1, 'LATEST')"><spring:message code="counsel.msg.sortBy.latest"/></button>
-						<button type="button" onclick="fnSortOrder(1, 'POPULAR')"><spring:message code="counsel.msg.sortBy.like"/></button>
-					</span>
-				</div>
-				<div class="bbs_right bbs_category">
+					<div class="bbs_left bbs_count">
+						<strong class="currently"></strong>
+						<span class="total"></span>
+						<span class="order">
+							<h3 class="h0 skip"><spring:message code="jobfair.type.detail.title10"/></h3>
+							<button type="button" id="LATEST"><spring:message code="counsel.msg.sortBy.latest"/></button>
+							<button type="button" id="POPULAR"><spring:message code="counsel.msg.sortBy.like"/></button>
+						</span>
+					</div>
+					<div class="bbs_right bbs_category">
 						<fieldset>
-								<input type="text" id="condText1" name="condText1" value="${param.condText }" class="input_text" title="Please enter your search term." placeholder="Please enter your search term." />
-								<input type="submit" onclick="fnGoSrch(1)" value='<spring:message code="button.search"/>' class="submit" />
-							</fieldset>
+							<input type="text" id="condText1" name="condText1" value="" class="input_text" title="Please enter your search term." placeholder="Please enter your search term." />
+							<input type="submit" onclick="fnGoSrch(1, 1)" value='<spring:message code="button.search"/>' class="submit" />
+						</fieldset>
 					</div>
 				</div>
 				<!-- //bbs_info -->
 
 				<div class="company_list">
 					<ul class="clearfix">
-				<c:if test="${!empty resultList}">
-				<c:forEach var="employer" items="${resultList}" varStatus="status">
-				<li>
-					<div class="contents_box">
-						<span class="img_box"><img src="${pageContext.request.contextPath}${employer.filePath}" alt="image" onerror="fnNoImage(this)"/></span>
-						<a href="javascript:void(0)" onclick="fnGoView(1,'${employer.compnySeq}')" class="title_box">
-							<strong class="title"><c:out value="${employer.compnyNm }" /></strong>
-						</a>
-						<span class="cont_box">
-							<span class="cont"><c:out value="${employer.isicNm }" /></span>
-							<span class="cont"><c:out value="${employer.addrNm }" /></span>
-						</span>
-											<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">
-                           <span id="bkmkSapn_c_${status.count}"><button type="button" id="btnBkmk_c_${status.count}" onclick="fnBkmkType2('${employer.bkmkSeq}','${employer.compnySeq}',LIKE_CATEGORY_COMPNY,'btnBkmk_c_${status.count}','bkmkSapn_c_${status.count}');" class="interest <c:if test="${!empty employer.bkmkSeq and employer.bkmkSeq != ''}">on</c:if>">interest</button>
-                           </span>
-                        </sec:authorize>
-					</div>
-				</li>
-				</c:forEach>
-				</c:if>
 					</ul>
 				</div>
 
-				<c:if test="${empty resultList}">
-					<div class="bbs_empty">
-						<p><spring:message code="counsel.msg.no.data"/></p>
-					</div>
-					<!-- //bbs_empty -->
-				</c:if>
+				<div class="bbs_empty">
+					<p><spring:message code="counsel.msg.no.data"/></p>
+				</div>
+				<!-- //bbs_empty -->
 				<!-- //company_list -->
 
-					<c:if test="${!empty resultList}">
 				<div class="pagination">
-					<ui:pagination paginationInfo="${paginationInfo}" type="customRenderer" jsFunction="fnSetPageing"/>
 				</div>
 				<!-- //pagination -->
-				</c:if>
 
 				</div>
 				<!-- //tab_contents2 -->
-					</c:when>
-					<c:when test="${tabNo == 2 }">
+
 				<div id="tab_contents3" class="tab_contents">
 
 				<div class="bbs_info clearfix margin_t_20">
-				<div class="bbs_left bbs_count">
-					<strong class="currently"><fmt:formatNumber type="number" maxFractionDigits="3" value="${paginationInfo.currentPageNo}" /></strong>
-					<span class="total">/&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${paginationInfo.totalRecordCount}" /></span>
-					<span class="order">
-						<h3 class="h0 skip"><spring:message code="jobfair.type.detail.title10"/></h3>
-						<button type="button" onclick="fnSortOrder(2, 'LATEST')"><spring:message code="counsel.msg.sortBy.latest"/></button>
-						<button type="button" onclick="fnSortOrder(2, 'VIEW')"><spring:message code="counsel.msg.sortBy.view"/></button>
-						<button type="button" onclick="fnSortOrder(2, 'POPULAR')"><spring:message code="counsel.msg.sortBy.like"/></button>
-					</span>
-				</div>
-				<div class="bbs_right bbs_category">
-						<fieldset>
-								<input type="text" id="condText2" name="condText2" value="${param.condText }" class="input_text" title="Please enter your search term." placeholder="Please enter your search term." />
-								<input type="submit" onclick="fnGoSrch(2)" value='<spring:message code="button.search"/>' class="submit" />
+					<div class="bbs_left bbs_count">
+						<strong class="currently"></strong>
+						<span class="total"></span>
+						<span class="order">
+							<h3 class="h0 skip"><spring:message code="jobfair.type.detail.title10"/></h3>
+							<button type="button" id="LATEST"><spring:message code="counsel.msg.sortBy.latest"/></button>
+							<button type="button" id="VIEW"><spring:message code="counsel.msg.sortBy.view"/></button>
+							<button type="button" id="POPULAR"><spring:message code="counsel.msg.sortBy.like"/></button>
+						</span>
+					</div>
+					<div class="bbs_right bbs_category">
+							<fieldset>
+								<input type="text" id="condText2" name="condText2" value="" class="input_text" title="Please enter your search term." placeholder="Please enter your search term." />
+								<input type="submit" onclick="fnGoSrch(1, 2)" value='<spring:message code="button.search"/>' class="submit" />
 							</fieldset>
 					</div>
 				</div>
@@ -288,74 +633,38 @@
 
 				<div class="bbs_basic">
 					<ul class="recruitment_list clearfix">
-				<c:if test="${!empty resultList}">
-				<c:forEach var="vacancy" items="${resultList}" varStatus="status">
-				<li>
-					<div class="contents_wrap">
-						<div class="img_box"><img src="${pageContext.request.contextPath}${vacancy.filePath}" alt="image" onerror="fnNoImage(this)"/></div>
-						<div class="contents_box">
-							<div class="title_box ${cFun:changeNewClass(vacancy.newYn)}">
-								<span class="tit"><c:out value="${vacancy.compnyNm }" /></span>
-								<a href="javascript:void(0)" onclick="fnGoView(2,'${vacancy.vacancySeq}')" class="title"><c:out value="${vacancy.vacancyTitle }" /></a>
-							</div>
-							<div class="cont_box">
-								<span class="con"><c:out value="${vacancy.employFormNm }" /></span>
-								<span class="con"><c:out value="${vacancy.recrumtMemb }" /></span>
-								<span class="con"><c:out value="${vacancy.addrNm }" /></span>
-								<span class="con">$<fmt:formatNumber type="number" maxFractionDigits="3" value="${vacancy.minSalaryAmt}" /> ~ $<fmt:formatNumber type="number" maxFractionDigits="3" value="${vacancy.maxSalaryAmt}" /></span>
-							</div>
-							<div class="other_box">
-								<span class="top_box">
-									<span class="${vacancy.remainDiv}"><c:out value="${vacancy.remainDt }" /><c:if test="${vacancy.remainDiv == 'hurry'}">Hour</c:if></span>
-
-								<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">
-		                           <span id="bkmkSapn_v_${status.count}"><button type="button" id="btnBkmk_v_${status.count}" onclick="fnBkmkType2('${vacancy.bkmkSeq}','${vacancy.vacancySeq}',LIKE_CATEGORY_VACANCY,'btnBkmk_v_${status.count}','bkmkSapn_v_${status.count}');" class="interest <c:if test="${!empty vacancy.bkmkSeq and vacancy.bkmkSeq != ''}">on</c:if>">interest</button>
-		                           </span>
-		                        </sec:authorize>
-								</span>
-							</div>
-						</div>
-					</div>
-				</li>
-				</c:forEach>
-				</c:if>
 					</ul>
 				</div>
 				<!-- //bbs_basic -->
-				<c:if test="${empty resultList}">
-					<div class="bbs_empty">
-						<p><spring:message code="counsel.msg.no.data"/></p>
-					</div>
-					<!-- //bbs_empty -->
-				</c:if>
 
-					<c:if test="${!empty resultList}">
+				<div class="bbs_empty">
+					<p><spring:message code="counsel.msg.no.data"/></p>
+				</div>
+					<!-- //bbs_empty -->
+
 				<div class="pagination">
-					<ui:pagination paginationInfo="${paginationInfo}" type="customRenderer" jsFunction="fnSetPageing"/>
 				</div>
 				<!-- //pagination -->
-				</c:if>
 
 				</div>
 				<!-- //tab_contents3 -->
-					</c:when>
-					<c:when test="${tabNo == 3 }">
+
 				<div id="tab_contents4" class="tab_contents">
 
 				<div class="bbs_info clearfix margin_t_20">
-				<div class="bbs_left bbs_count">
-					<strong class="currently"><fmt:formatNumber type="number" maxFractionDigits="3" value="${paginationInfo.currentPageNo}" /></strong>
-					<span class="total">/&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${paginationInfo.totalRecordCount}" /></span>
-					<span class="order">
-						<h3 class="h0 skip"><spring:message code="jobfair.type.detail.title10"/></h3>
-						<button type="button" onclick="fnSortOrder(3, 'LATEST')"><spring:message code="counsel.msg.sortBy.latest"/></button>
-						<button type="button" onclick="fnSortOrder(3, 'POPULAR')"><spring:message code="counsel.msg.sortBy.like"/></button>
-					</span>
-				</div>
-				<div class="bbs_right bbs_category">
-						<fieldset>
+					<div class="bbs_left bbs_count">
+						<strong class="currently"></strong>
+						<span class="total"></span>
+						<span class="order">
+							<h3 class="h0 skip"><spring:message code="jobfair.type.detail.title10"/></h3>
+							<button type="button" id="LATEST"><spring:message code="counsel.msg.sortBy.latest"/></button>
+							<button type="button" id="POPULAR"><spring:message code="counsel.msg.sortBy.like"/></button>
+						</span>
+					</div>
+					<div class="bbs_right bbs_category">
+							<fieldset>
 								<input type="text" id="condText3" name="condText3" value="${param.condText }" class="input_text" title="Please enter your search term." placeholder="Please enter your search term." />
-								<input type="submit" onclick="fnGoSrch(3)" value='<spring:message code="button.search"/>' class="submit" />
+								<input type="submit" onclick="fnGoSrch(1, 3)" value='<spring:message code="button.search"/>' class="submit" />
 							</fieldset>
 					</div>
 				</div>
@@ -363,78 +672,37 @@
 
 				<div class="bbs_basic">
 					<ul class="recruitment_list edu clearfix">
-				<c:if test="${!empty resultList}">
-				<c:forEach var="eduInstt" items="${resultList}" varStatus="status">
-				<li>
-					<div class="contents_wrap">
-						<div class="img_box"><img src="${pageContext.request.contextPath}${eduInstt.filePath}" alt="image" onerror="fnNoImage(this)"/></div>
-						<div class="contents_box ngo">
-							<div class="title_box">
-								<a href="javascript:void(0)" onclick="fnGoView(3, '${eduInstt.insttSeq}')" class="title"><c:out value="${eduInstt.insttNm }" /></a>
-							</div>
-							<div class="cont_box">
-								<span class="cont">
-									<span class="con"><c:out value="${eduInstt.insttOwnerNm }" /></span>
-									<span class="con"><c:out value="${eduInstt.insttTypeNm }" /></span>
-								</span>
-								<span class="cont">
-									<span class="con"><c:out value="${eduInstt.addrNm }" /></span>
-									<span class="con"><a href="tel:000000000" class="mobile_phone"><c:out value="${eduInstt.tel1 }" /></a></span>
-								</span>
-							</div>
-							<div class="other_box">
-								<span class="top_box">
-									<%-- <button type="button" class="interest on"><spring:message code="jobfair.type.detail.title11"/></button> --%>
-
-									<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">
-			                           <span id="bkmkSapn_i_${status.count}"><button type="button" id="btnBkmk_i_${status.count}" onclick="fnBkmkType2('${eduInstt.bkmkSeq}','${eduInstt.insttSeq}',LIKE_CATEGORY_INSTT,'btnBkmk_i_${status.count}','bkmkSapn_i_${status.count}');" class="interest <c:if test="${!empty eduInstt.bkmkSeq and eduInstt.bkmkSeq != ''}">on</c:if>">interest</button>
-			                           </span>
-			                        </sec:authorize>
-								</span>
-							</div>
-						</div>
-					</div>
-				</li>
-				</c:forEach>
-				</c:if>
 					</ul>
 				</div>
 				<!-- //bbs_basic -->
-				<c:if test="${empty resultList}">
-					<div class="bbs_empty">
-						<p><spring:message code="counsel.msg.no.data"/></p>
-					</div>
-					<!-- //bbs_empty -->
-				</c:if>
 
-					<c:if test="${!empty resultList}">
+				<div class="bbs_empty">
+					<p><spring:message code="counsel.msg.no.data"/></p>
+				</div>
+				<!-- //bbs_empty -->
+
 				<div class="pagination">
-					<ui:pagination paginationInfo="${paginationInfo}" type="customRenderer" jsFunction="fnSetPageing"/>
 				</div>
 				<!-- //pagination -->
-				</c:if>
 
 				</div>
 				<!-- //tab_contents4 -->
-					</c:when>
-					<c:when test="${tabNo == 4 }">
+
 				<div id="tab_contents5" class="tab_contents">
 
 				<div class="bbs_info clearfix margin_t_20">
-				<div class="bbs_left bbs_count">
-					<strong class="currently"><fmt:formatNumber type="number" maxFractionDigits="3" value="${paginationInfo.currentPageNo}" /></strong>
-					<span class="total">/&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${paginationInfo.totalRecordCount}" /></span>
-					<span class="order">
-						<h3 class="h0 skip"><spring:message code="jobfair.type.detail.title10"/></h3>
-						<button type="button" onclick="fnSortOrder(4, 'LATEST')"><spring:message code="counsel.msg.sortBy.latest"/></button>
-						<button type="button" onclick="fnSortOrder(4, 'VIEW')"><spring:message code="counsel.msg.sortBy.view"/></button>
-						<button type="button" onclick="fnSortOrder(4, 'POPULAR')"><spring:message code="counsel.msg.sortBy.like"/></button>
-					</span>
-				</div>
-				<div class="bbs_right bbs_category">
-						<fieldset>
-								<input type="text" id="condText4" name="condText4" value="${param.condText }" class="input_text" title="Please enter your search term." placeholder="Please enter your search term." />
-								<input type="submit" onclick="fnGoSrch(4)" value='<spring:message code="button.search"/>' class="submit" />
+					<div class="bbs_left bbs_count">
+						<strong class="currently"></strong>
+						<span class="total"></span>
+						<span class="order">
+							<h3 class="h0 skip"><spring:message code="jobfair.type.detail.title10"/></h3>
+							<button type="button" id="LATEST"><spring:message code="counsel.msg.sortBy.latest"/></button>
+						</span>
+					</div>
+					<div class="bbs_right bbs_category">
+							<fieldset>
+								<input type="text" id="condText4" name="condText4" value="" class="input_text" title="Please enter your search term." placeholder="Please enter your search term." />
+								<input type="submit" onclick="fnGoSrch(1, 4)" value='<spring:message code="button.search"/>' class="submit" />
 							</fieldset>
 					</div>
 				</div>
@@ -442,55 +710,28 @@
 
 				<div class="bbs_basic">
 					<ul class="recruitment_list edu clearfix">
-				<li>
-					<div class="contents_wrap">
-						<div class="img_box"><img src="${pageContext.request.contextPath}/images/contents/recruitment_dummy.png" alt="image" /></div>
-						<div class="contents_box training">
-					<div class="title_box">
-						<a href="javascript:void(0)" class="title">Construction Project Planning Manager</a>
-					</div>
-					<div class="cont_box">
-						<span class="cont">
-							<span class="con">Phnom Penh</span>
-							<span class="con">Training Course</span>
-							<span class="con">$300</span>
-						</span>
-						<span class="cont">
-							<span class="con">Recruting <strong>08/10/2019~08/11/2019</strong></span>
-							<span class="con">Training <strong>08/10/2019~08/11/2019</strong></span>
-						</span>
-					</div>
-					<div class="other_box">
-						<span class="top_box">
-							<span class="recruiting">Recruiting</span>
-							<button type="button" class="interest on"><spring:message code="jobfair.type.detail.title11"/></button>
-								</span>
-							</div>
-						</div>
-					</div>
-				</li>
 					</ul>
 				</div>
 				<!-- //bbs_basic -->
 
-					<c:if test="${!empty resultList}">
+				<div class="bbs_empty">
+					<p><spring:message code="counsel.msg.no.data"/></p>
+				</div>
+				<!-- //bbs_empty -->
+
 				<div class="pagination">
-					<ui:pagination paginationInfo="${paginationInfo}" type="customRenderer" jsFunction="fnSetPageing"/>
 				</div>
 				<!-- //pagination -->
-				</c:if>
 
 				</div>
 				<!-- //tab_contents5 -->
-					</c:when>
-					<c:otherwise>
 
 				<div id="tab_contents1" class="tab_contents">
 
 				<div class="h3"><spring:message code="jobfair.type.detail.title25"/> <strong><c:out value="${jobFairInfo.jcNm }" /></strong></div>
 
 				<h3><spring:message code="jobfair.type.detail.title12"/></h3>
-				<p><c:out value="${jobFairInfo.fairDtlExplnNm }" /></p>
+				<p><c:out value="${jobFairInfo.fairDtlExplnNm }" escapeXml="false" /></p>
 
 				<div class="form_view">
 					<div class="view_box have_border">
@@ -528,9 +769,17 @@
 					<div class="view_form images_list">
 						<strong class="title"><spring:message code="jobfair.type.detail.title15"/></strong>
 						<div class="cont_box">
-							<span><img src="${pageContext.request.contextPath}/images/contents/recruitment_dummy.png" alt=" image" /></span>
-							<span><img src="${pageContext.request.contextPath}/images/contents/recruitment_dummy.png" alt=" image" /></span>
-							<span><img src="${pageContext.request.contextPath}/images/contents/recruitment_dummy.png" alt=" image" /></span>
+						<c:choose>
+						<c:when test="${jobFairInfo.supporterFileGrpSeq != null and jobFairInfo.supporterFileGrpSeq.indexOf(',') > -1 }">
+						<c:set var="seqs" value="${fn:split(jobFairInfo.supporterFileGrpSeq, ',') }" />
+						<c:forEach var="item" items="${seqs }" varStatus="status">
+							<span><img src="${pageContext.request.contextPath}${item}" alt="image" onerror="fnNoImage(this)" /></span>
+						</c:forEach>
+						</c:when>
+						<c:otherwise>
+							<span><img src="${pageContext.request.contextPath}${jobFairInfo.supporterFileGrpSeq}" alt="image" onerror="fnNoImage(this)" /></span>
+						</c:otherwise>
+						</c:choose>
 						</div>
 					</div>
 				</div>
@@ -540,9 +789,19 @@
 					<div class="view_form images_list">
 						<strong class="title"><spring:message code="jobfair.type.detail.title16"/></strong>
 						<div class="cont_box">
-							<span><img src="${pageContext.request.contextPath}/images/contents/recruitment_dummy.png" alt=" image" /></span>
-							<span><img src="${pageContext.request.contextPath}/images/contents/recruitment_dummy.png" alt=" image" /></span>
-							<span><img src="${pageContext.request.contextPath}/images/contents/recruitment_dummy.png" alt=" image" /></span>
+						<c:if test="${jobFairInfo.sponsorFileGrpSeq != null }">
+						<c:choose>
+						<c:when test="${jobFairInfo.sponsorFileGrpSeq.indexOf(',') > -1 }">
+						<c:set var="seqs" value="${fn:split(jobFairInfo.sponsorFileGrpSeq, ',') }" />
+						<c:forEach var="item" items="${seqs }" varStatus="status">
+							<span><img src="${pageContext.request.contextPath}${item}" alt="image" onerror="fnNoImage(this)" /></span>
+						</c:forEach>
+						</c:when>
+						<c:otherwise>
+							<span><img src="${pageContext.request.contextPath}${jobFairInfo.sponsorFileGrpSeq}" alt="image" onerror="fnNoImage(this)" /></span>
+						</c:otherwise>
+						</c:choose>
+						</c:if>
 						</div>
 					</div>
 				</div>
@@ -578,10 +837,24 @@
 				<div class="form_view no_padding">
 					<div class="view_box have_border">
 						<div class="view_form">
-							<strong class="title"><spring:message code="jobfair.type.detail.title21"/></strong>
+							<strong class="title"><spring:message code="jobfair.type.detail.title21" /></strong>
+								<c:if test="${jobFairInfo.boothFileGrpSeq != null }">
+								<c:choose>
+								<c:when test="${jobFairInfo.boothFileGrpSeq.indexOf(',') > -1 }">
+								<c:set var="boothImg" value="${fn:split(jobFairInfo.boothFileGrpSeq, ',') }" />
+								<c:forEach items="${boothImg}" var="file">
 							<div class="cont_box">
-								<a href="" class="booth_view"><spring:message code="jobfair.type.detail.title22"/></a>
+									<a class="booth_view" href="javascript:void(0)" onclick="javascript:fnImgViewPopup('<spring:message code="jobfair.type.detail.title22" />', '<c:out value="${file}" />')"><spring:message code="jobfair.booth.layout" /></a>
 							</div>
+								</c:forEach>
+								</c:when>
+								<c:otherwise>
+							<div class="cont_box">
+									<a class="booth_view" href="javascript:void(0)" onclick="javascript:fnImgViewPopup('<spring:message code="jobfair.type.detail.title22" />', '<c:out value="${jobFairInfo.boothFileGrpSeq}" />')"><spring:message code="jobfair.booth.layout" /></a>
+							</div>
+								</c:otherwise>
+								</c:choose>
+								</c:if>
 						</div>
 					</div>
 					<!-- //view_box -->
@@ -641,8 +914,6 @@
 
 				</div>
 				<!-- //tab_contents1 -->
-					</c:otherwise>
-				</c:choose>
 
 				<div class="bbs_btn_wrap clearfix">
 					<div class="bbs_center">

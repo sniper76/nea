@@ -1,14 +1,26 @@
 package ony.cmm.common.service.impl;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -29,11 +41,14 @@ import ony.cmm.common.bean.IscedCdBean;
 import ony.cmm.common.bean.IsicCdBean;
 import ony.cmm.common.bean.LikeBean;
 import ony.cmm.common.bean.LocCdBean;
+import ony.cmm.common.bean.SmsBean;
 import ony.cmm.common.dao.CommDAO;
 import ony.cmm.common.service.CommonService;
 import ony.cmm.common.util.EncryptUtil;
+import ony.cpes.external.jobcenter.bean.JobCenterBean;
 import ony.cpes.external.jobstudy.bean.JobStudyBean;
 import ony.cpes.external.member.bean.MemberBean;
+import ony.cpes.external.mypage.compny.bean.VideoIntvwPatcptnBean;
 import ony.cpes.external.mypage.privt.bean.OfferBean;
 import ony.cpes.external.mypage.privt.bean.ResumeBean;
 import ony.cpes.external.mypage.privt.dao.ResumeDAO;
@@ -510,4 +525,167 @@ public class CommonServiceImpl implements CommonService {
 	public List<String> selectBanWordList() {
 		return commDAO.selectBanWordList();
 	}
+
+
+	public SmsBean insertSmsLog(SmsBean param) throws Exception {
+
+
+		String respContent	= "";
+
+		if (param == null) {
+
+		}
+
+		if(param.getSmsUsername() == null || "".equals(param.getSmsUsername())) {
+
+		}
+
+		if(param.getSmsPassword() == null || "".equals(param.getSmsPassword())) {
+
+		}
+
+		if(param.getSmsFrom() == null || "".equals(param.getSmsFrom())) {
+
+		}
+
+		if(param.getSmsTo() == null || "".equals(param.getSmsTo())) {
+
+		}
+
+		String smsUrl = "http://tool.plasgate.com:11040/cgi-bin/sendsms";
+
+		param.setSmsUsername("minlwapi_pop");
+		param.setSmsPassword("Mi!kw@81");
+		param.setSmsFrom("SMS info");
+
+
+
+		int sendResult = commDAO.insertSmsLog(param);
+
+		if(sendResult > 0) {
+//			HttpClient httpClient = new DefaultHttpClient();
+			HttpPost httpPost = new HttpPost(smsUrl);
+			CloseableHttpClient client = HttpClientBuilder.create().build();
+
+			List<NameValuePair> params = new ArrayList<NameValuePair>();
+
+			params.add(new BasicNameValuePair("gw-username", param.getSmsUsername()));
+			params.add(new BasicNameValuePair("gw-password", param.getSmsPassword()));
+			params.add(new BasicNameValuePair("gw-from", param.getSmsFrom()));
+			params.add(new BasicNameValuePair("gw-to", param.getSmsTo()));
+			params.add(new BasicNameValuePair("gw-text", param.getSmsText()));
+
+			try {
+				httpPost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				// writing error to Log
+				e.printStackTrace();
+			}
+
+			try {
+
+				HttpResponse response =    client.execute(httpPost);
+				HttpEntity respEntity = response.getEntity();
+				if (respEntity != null)
+				{
+					// EntityUtils to get the reponse content
+					respContent = EntityUtils.toString(respEntity);
+					Map<String, String> queryMap = getQueryParser(respContent);
+
+					if(queryMap != null && queryMap.get("status") != null) {
+						param.setSmsStatus(queryMap.get("status"));
+					}
+					if(queryMap != null && queryMap.get("err_msg") != null) {
+						param.setSmsErrMsg(queryMap.get("err_msg"));
+					}
+					if(queryMap != null && queryMap.get("msgid") != null) {
+						param.setSmsMsgid(queryMap.get("msgid"));
+					}
+
+
+				} else {
+					param.setResultCode("9999");
+					param.setSmsStatus("9999");
+					param.setSmsErrMsg("ERROR");
+				}
+
+
+			} catch (Exception e) {
+				param.setResultCode("9999");
+				param.setSmsStatus("9999");
+				param.setSmsErrMsg(e.toString());
+
+			} finally {
+				int result2 = commDAO.updateSmsLog(param);
+			}
+		}
+
+
+		return param ;
+	}
+
+
+	public static Map<String, String> getQueryParser(String query) {
+
+        Map<String, String> returnData = new HashMap<String, String>();
+        // query is from getQuery()
+        StringTokenizer st = new StringTokenizer(query, "&", false);
+
+        while (st.hasMoreElements()) {
+            // First Pass to retrive the
+            // "parametername=value" combo
+            String paramValueToken = st.nextElement().toString();
+            // StringTokenizer stParamVal = new StringTokenizer(paramValueToken,"=", false );
+
+            //방식 변경
+            String[] strParamVal = paramValueToken.split("=", 2);
+            String paramName = strParamVal[0];
+            String paramValue = strParamVal[1];
+            returnData.put(paramName, paramValue);
+
+             /* int i = 0;
+            while (stParamVal.hasMoreElements()) {
+                //Second pass to separate the "paramname" and "value".
+                // 1st token is param name
+                // 2nd token is param value
+
+                String separatedToken = stParamVal.nextElement().toString();
+
+                if ( i== 0) {
+                    //This indicates that it is the param name : ex val4,val5 etc
+                    paramName = separatedToken;
+                } else {
+                    // This will hold value of the parameter
+                    paramValue = separatedToken;
+                }
+
+                i++;
+            }*/
+        }
+        return returnData;
+
+    }
+
+	/**
+	 * 잡센터 코드 목록
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+	@Override
+	public List<JobCenterBean> selectJobCenterCdList(ConditionBean param) throws Exception {
+		return commDAO.selectJobCenterCdList(param);
+	}
+
+	/**
+	 * 화상면접 상세
+	 * video intview deail
+	 * @param param
+	 * @return VideoIntvwPatcptnBean
+	 */
+	@Override
+	public VideoIntvwPatcptnBean selectVideoIntvw(ConditionBean param) throws Exception {
+		return commDAO.selectVideoIntvw(param);
+	}
+
 }

@@ -16,6 +16,9 @@
 		<result property="userSeq" 		column="userSeq" 		javaType="String" />
 		<result property="userAuthCd" 		column="userAuthCd" 		javaType="String" />
 		<result property="userEmail" 		column="userEmail" 		javaType="String" />
+		<result property="userPwdOld" 		column="userPwdOld" 		javaType="String" />
+		<result property="newPwdApplyYn" 		column="newPwdApplyYn" 		javaType="String" />
+
 	</resultMap>
 
 	<!-- user Login -->
@@ -38,6 +41,8 @@
                 , A.USER_SEQ
                 , A.USER_AUTH_CD
                 , A.USER_EMAIL
+                , A.USER_PWD_OLD
+                , A.NEW_PWD_APPLY_YN
             FROM CPES_USER A
             WHERE (A.USER_EMAIL = #{mngId} OR A.USER_CELL = #{mngId})
             AND A.USE_YN = 'Y'

@@ -23,6 +23,15 @@
     		$('#workBgnDt').datepicker('setDate', 'today'); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, -1M:한달후, -1Y:일년후)
 
 
+    		$("#bgnDt").datepicker({
+    			dateFormat: 'dd/mm/yy', //Input Display Format 변경
+    			showOn: "both",
+    			minDate: "0M", //최소 선택일자(-1D:하루전, -1M:한달전, -1Y:일년전)
+    			maxDate: "3M", //최소 선택일자(-1D:하루전, -1M:한달전, -1Y:일년전)
+    		});
+
+    		$('#bgnDt').datepicker('setDate', 'today'); //(-1D:하루전, -1M:한달전, -1Y:일년전), (+1D:하루후, -1M:한달후, -1Y:일년후)
+
     		$("#endDt").datepicker({
     			dateFormat: 'dd/mm/yy', //Input Display Format 변경
     			showOn: "both",
@@ -38,6 +47,10 @@
 
 	    		if("${result.workBgnDt}" != null && "${result.workBgnDt}" != "") {
 	    			$('#workBgnDt').val("${result.workBgnDt}");
+	    		}
+
+	    		if("${result.bgnDt}" != null && "${result.bgnDt}" != "") {
+	    			$('#bgnDt').val("${result.bgnDt}");
 	    		}
 
 	    		if("${result.endDt}" != null && "${result.endDt}" != "") {
@@ -357,8 +370,11 @@
 				<th scope="row"><span class="exactly y"><spring:message code="member.join.msg.required"/></span> <spring:message code="compny.vacancy.msg.title7"/></th>
 				<td>
 					<span class="bbs_time type2">
+						<label for="bgnDt" class="skip">date</label>
+						<input type="text" id="bgnDt" name="bgnDt" readonly> ~
 						<label for="endDt" class="skip">date</label>
 						<input type="text" id="endDt" name="endDt" readonly>
+
 					</span>
 				</td>
 			</tr>
@@ -580,7 +596,7 @@
 				<td>
 					<span class="bbs_input_box">
 						<input type="radio" name="flexWorkYn" id="flexWorkYn_1" value="N" <c:if test="${result.flexWorkYn == 'N'}">checked</c:if>>
-						<label for="radio8_1"><spring:message code="compny.vacancy.msg.title14"/></label>
+						<label for="flexWorkYn_1"><spring:message code="compny.vacancy.msg.title14"/></label>
 					</span>
 					<span class="bbs_input_box">
 						<input type="radio" name="flexWorkYn" id="flexWorkYn_2" value="Y" <c:if test="${result.flexWorkYn == 'Y'}">checked</c:if>>

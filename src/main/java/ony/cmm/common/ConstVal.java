@@ -60,7 +60,7 @@ public class ConstVal {
 	public static final String GRP_CD_LANG_CD_VAL = "LANG_CD";//GROUP CODE LANG_CD
 	public static final String GRP_CD_LANG_LVL_CD_VAL = "LANG_LVL_CD";//GROUP CODE LANG_LVL_CD
 	public static final String GRP_CD_PREFERNT_COND_CD_VAL = "PREFERNT_COND_CD";//GROUP CODE PREFERNT_COND_CD
-	public static final String GRP_CD_MIN_EDU_DEGREE_CD_VAL = "MIN_EDU_DEGREE_CD";//GROUP CODE MIN_EDU_DEGREE_CD
+	public static final String GRP_CD_MIN_EDU_DEGREE_CD_VAL = "EDU_DEGREE_CD";//GROUP CODE MIN_EDU_DEGREE_CD
 	public static final String GRP_CD_USER_AUTH_CD_VAL = "USER_AUTH_CD";
 	public static final String GRP_CD_REFERRAL_REJECT_CD_VAL = "REFERRAL_REJECT_CD";//GROUP CODE EMPLOY_FORM_CD
 	public static final String GRP_CD_APPLIC_PROC_CD_VAL = "APPLIC_PROC_CD";//GROUP CODE APPLIC_PROC_CD
@@ -71,6 +71,7 @@ public class ConstVal {
 	public static final String GRP_CD_PC_TYPE_CD_VAL = "PC_TYPE_CD";
 	public static final String GRP_CD_GENDER_CD_VAL = "GENDER_CD";
 	public static final String GRP_CD_INTVW_REJECT_CD_VAL = "INTVW_REJECT_CD";
+	public static final String GRP_CD_VIDEO_TIME_TABLE_CD_VAL = "VIDEO_TIME_TABLE_CD";
 
 
 	public static final String COUNSEL_METHOD_DIV_CD_ONLINE_VAL = "CMD0000000001";//ONLINE
@@ -99,7 +100,7 @@ public class ConstVal {
 	public static final String NO_DATA_KEY = "noData";//데이터없음
 
 	public static final String PAGINATION_INFO_KEY = "paginationInfo";//page info key
-
+	public static final String PAGINATION_INFO_KEY2 = "paginationInfo2";//page info key
 
 	public static final String BULLETIN_TYPE_CD_BASIC_VAL = "BTC0000000001";//기본게시판,basic board
 	public static final String BULLETIN_TYPE_CD_THUMBNAIL_VAL = "BTC0000000002";//기본게ThumbNail,ThumbNail board
@@ -158,5 +159,9 @@ public class ConstVal {
 	public static final String DIV_SEARCH_DTL_VAL = "SEARCH_DTL";//CODE 03
 	public static final String DIV_SEARCH_VAL = "SEARCH";//CODE 03
 	public static final String INTVW_GRP_CD_OFFLINE_VAL = "IVTC000000002";//북마크 이력서 카테고리,book mark vacancy category
+
+	public static final String COMPNY_INSTT_DIV_CD_COMPNY_VAL = "CID0000000001";
+	public static final String COMPNY_INSTT_DIV_CD_INSTT_VAL = "CID0000000002";
+	public static final String GRP_CD_INTVW_STS_CD_VAL = "INTVW_STS_CD";//GROUP CODE MIN_EDU_DEGREE_CD
 
 }

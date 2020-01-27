@@ -225,4 +225,13 @@ public interface ApplicService {
 	 */
 	public int updateIntvwReject(IntvwBean param) throws Exception;
 
+
+	/**
+	 * 면접 삭제
+	 * interview delete
+	 * @param param
+	 * @return int
+	 */
+	public int deleteIntvw(CondApplicBean param) throws Exception;
+
 }

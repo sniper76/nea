@@ -130,5 +130,39 @@ public class InsttFairServiceImpl implements InsttFairService {
 		return insttFairDAO.updateBoothCancel(param);
 	}
 
+	/**
+	 * 참가 채용행사 목록 count
+	 * join fair list count
+	 * @param param
+	 * @return int
+	 */
+    @Override
+	public int selectJoinListCnt(CondFairBean param) throws Exception {
+    	param.setCondTypeCd(ConstVal.JOIN_VAL);//참가구분
+    	return insttFairDAO.selectInviteListCnt(param);
+    }
 
+	/**
+	 * 참가 채용행사 목록
+	 * join fair list
+	 * @param param
+	 * @return List<FairBean>
+	 */
+    @Override
+	public List<FairBean> selectJoinList(CondFairBean param) throws Exception {
+    	param.setCondTypeCd(ConstVal.JOIN_VAL);//참가구분
+    	return insttFairDAO.selectInviteList(param);
+    }
+
+
+	/**
+	 * 채용행사 취소
+	 * cancel fair request
+	 * @param param
+	 * @return int
+	 */
+    @Override
+	public int updateFairCancel(CondFairBean param)	throws Exception {
+		return insttFairDAO.updateFairCancel(param);
+	}
 }

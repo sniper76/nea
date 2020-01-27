@@ -3,7 +3,7 @@
 
     <script>
     var firstIndex = 1;
-    var pageUnit = 10;
+    var pageUnit = 100;
     var pageSize = 10;
 
     	$(document).ready(function() {
@@ -22,11 +22,12 @@
    					workTimePartCd : '${srchBean.workTimePartCd}',
    					hopeSalary : '${srchBean.hopeSalary}',
    					minWorkExp : '${srchBean.minWorkExp}',
+   					maxWorkExp : '${srchBean.maxWorkExp}',
    					iscoCdStr : '${srchBean.iscoCdStr}',
    					locCdStr : '${srchBean.locCdStr}',
-   					langCdStr : '${srchBean.langCds}',
+   					langCdStr : '${srchBean.langCdStr}',
    					privilegeCdStr : '${srchBean.privilegeCdStr}',
-   					eduDegreeCdStr : '${srchBean.eduDegreeCds}',
+   					eduDegreeCdStr : '${srchBean.eduDegreeCdStr}',
 					pageIndex : firstIndex,
 					pageUnit : pageUnit,
 					pageSize : pageSize,
@@ -34,7 +35,7 @@
    			if(gubun != undefined) {
    				params.condSort = gubun;
    			}
-       		console.log('params', params);
+       		//console.log('params', params);
 
    			$.ajax({
    				type: METHOD_POST,
@@ -76,17 +77,21 @@
 
        		for (var k=0; k<lst.length; k++) {
        			var data = lst[k];
-       			var onClass = '', newClass = '';
+       			var onClass = '', newClass = '', remainClass = '';
        			if (data.bkmkSeq != '') {
        				onClass = 'on';
        			}
        			if (data.newYn == 'Y') {
        				newClass = 'new';
        			}
+       			if (data.remainDiv == 'hurry') {
+       				remainClass = 'Hour';
+       			}
+       			var imgUrl = '${pageContext.request.contextPath}/common/imgLoading.do?url='+data.filePath;
        			var html = '';
 		       	    html += '   		<li>                                                                                                               ';
 		        	html += '	<div class="contents_wrap">                                                                                                ';
-		        	html += '		<div class="img_box"><img src="'+contextPath+data.filePath+'" alt="image"  onerror="fnNoImage(this)" /></div>';
+		        	html += '		<div class="img_box"><img src="'+imgUrl+'" alt="image" onerror="fnNoImage(this)" /></div>';
 		        	html += '		<div class="contents_box ">                               ';
 		        	html += '			<div class="title_box '+newClass+'">                                               ';
 		        	html += '				<span class="tit">'+data.compnyNm+'</span>';
@@ -95,19 +100,23 @@
 		        	html += '			<div class="cont_box">                                                                                             ';
 		        	html += '				<span class="cont">                                                                                            ';
 		        	html += '					<span class="con">'+data.preferEmploymtTypeNm+'</span>                                            ';
-		        	html += '					<span class="con">모집인원:'+data.recrumtMemb+'</span>                                            ';
+		        	html += '					<span class="con"><spring:message code="compny.vacancy.msg.title8"/>:'+data.recrumtMemb+'</span>                                            ';
 		        	html += '					<span class="con">'+data.addrFullNm+'</span>                                       ';
-		        	html += '					<span class="con">'+fnNumberWithCommas(data.minSalaryAmt)+' ~ '+fnNumberWithCommas(data.maxSalaryAmt)+'</span>';
+		        	html += '					<span class="con"><spring:message code="mypage.compny.profile.title18"/>:'+fnNumberWithCommas(data.minSalaryAmt)+' ~ '+fnNumberWithCommas(data.maxSalaryAmt)+'</span>';
 		        	html += '				</span>                                                                                                        ';
 		        	html += '			</div>                                                                                                             ';
 		        	html += '			<div class="other_box">                                                                                            ';
 		        	html += '				<span class="top_box">                                                                                         ';
-		        	html += '					<span class="date">'+data.vacancyStsNm+'</span>                                                              ';
+		        	if(data.vacancyStsCd == 'VCS0000000002') {
+		        	html += '					<span class="close">'+data.vacancyStsNm+'</span>';
+		        	}else{
+		        	html += '					<span class="'+data.remainDiv+'">'+data.remainDt+remainClass+'</span> ';
+		        	}
 
 		        	html += '<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">';
 		        	html += '<span id="bkmkSapn_'+k+'"><button type="button" id="btnBkmk_'+k+'" onclick="fnBkmkType2(\''+data.bkmkSeq+'\',\''+data.vacancySeq+'\', LIKE_CATEGORY_VACANCY, \'btnBkmk_'+k+'\', \'bkmkSapn_'+k+'\');" class="interest '+onClass+'">interest</button>';
 		        	html += '</span>';
-		        		html += '</sec:authorize>';
+		        	html += '</sec:authorize>';
 		        	html += '				</span>                                                                                                        ';
 		        	html += '			</div>                                                                                                             ';
 		        	html += '		</div>                                                                                                                 ';
@@ -144,7 +153,7 @@
 					    <div class="box_wrap">
 					        <div class="title">Please Set your preferred conditions for finding your employee!</div>
 					        <p>Set your preference on job seeker such as occupation, sector, location, etc., <br />then <span class="em_point">you will receive job seeker list based on your preference.</span></p>
-							<a href="${pageContext.request.contextPath}/cpes/private/matching/regist.do" class="bbs_btn type01 matching_btn">Set Tailored Matching</a>
+							<a href="${pageContext.request.contextPath}/cpes/private/matching/regist.do" class="bbs_btn type01 matching_btn"><spring:message code="lnb.mypage.left.menu4"/></a>
 					    </div>
 					</div>
 

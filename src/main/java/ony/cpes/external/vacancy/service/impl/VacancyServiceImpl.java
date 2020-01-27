@@ -9,6 +9,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import ony.cmm.common.ConstVal;
+import ony.cpes.external.member.bean.CompanyBean;
 import ony.cpes.external.mypage.privt.bean.ApplicBean;
 import ony.cpes.external.mypage.privt.bean.IntvwBean;
 import ony.cpes.external.mypage.privt.bean.OfferBean;
@@ -132,6 +133,7 @@ public class VacancyServiceImpl implements VacancyService {
 	 * @return
 	 * @throws Exception
 	 */
+    @Override
 	public int selectVacancyPopulateCompnyTodayListCnt(CondVacancyBean param) throws Exception {
     	return vacancyDAO.selectVacancyPopulateCompnyTodayListCnt(param);
 	}
@@ -142,6 +144,7 @@ public class VacancyServiceImpl implements VacancyService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	public List<PopulCompnyBean> selectVacancyPopulateCompnyTodayList(CondVacancyBean param) throws Exception {
     	return vacancyDAO.selectVacancyPopulateCompnyTodayList(param);
 	}
@@ -151,6 +154,7 @@ public class VacancyServiceImpl implements VacancyService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	public int selectVacancyPopulateCompnyByWeekListCnt(CondVacancyBean param) throws Exception {
     	return vacancyDAO.selectVacancyPopulateCompnyByWeekListCnt(param);
 	}
@@ -161,6 +165,7 @@ public class VacancyServiceImpl implements VacancyService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	public List<PopulCompnyBean> selectVacancyPopulateCompnyByWeekList(CondVacancyBean param) throws Exception {
     	return vacancyDAO.selectVacancyPopulateCompnyByWeekList(param);
 	}
@@ -170,6 +175,7 @@ public class VacancyServiceImpl implements VacancyService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	public int selectVacancyPopulateCompnyByMonthListCnt(CondVacancyBean param) throws Exception {
     	return vacancyDAO.selectVacancyPopulateCompnyByMonthListCnt(param);
 	}
@@ -180,6 +186,7 @@ public class VacancyServiceImpl implements VacancyService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	public List<PopulCompnyBean> selectVacancyPopulateCompnyByMonthList(CondVacancyBean param) throws Exception {
     	return vacancyDAO.selectVacancyPopulateCompnyByMonthList(param);
 	}
@@ -189,6 +196,7 @@ public class VacancyServiceImpl implements VacancyService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	public int selectVacancyPopulateCompnyByAccumulateListCnt(CondVacancyBean param) throws Exception {
     	return vacancyDAO.selectVacancyPopulateCompnyByAccumulateListCnt(param);
 	}
@@ -199,6 +207,7 @@ public class VacancyServiceImpl implements VacancyService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	public List<PopulCompnyBean> selectVacancyPopulateCompnyByAccumulateList(CondVacancyBean param) throws Exception {
     	return vacancyDAO.selectVacancyPopulateCompnyByAccumulateList(param);
 	}
@@ -209,8 +218,57 @@ public class VacancyServiceImpl implements VacancyService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	public List<PopulVacancyBean> selectVacancyPopulateList(CondVacancyBean param) throws Exception {
     	return vacancyDAO.selectVacancyPopulateList(param);
 	}
 
+
+
+
+	/**
+	 * 채용공고  최신 60개
+	 * vacancy list
+	 * @param param
+	 * @return List<VacancyBean>
+	 */
+	@Override
+	public List<VacancyBean> selectMainVacancyList(CondVacancyBean param) throws Exception {
+		return vacancyDAO.selectMainVacancyList(param);
+	}
+
+
+	/**
+	 * 이달의 인기기업
+	 * month company list
+	 * @param param
+	 * @return List<PopulCompnyBean>
+	 */
+	@Override
+	public List<PopulCompnyBean> selectMonthCompnyList(CondVacancyBean param) throws Exception {
+		return vacancyDAO.selectMonthCompnyList(param);
+	}
+
+
+	/**
+	 * 오늘의 인기 채용공고
+	 * vacancy today list
+	 * @param param
+	 * @return int
+	 */
+	@Override
+	public int selectTodayVacancyListCnt(CondVacancyBean param) throws Exception {
+		return vacancyDAO.selectTodayVacancyListCnt(param);
+	}
+
+	/**
+	 * 오늘의 인기 채용공고
+	 * vacancy today list
+	 * @param param
+	 * @return List<PopulVacancyBean>
+	 */
+	@Override
+	public List<PopulVacancyBean> selectTodayVacancyList(CondVacancyBean param) throws Exception {
+		return vacancyDAO.selectTodayVacancyList(param);
+	}
 }

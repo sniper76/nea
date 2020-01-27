@@ -65,10 +65,13 @@
 					<strong class="currently">1</strong>&nbsp;&nbsp;/
 					<span class="total">1</span>
 					<span class="order">
-						<strong class="skip">Change list order</strong>
-							<button type="button" onclick="fnSearchBySort('LATEST')"><spring:message code="counsel.msg.sortBy.latest"/></button><!-- Latest -->
-							<button type="button" onclick="fnSearchBySort('VIEW')"><spring:message code="counsel.msg.sortBy.view"/></button><!-- Views -->
-							<button type="button" onclick="fnSearchBySort('LIKE')"><spring:message code="counsel.msg.sortBy.like"/></button><!-- Likes -->
+<!-- 						<strong class="skip">Change list order</strong> -->
+						<!-- Latest -->
+<%-- 						<button type="button" onclick="fnSearchBySort('LATEST')"><spring:message code="counsel.msg.sortBy.latest"/></button> --%>
+						<!-- Views -->
+<%-- 						<button type="button" onclick="fnSearchBySort('VIEW')"><spring:message code="counsel.msg.sortBy.view"/></button> --%>
+						<!-- Likes -->
+<%-- 						<button type="button" onclick="fnSearchBySort('LIKE')"><spring:message code="counsel.msg.sortBy.like"/></button> --%>
 					</span>
 				</div>
 			</div>
@@ -98,7 +101,6 @@
 <script>
 	var currentPageNo = "1";
 	var condSort = "LATEST";
-	var vacancyCnt = "<spring:message code="compny.vacancy.msg.title8" />"; //모집인원
 
 	$(document).ready(function() {
 		$(".bbs_empty").hide();
@@ -115,7 +117,7 @@
 			},
 			success: function(data) {
 	   			if (data.result.successYn != "Y") {
-	   				var msg = "<spring:message code="login.findId.no.data"/>";
+	   				var msg = "<spring:message code="mypage.compny.vacancy.intvw.video.msg11"/>";
 // 	   				if(data.result.statCd == "03") {
 // 	   					msg = "<spring:message code="errors.ajax.fail"/>";
 // 	   				}
@@ -157,7 +159,7 @@
 
 						dataList += '<li>';
 						dataList += '	<div class="contents_wrap">';
-						dataList += '		<div class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url='+item.filePath+'" alt="image" onerror="fnNoImage(this)" /></div>';
+						dataList += '		<div class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url='+nvl(item.filePath)+'" alt="image" onerror="fnNoImage(this)" /></div>';
 						dataList += '		<div class="contents_box">';
 						dataList += '			<div class="title_box '+classNew+'">';
 						dataList += '				<span class="tit">'+nvl(item.compnyNm)+'</span>';
@@ -165,7 +167,7 @@
 						dataList += '			</div>';
 						dataList += '			<div class="cont_box">';
 						dataList += '				<span class="con">'+nvl(item.employFormNm)+'</span>';
-						dataList += '				<span class="con">'+vacancyCnt+'&nbsp;:&nbsp;<strong>'+fnNumberWithCommas(nvl(item.recrumtMemb,0))+'</strong></span>';
+						dataList += '				<span class="con"><spring:message code="compny.vacancy.msg.title8" />&nbsp;:&nbsp;<strong>'+fnNumberWithCommas(nvl(item.recrumtMemb,0))+'</strong></span>'; //모집인원
 						dataList += '				<span class="con">'+nvl(item.addrFullNm)+'</span>';
 						dataList += '				<span class="con">$'+fnNumberWithCommas(nvl(item.minSalaryAmt,0))+' ~ $'+fnNumberWithCommas(nvl(item.maxSalaryAmt,0))+'</span>';
 						dataList += '			</div>';

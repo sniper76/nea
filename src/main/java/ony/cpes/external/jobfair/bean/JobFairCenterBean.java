@@ -92,7 +92,13 @@ public class JobFairCenterBean extends CommonBean {
 	private String fairNoti;
 	private Integer applyCnt;
 	private Integer boothAvailableCnt;
-
+	private String fairKeyword;
+	public String getFairKeyword() {
+		return fairKeyword;
+	}
+	public void setFairKeyword(String fairKeyword) {
+		this.fairKeyword = fairKeyword;
+	}
 	public String getFairSeq() {
 		return fairSeq;
 	}

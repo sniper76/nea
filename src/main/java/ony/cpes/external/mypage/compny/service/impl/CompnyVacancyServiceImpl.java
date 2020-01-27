@@ -1,5 +1,6 @@
 package ony.cpes.external.mypage.compny.service.impl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import ony.cmm.common.ConstVal;
 import ony.cmm.common.bean.ConditionBean;
 import ony.cmm.common.bean.FileBean;
 import ony.cmm.common.dao.CommDAO;
+import ony.cmm.common.service.CommonService;
 import ony.cpes.external.mypage.compny.bean.CondVacancyBean;
 import ony.cpes.external.mypage.compny.bean.VacancyBean;
 import ony.cpes.external.mypage.compny.bean.VacancyLangBean;
@@ -38,6 +40,9 @@ public class CompnyVacancyServiceImpl implements CompnyVacancyService {
 
 	@Autowired
 	private CommDAO commDAO;
+
+	@Autowired
+	private CommonService commonService;
 
 	@Autowired SessionLocaleResolver localeResolver;
 
@@ -123,36 +128,8 @@ public class CompnyVacancyServiceImpl implements CompnyVacancyService {
 
 
     		if(!StringUtil.isEmpty(vacancyBean.getUploadResult())) {
-    			// 파일 그룹 seq
-    	    	String imgFileGrpSeq = "";
-    	    	String resumeFileGrpSeq = "";
-    			Map<String, List<String>> fileList = mapper.readValue(vacancyBean.getUploadResult(), new TypeReference<Map<String, List<String>>>(){});
-    			int listSize = fileList.get("originalName").size();
-
-    			for(int i = 0; i<listSize; i++) {
-    				FileBean fileBean = new FileBean();
-    				fileBean.setOriginalNm(fileList.get("originalName").get(i));
-    				fileBean.setSaveNm(fileList.get("uploadName").get(i));
-    				fileBean.setSaveFilePath(fileList.get("uploadPath").get(i));
-    				fileBean.setFileSize(fileList.get("size").get(i));
-    				fileBean.setRegUserSeq(vacancyBean.getRegUserSeq());
-
-    				String extension = fileList.get("extension").get(i).toLowerCase();
-    				fileBean.setFileExtension(extension);
-
-    				if(extension.equals("png") || extension.equals("jpeg") || extension.equals("jpg") || extension.equals("bmp") || extension.equals("gif")) {
-    					if("".equals(imgFileGrpSeq)) imgFileGrpSeq = commDAO.selectUUID(conditionBean);
-    					fileBean.setFileGrpSeq(imgFileGrpSeq);
-    					vacancyBean.setImgFileGrpSeq(imgFileGrpSeq);
-    				}
-    				if(extension.equals("txt") || extension.equals("xlsx") || extension.equals("xls") || extension.equals("ppt") || extension.equals("pdf") ||
-    						extension.equals("doc") || extension.equals("hwp")) {
-    					if("".equals(resumeFileGrpSeq)) resumeFileGrpSeq = commDAO.selectUUID(conditionBean);
-    					fileBean.setFileGrpSeq(resumeFileGrpSeq);
-    					vacancyBean.setResumeFileGrpSeq(resumeFileGrpSeq);
-    				}
-    				commDAO.insertAttachFiles(fileBean);
-    			}
+    			String resumeFileGrpSeq = commonService.dext5UploadInsert(vacancyBean.getUploadResult(), vacancyBean.getRegUserSeq(), "");
+    			vacancyBean.setResumeFileGrpSeq(resumeFileGrpSeq);
 
     			compnyVacancyDAO.updateVacancy(vacancyBean);
     		}
@@ -263,36 +240,8 @@ public class CompnyVacancyServiceImpl implements CompnyVacancyService {
     		}
 
     		if(!StringUtil.isEmpty(vacancyBean.getUploadResult())) {
-    			// 파일 그룹 seq
-    	    	String imgFileGrpSeq = "";
-    	    	String resumeFileGrpSeq = "";
-    			Map<String, List<String>> fileList = mapper.readValue(vacancyBean.getUploadResult(), new TypeReference<Map<String, List<String>>>(){});
-    			int listSize = fileList.get("originalName").size();
-
-    			for(int i = 0; i<listSize; i++) {
-    				FileBean fileBean = new FileBean();
-    				fileBean.setOriginalNm(fileList.get("originalName").get(i));
-    				fileBean.setSaveNm(fileList.get("uploadName").get(i));
-    				fileBean.setSaveFilePath(fileList.get("uploadPath").get(i));
-    				fileBean.setFileSize(fileList.get("size").get(i));
-    				fileBean.setRegUserSeq(vacancyBean.getRegUserSeq());
-
-    				String extension = fileList.get("extension").get(i).toLowerCase();
-    				fileBean.setFileExtension(extension);
-
-    				if(extension.equals("png") || extension.equals("jpeg") || extension.equals("jpg") || extension.equals("bmp") || extension.equals("gif")) {
-    					if("".equals(imgFileGrpSeq)) imgFileGrpSeq = commDAO.selectUUID(conditionBean);
-    					fileBean.setFileGrpSeq(imgFileGrpSeq);
-    					vacancyBean.setImgFileGrpSeq(imgFileGrpSeq);
-    				}
-    				if(extension.equals("txt") || extension.equals("xlsx") || extension.equals("xls") || extension.equals("ppt") || extension.equals("pdf") ||
-    						extension.equals("doc") || extension.equals("hwp")) {
-    					if("".equals(resumeFileGrpSeq)) resumeFileGrpSeq = commDAO.selectUUID(conditionBean);
-    					fileBean.setFileGrpSeq(resumeFileGrpSeq);
-    					vacancyBean.setResumeFileGrpSeq(resumeFileGrpSeq);
-    				}
-    				commDAO.insertAttachFiles(fileBean);
-    			}
+    			String resumeFileGrpSeq = commonService.dext5UploadInsert(vacancyBean.getUploadResult(), vacancyBean.getRegUserSeq(), "");
+    			vacancyBean.setResumeFileGrpSeq(resumeFileGrpSeq);
 
     			compnyVacancyDAO.updateVacancyTemp(vacancyBean);
     		}
@@ -394,41 +343,8 @@ public class CompnyVacancyServiceImpl implements CompnyVacancyService {
     		}
 
     		if(!StringUtil.isEmpty(vacancyBean.getUploadResult())) {
-    			// 파일 그룹 seq
-    			ConditionBean conditionBean = new ConditionBean();
-    	    	String imgFileGrpSeq = vacancyBean.getImgFileGrpSeq();
-    	    	String resumeFileGrpSeq = vacancyBean.getResumeFileGrpSeq();
-    			Map<String, List<String>> fileList = mapper.readValue(vacancyBean.getUploadResult(), new TypeReference<Map<String, List<String>>>(){});
-    			int listSize = fileList.get("originalName").size();
-
-    			for(int i = 0; i<listSize; i++) {
-    				FileBean fileBean = new FileBean();
-    				fileBean.setOriginalNm(fileList.get("originalName").get(i));
-    				fileBean.setSaveNm(fileList.get("uploadName").get(i));
-    				fileBean.setSaveFilePath(fileList.get("uploadPath").get(i));
-    				fileBean.setFileSize(fileList.get("size").get(i));
-    				fileBean.setRegUserSeq(vacancyBean.getRegUserSeq());
-
-    				String extension = fileList.get("extension").get(i).toLowerCase();
-    				fileBean.setFileExtension(extension);
-
-    				if(extension.equals("png") || extension.equals("jpeg") || extension.equals("jpg") || extension.equals("bmp") || extension.equals("gif")) {
-    					if(imgFileGrpSeq == null || "".equals(imgFileGrpSeq)) {
-    						imgFileGrpSeq = commDAO.selectUUID(conditionBean);
-    					}
-    					fileBean.setFileGrpSeq(imgFileGrpSeq);
-    					vacancyBean.setImgFileGrpSeq(imgFileGrpSeq);
-    				}
-    				if(extension.equals("txt") || extension.equals("xlsx") || extension.equals("xls") || extension.equals("ppt") || extension.equals("pdf") ||
-    						extension.equals("doc") || extension.equals("hwp")) {
-    					if(resumeFileGrpSeq == null || "".equals(resumeFileGrpSeq)) {
-    						resumeFileGrpSeq = commDAO.selectUUID(conditionBean);
-    					}
-    					fileBean.setFileGrpSeq(resumeFileGrpSeq);
-    					vacancyBean.setResumeFileGrpSeq(resumeFileGrpSeq);
-    				}
-    				commDAO.insertAttachFiles(fileBean);
-    			}
+    			String resumeFileGrpSeq = commonService.dext5UploadInsert(vacancyBean.getUploadResult(), vacancyBean.getRegUserSeq(), vacancyBean.getResumeFileGrpSeq());
+    			vacancyBean.setResumeFileGrpSeq(resumeFileGrpSeq);
 
     			compnyVacancyDAO.updateVacancy(vacancyBean);
     		}
@@ -500,41 +416,8 @@ public class CompnyVacancyServiceImpl implements CompnyVacancyService {
     		}
 
     		if(!StringUtil.isEmpty(vacancyBean.getUploadResult())) {
-    			// 파일 그룹 seq
-    			ConditionBean conditionBean = new ConditionBean();
-    	    	String imgFileGrpSeq = vacancyBean.getImgFileGrpSeq();
-    	    	String resumeFileGrpSeq = vacancyBean.getResumeFileGrpSeq();
-    			Map<String, List<String>> fileList = mapper.readValue(vacancyBean.getUploadResult(), new TypeReference<Map<String, List<String>>>(){});
-    			int listSize = fileList.get("originalName").size();
-
-    			for(int i = 0; i<listSize; i++) {
-    				FileBean fileBean = new FileBean();
-    				fileBean.setOriginalNm(fileList.get("originalName").get(i));
-    				fileBean.setSaveNm(fileList.get("uploadName").get(i));
-    				fileBean.setSaveFilePath(fileList.get("uploadPath").get(i));
-    				fileBean.setFileSize(fileList.get("size").get(i));
-    				fileBean.setRegUserSeq(vacancyBean.getRegUserSeq());
-
-    				String extension = fileList.get("extension").get(i).toLowerCase();
-    				fileBean.setFileExtension(extension);
-
-    				if(extension.equals("png") || extension.equals("jpeg") || extension.equals("jpg") || extension.equals("bmp") || extension.equals("gif")) {
-    					if(imgFileGrpSeq == null || "".equals(imgFileGrpSeq)) {
-    						imgFileGrpSeq = commDAO.selectUUID(conditionBean);
-    					}
-    					fileBean.setFileGrpSeq(imgFileGrpSeq);
-    					vacancyBean.setImgFileGrpSeq(imgFileGrpSeq);
-    				}
-    				if(extension.equals("txt") || extension.equals("xlsx") || extension.equals("xls") || extension.equals("ppt") || extension.equals("pdf") ||
-    						extension.equals("doc") || extension.equals("hwp")) {
-    					if(resumeFileGrpSeq == null || "".equals(resumeFileGrpSeq)) {
-    						resumeFileGrpSeq = commDAO.selectUUID(conditionBean);
-    					}
-    					fileBean.setFileGrpSeq(resumeFileGrpSeq);
-    					vacancyBean.setResumeFileGrpSeq(resumeFileGrpSeq);
-    				}
-    				commDAO.insertAttachFiles(fileBean);
-    			}
+    			String resumeFileGrpSeq = commonService.dext5UploadInsert(vacancyBean.getUploadResult(), vacancyBean.getRegUserSeq(), vacancyBean.getResumeFileGrpSeq());
+    			vacancyBean.setResumeFileGrpSeq(resumeFileGrpSeq);
 
     			compnyVacancyDAO.updateVacancyTemp(vacancyBean);
     		}
@@ -617,5 +500,35 @@ public class CompnyVacancyServiceImpl implements CompnyVacancyService {
     @Override
 	public List<IntvwBean> selectIntvwList(CondVacancyBean param) throws Exception {
     	return compnyVacancyDAO.selectIntvwList(param);
+	}
+
+
+	/**
+	 * 면접 삭제
+	 * interview delete
+	 * @param param
+	 * @return int
+	 */
+	public int deleteIntvw(CondApplicBean param) throws Exception {
+    	int result = 0;
+
+    	if(StringUtil.isEmpty(param.getCondStr())) {
+    		return 0;
+    	} else {
+    		String[] strArr = param.getCondStr().split(ConstVal.COMMA_VAL);
+
+    		if(strArr != null && strArr.length > 0) {
+        		for(int i=0; i<strArr.length; i++) {
+
+        			param.setCondSeq(strArr[i].split(ConstVal.UNDER_VAR_VAL)[0]);
+        			param.setCondSeq2(strArr[i].split(ConstVal.UNDER_VAR_VAL)[1]);
+
+        			result = result + compnyVacancyDAO.deleteIntvw(param);
+
+        		}
+    		}
+    	}
+
+    	return result;
 	}
 }

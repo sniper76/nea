@@ -69,6 +69,7 @@ public class MypgCommController extends BaseController {
 		// 현재 로그인한 유저의 개인 정보 조회
 		conditionBean.setCondUserEmail(EncryptUtil.getAes256Enc(principal.getName()));//email or cell phone
       	MemberBean memberBean = commonService.selectMemberInfo(conditionBean);
+      	mv.addObject("loginMember", memberBean);
 
       	resumeBean.setUserSeq(memberBean.getUserSeq());
       	ResumeBean resumeDetail = resumeService.selectResumeDetail(resumeBean);
@@ -91,10 +92,18 @@ public class MypgCommController extends BaseController {
 		MemberBean resumeMemberBean = commonService.selectMemberInfoByUserSeq(resumeConditionBean);
 		mv.addObject("memberBean", resumeMemberBean);
 
+		String resumeOpenCompanySeq = resumeOpenCompnyService.selectResumeOpenCompanyCnt(resumeBean);
 		ResumeOpenCompnyBean rocb = new ResumeOpenCompnyBean();
 		rocb.setResumeSeq(resumeBean.getResumeSeq());
 		rocb.setCompnySeq(memberBean.getUserSeq());
-		resumeOpenCompnyService.insertResumeOpenCompny(rocb);
+
+		if(StringUtil.isEmpty(resumeOpenCompanySeq)) {
+			resumeOpenCompnyService.insertResumeOpenCompny(rocb);
+		}else {
+			rocb.setResumeOpenCompnySeq(resumeOpenCompanySeq);
+			resumeOpenCompnyService.updateResumeOpenCompany(rocb);
+		}
+
 
 		CondVacancyBean condVacancyBean = new CondVacancyBean();
 		condVacancyBean.setCondUserSeq(memberBean.getUserSeq());

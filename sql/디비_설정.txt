@@ -1,0 +1,63 @@
+git init
+git config user.name 'sniper76'
+git config user.email 'snipers76@gmail.com'
+git add *
+git commit -m 'initial'
+git remote add origin master https://github.com/sniper76/nea.git
+git push -u origin master
+
+rm -rf .git
+
+
+//db
+maria db 10.0.38
+
+CREATE DATABASE cpes_dev CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+grant all privileges on cpes_dev.* TO 'cpes'@'localhost' identified by 'cpes2019!@34';
+
+grant all privileges on cpes_dev.* TO 'cpes'@'%' identified by 'cpes2019!@34';
+
+flush privileges;
+
+
+// import
+source cpes_dump_table.sql
+
+// insert 쿼리
+CPES_USER.sql
+
+https://github.com/sniper76/nea.git
+https://github.com/sniper76/neaIn.git
+
+
+//사용자 계정 CPES_USER
+일반
+trustkst1@gmail.com/!Qwer12345
+
+기업
+company1@gmail.com/!Qwer12345
+
+학생
+student1@gmail.com/!Qwer12345
+
+기관
+instt1@gmail.com/!Qwer12345
+
+//Admin
+aaa1111 / 1111
+
+
+-- 작업 페이지
+page 241
+
+page 158 159
+page 160
+page 163 164 168 169 173 174
+page 182 186 187 188
+page 283 285
+
+page 165 170
+page 284(상단영역삭제결정)
+
+page 97

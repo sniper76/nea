@@ -119,17 +119,17 @@
 								<div class="cont_box">
 									<span class="cont"><span class="bbs_ico time"><spring:message code="counsel.msg.reg.dt"/></span>${data.regDt}</span>
 									<span class="cont"><span class="bbs_ico view"><spring:message code="counsel.msg.reg.view.cnt"/></span><fmt:formatNumber type="number" maxFractionDigits="3" value="${data.viewCnt}" /></span>
-									<c:if test="${result.fileYn == 'Y'}">
+									<%-- <c:if test="${result.fileYn == 'Y'}">
 										<span class="cont"><span class="bbs_ico downloads"><spring:message code="counsel.msg.download"/></span>다운카운트</span>
-									</c:if>
+									</c:if> --%>
 									<c:if test="${result.likeYn == 'Y'}">
 										<span class="cont">
 											<span class="bbs_ico like"><spring:message code="counsel.msg.reg.like.cnt"/></span>
 											<span id="likeCnt_${status.count}"><fmt:formatNumber type="number" maxFractionDigits="3" value="${data.likeCnt}" /></span>
 										</span>
 									</c:if>
-									<c:if test="${result.fileYn == 'Y'}">
-										<span class="cont"><span class="bbs_ico attachments"><spring:message code="counsel.msg.reg.like.attach"/><span>파일갯수</span></span></span><!-- 첨부파일 있을 경우 표기 사용(첨부파일이 2개 이상일 경우 <span>2</span>) -->
+									<c:if test="${result.fileYn == 'Y' && data.fileGrpSeq != ''}">
+										<span class="cont"><span class="bbs_ico attachments"><spring:message code="counsel.msg.reg.like.attach"/><span><c:out value="${data.fileCnt }" /></span></span></span><!-- 첨부파일 있을 경우 표기 사용(첨부파일이 2개 이상일 경우 <span>2</span>) -->
 									</c:if>
 								</div>
 							</div>

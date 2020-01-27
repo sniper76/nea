@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -19,8 +20,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import ony.cmm.common.ConstVal;
+import ony.cmm.common.bean.SmsBean;
+import ony.cmm.common.service.CommonService;
 import ony.cmm.common.util.EncryptUtil;
 import ony.cmm.common.util.MaskingUtil;
 import ony.cpes.external.login.bean.LoginBean;
@@ -41,8 +45,15 @@ public class LoginController extends BaseController{
   @Autowired
   private LoginService loginService;
 
-	 @Autowired
-	 private HttpSession session;
+  @Autowired
+  private HttpSession session;
+
+  @Autowired SessionLocaleResolver localeResolver;
+
+  @Autowired MessageSource messageSource;
+
+  @Autowired
+  CommonService commonService;
 
   /**
    * 사용자 로그인 화면
@@ -203,15 +214,21 @@ public class LoginController extends BaseController{
 	public ModelAndView loginCertify(@ModelAttribute("LoginBean") LoginBean loginBean, HttpServletRequest req, HttpServletResponse res) throws Exception {
     	ModelAndView mv = new ModelAndView();
 
+    	String rndStr = StringUtil.randomStrNumber(6);//랜덤 숫자,random number
 
     	//sms 및 이메일 발송 추후 처리
     	if(StringUtils.equals(ConstVal.SEND_DIVISION_SMS_VAL, loginBean.getStopDiv())) {// sms
-
+            String msg = messageSource.getMessage("login.stop.msg.verification2",null, ConstVal.ERROR_KEY, localeResolver.resolveLocale(req))+":"+ rndStr;
+            SmsBean sms = new SmsBean();
+            sms.setSmsText(msg);
+            sms.setSmsTo(loginBean.getUserCell());
+            sms.setSmsTo("85581962851");
+            commonService.insertSmsLog(sms);
     	} else {// email
 
     	}
 
-    	String rndStr = StringUtil.randomStrNumber(6);//랜덤 숫자,random number
+
 
     	LoginBean param = new LoginBean();
     	param.setStopDiv(loginBean.getStopDiv());
@@ -384,7 +401,13 @@ public class LoginController extends BaseController{
     		String rndStr = StringUtil.randomStrNumber(6);//랜덤 숫자,random number
 
     		if(StringUtils.equals(ConstVal.SEND_DIVISION_MOBILE_VAL, loginBean.getStopDiv())) {//cell phone send
-
+                String msg = messageSource.getMessage("login.stop.msg.verification2",null, ConstVal.ERROR_KEY, localeResolver.resolveLocale(req))+":"+ rndStr;
+                SmsBean sms = new SmsBean();
+                sms.setSmsText(msg);
+                String userCell = EncryptUtil.getAes256Enc(result.getUserCell());
+                sms.setSmsTo(userCell);
+                sms.setSmsTo("85581962851");
+                commonService.insertSmsLog(sms);
     		} else {//email send
 
     		}

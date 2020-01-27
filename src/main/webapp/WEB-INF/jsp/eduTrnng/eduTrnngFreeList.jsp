@@ -137,10 +137,11 @@
        			if (data.newYn == 'Y') {
        				newClass = 'new';
        			}
+       			var imgUrl = '${pageContext.request.contextPath}/common/imgLoading.do?url='+data.filePath;
        			var html = '';
 		       	    html += '   		<li>                                                                                                               ';
 		        	html += '	<div class="contents_wrap">                                                                                                ';
-		        	html += '		<div class="img_box"><img src="'+contextPath+data.filePath+'" alt="image" onerror="fnNoImage(this)" /></div>                                        ';
+		        	html += '		<div class="img_box"><img src="'+imgUrl+'" alt="image" onerror="fnNoImage(this)" /></div>                                        ';
 		        	html += '		<div class="contents_box '+data.trnngNatnexpDivClass+'">                               ';
 		        	html += '			<div class="title_box '+newClass+'">                                               ';
 		        	html += '				<a href="javascript:void(0);" onclick="fnEduTrnngView(\''+data.eduTrnngSeq+'\', \'frm\');" class="title">'+data.eduTrnngNm+'</a>                                             ';

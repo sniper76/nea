@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="setSms">
+	
+	
+	<insert id="insertSmsLog" parameterType="SmsBean">
+		/** setSms.insertSmsLog **/
+		<selectKey resultType="string" keyProperty="smsLogSeq" order="BEFORE">
+	        SELECT IFNULL(MAX(SMS_LOG_SEQ)+1,1) FROM CPES_SMS_LOG        
+	    </selectKey>
+		INSERT INTO CPES_SMS_LOG
+		(
+			SMS_LOG_SEQ
+		  , SMS_FROM
+		  , SMS_TO
+		  , SMS_TEXT
+		  , SMS_SEND_DT
+		) VALUES
+		(
+			#{smsLogSeq}
+		  , #{smsFrom}
+		  , #{smsTo}
+		  , #{smsText}
+		  , now()
+		)
+	</insert>
+
+	<update id="updateSmsLog" parameterType="SmsBean">
+		/** setSms.updateSmsLog **/
+		UPDATE CPES_SMS_LOG
+		   SET SMS_ERR_MSG = #{smsErrMsg}
+		     , SMS_STATUS = #{smsStatus}
+		     , SMS_MSGID  = #{smsMsgid}
+		     , SMS_RECEIVE_DT = now() 
+		 WHERE SMS_LOG_SEQ = #{smsLogSeq}
+	</update>
+</mapper>

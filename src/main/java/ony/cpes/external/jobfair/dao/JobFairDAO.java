@@ -8,7 +8,10 @@ import org.springframework.stereotype.Repository;
 import egovframework.rte.psl.dataaccess.EgovAbstractMapper;
 
 import ony.cpes.external.jobfair.bean.CondJobFairCenterBean;
+import ony.cpes.external.jobfair.bean.CondWorkShopBean;
 import ony.cpes.external.jobfair.bean.JobFairCenterBean;
+import ony.cpes.external.jobfair.bean.JobFairPatcptnBean;
+import ony.cpes.external.jobfair.bean.WorkShopBean;
 import ony.cpes.external.mypage.privt.bean.InterestBean;
 
 @Repository("JobFairDAO")
@@ -95,6 +98,80 @@ public class JobFairDAO extends EgovAbstractMapper {
 		return getSqlSession().selectList("jobfair.selectJobFairByEduInstts", param);
 	}
 
+	/**
+	 * jobFair detail work shops count
+	 * @param param
+	 * @return int
+	 */
+	public int selectJobFairByWorkShopsCnt (CondJobFairCenterBean param) {
+		return getSqlSession().selectOne("jobfair.selectJobFairByWorkShopsCnt", param);
+	}
+
+	/**
+	 * jobFair detail by work shop
+	 * @param param
+	 * @return List<CompanyBean>
+	 */
+	public List<InterestBean> selectJobFairByWorkShops (CondJobFairCenterBean param) {
+		return getSqlSession().selectList("jobfair.selectJobFairByWorkShops", param);
+	}
+
+	/**
+	 * jobFair workshop insert
+	 * @param param
+	 * @return
+	 */
+	public int insertFairWorkshopPatcptn(WorkShopBean param) {
+		return getSqlSession().insert("setJobFair.insertFairWorkshopPatcptn", param);
+	}
+
+	/**
+	 * jobFair by workshop count
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+	public int selectJobFairWorkShopCnt(CondWorkShopBean param) {
+		return getSqlSession().selectOne("jobfair.selectJobFairWorkShopCnt", param);
+	}
+
+	/**
+	 * unique key select
+	 * @return
+	 */
+	public String selectUniqueSeq() {
+		return getSqlSession().selectOne("jobfair.selectUniqueSeq");
+	}
+
+	/**
+	 * jobFair by workshop detail
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+	public WorkShopBean selectJobFairWorkShop(CondWorkShopBean param) {
+		return getSqlSession().selectOne("jobfair.selectJobFairWorkShop", param);
+	}
+
+	/**
+	 * jobFair by user workshop count
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+	public int selectUserByWorkShopsCnt(CondWorkShopBean param) {
+		return getSqlSession().selectOne("jobfair.selectUserByWorkShopsCnt", param);
+	}
+
+	/**
+	 * user by workshop list
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+	public List<WorkShopBean> selectUserByWorkShops(CondWorkShopBean param) {
+		return getSqlSession().selectList("jobfair.selectUserByWorkShops", param);
+	}
 
 	/**
 	 * jobFair apply list count

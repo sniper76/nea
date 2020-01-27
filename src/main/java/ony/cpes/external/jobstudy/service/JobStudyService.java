@@ -33,4 +33,6 @@ public interface JobStudyService {
 	 */
 	public JobStudyBean selectJobStudy(CondJobStudyBean param)  throws Exception;
 
+	public JobStudyBean selectJobStudySearch(CondJobStudyBean param) throws Exception;
+
 }

@@ -66,4 +66,8 @@ public class JobStudyDAO extends EgovAbstractMapper {
 		return getSqlSession().selectList("jobStudy.selectJobStudySearchList", param);
     }
 
+	public List<JobStudyBean> selectJobStudySearch(CondJobStudyBean param) {
+		return getSqlSession().selectList("jobStudy.selectJobStudySearch", param);
+	}
+
 }

@@ -45,6 +45,51 @@
     		});
       	}
 
+      	function fnDelJoinFair() {
+    		var seqArr = new Array;
+
+    		if(!$("input:checkbox[name=chk]").is(":checked") == true) {
+				alertify.alert("<spring:message code="mypage.compny.applic.errors.msg"/>", function (e){
+
+				});
+				return false;
+    		}
+
+    		$("input:checkbox[name=chk]:checked").each(function() {
+    			seqArr.push($(this).val())
+			});
+
+    		//console.log("==========str="+seqArr.join(","))
+    		alertify.confirm("<spring:message code="compny.vacancy.msg.btn.delete"/>", function (e) {
+    			if (e) {
+
+					$.ajax({
+						url: contextPath + "/cpes/compny/fair/inviteDeleteProcessAjax.do",
+						type: 'post',
+						data: {
+							condSeqStr: seqArr.join(",")
+						},
+						datatype: 'json'
+					})
+					.done(function(data) {
+						if (data.result.successYn == "Y") {
+							alertify.alert("<spring:message code="mypage.private.jobsk.title21"/>", function (e){
+								fnSetPageing("${paginationInfo.currentPageNo}");
+							});
+						} else {
+			 				var msg = "<spring:message code="login.findId.no.data"/>";
+							if(data.result.statCd == "02") {
+								msg = "<spring:message code="errors.ajax.fail"/>";
+							}
+							alertify.alert(msg);
+						}
+					})
+					.fail(function(xhr, status, errorThrown) {
+						alertify.alert("<spring:message code="errors.ajax.fail"/>");
+					});
+    			}
+    		});
+      	}
 
 
 	</script>
@@ -78,9 +123,13 @@
 				<!-- bbs_info  -->
 				<c:if test="${!empty resultList}">
 				<div class="bbs_basic">
-					<ul class="recruitment_list recruitment clearfix"><!-- 인기채용공고 목록일 경우 클래스 popularity 추가, 교육기관,교육프로그램일 경우 클래스 adu 추가 -->
+					<ul class="recruitment_list recruitment my clearfix"><!-- 인기채용공고 목록일 경우 클래스 popularity 추가, 교육기관,교육프로그램일 경우 클래스 adu 추가 -->
 					<c:forEach var="data" items="${resultList}" varStatus="status">
 						<li>
+							<span class="check_box">
+								<label for="chk_${status.count}" class="skip">Select</label>
+								<input type="checkbox" id="chk_${status.count}" name="chk" value="${data.compnySeq}_${data.fairSeq}">
+							</span>
 							<div class="contents_wrap">
 								<div class="img_box"><img src="${pageContext.request.contextPath}/${data.imagePath}" onerror="fnNoImage(this)" alt="image"></div>
 
@@ -122,7 +171,14 @@
 											<span class="approved">Approved</span>승인일 때 클래스 approved 추가, 미승인일 때 클래스 rejected 추가, 마감일 때 클래스 close 추가
 										</span> -->
 										<span class="bottom_box">
-											<button type="button" onclick="fnInviteNo('${data.compnySeq}','${data.fairSeq}','frm');" class="bbs_btn small"><spring:message code="mypage.compny.applic.msg11"/></button>
+											<c:choose>
+												<c:when test="${data.cancelYn == 'Y'}">
+													<span class="close"><spring:message code="mypage.compny.applic.msg11"/></span>
+												</c:when>
+												<c:otherwise>
+													<button type="button" onclick="fnInviteNo('${data.compnySeq}','${data.fairSeq}','frm');" class="bbs_btn small"><spring:message code="mypage.compny.applic.msg11"/></button>
+												</c:otherwise>
+											</c:choose>
 											<button type="button" onclick="fnFairCompnyVacancyList('${data.fairSeq}','frm');" class="bbs_btn type08 small"><spring:message code="compny.vacancy.msg.title68"/></button>
 										</span>
 									</div>
@@ -142,6 +198,16 @@
 				</div>
 				<!-- //bbs_empty -->
 				</c:if>
+
+				<div class="bbs_btn_wrap clearfix">
+					<span class="bbs_left">
+
+					</span>
+					<span class="bbs_right">
+						<button type="button" onclick="fnDelJoinFair();" class="bbs_btn delete"><spring:message code="button.delete"/></button>
+					</span>
+				</div>
+				<!-- //bbs_btn_wrap -->
 
 				<div class="pagination">
 					<ui:pagination paginationInfo="${paginationInfo}" type="customRenderer" jsFunction="fnSetPageing"/>

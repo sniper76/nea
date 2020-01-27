@@ -80,6 +80,9 @@ public class MemberBean extends CommonBean{
 	private String logoFileGrpSeq;
 	private String insttLogoFileGrpSeq;
 
+	private String displayYn;
+	private String userNm;
+
 	public String getInsttLogoFileGrpSeq() {
 		return insttLogoFileGrpSeq;
 	}
@@ -403,6 +406,18 @@ public class MemberBean extends CommonBean{
 	}
 	public void setJcTel(String jcTel) {
 		this.jcTel = jcTel;
+	}
+	public String getDisplayYn() {
+		return displayYn;
+	}
+	public void setDisplayYn(String displayYn) {
+		this.displayYn = displayYn;
+	}
+	public String getUserNm() {
+		return userNm;
+	}
+	public void setUserNm(String userNm) {
+		this.userNm = userNm;
 	}
 
 

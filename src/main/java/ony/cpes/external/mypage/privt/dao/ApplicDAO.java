@@ -286,4 +286,15 @@ public class ApplicDAO  extends EgovAbstractMapper {
 		return getSqlSession().update("setApplic.updateIntvwReject", param);
 	}
 
+
+	/**
+	 * 면접 삭제
+	 * interview delete
+	 * @param param
+	 * @return int
+	 */
+	public int deleteIntvw(CondApplicBean param) {
+		return getSqlSession().update("setApplic.deleteIntvw", param);
+	}
+
 }

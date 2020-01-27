@@ -149,6 +149,51 @@
       		$("#intvwRejectCd").val(intvwRejectCd);
     	}
 
+    	function fnDelIntvw() {
+    		var seqArr = new Array;
+
+    		if(!$("input:checkbox[name=chk]").is(":checked") == true) {
+				alertify.alert("<spring:message code="mypage.compny.applic.errors.msg"/>", function (e){
+
+				});
+				return false;
+    		}
+
+    		$("input:checkbox[name=chk]:checked").each(function() {
+    			seqArr.push($(this).val())
+			});
+
+    		alertify.confirm("<spring:message code="compny.vacancy.msg.btn.delete"/>", function (e) {
+    			if (e) {
+    				$.ajax({
+    					url: contextPath + "/cpes/private/applic/intvwDelProcessAjax.do",
+    					type: 'post',
+    					data: {
+    						condStr : seqArr.join(",")
+    					},
+    					datatype: 'json'
+    				})
+    				.done(function(data) {
+    					if (data.result.successYn == "Y") {
+    						alertify.alert("<spring:message code="counsel.msg.delete.success"/>", function (e){
+    							fnSetPageing("1");
+    						});
+
+    					} else {
+    		 				var msg = noMemberFailMsg;
+    						if(data.result.statCd == "02") {
+    							msg = systemMsg;
+    						}
+    						alertify.alert(msg);
+    					}
+    				})
+    				.fail(function(xhr, status, errorThrown) {
+    					alertify.alert(systemMsg);
+    				});
+    			}
+    		});
+    	}
+
 	</script>
 	<main class="colgroup" id="colgroup">
 		<article>
@@ -166,20 +211,20 @@
 						<input type="hidden" id="currentPageNo" name="currentPageNo" value="${paginationInfo.currentPageNo}"/>
 						<input type="hidden" id="condSeq" name="condSeq" value=""/>
 						<input type="hidden" id="condSeq2" name="condSeq2" value=""/>
+						<input type="hidden" id="condSort" name="condSort" value="${param.condSort}"/>
 					<div class="bbs_left bbs_count">
 						<strong class="currently"><fmt:formatNumber type="number" maxFractionDigits="3" value="${paginationInfo.currentPageNo}" /></strong>
 						<span class="total">/&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${paginationInfo.totalPageCount}" /></span>
-<!-- 						<span class="order">
-							<strong class="skip">Change list order</strong>
-							<button type="button">Latest</button>
-							<button type="button">View</button>
-							<button type="button">like</button>
-						</span> -->
+<%-- 						<span class="order">
+							<h3 class="h0 skip"><spring:message code="counsel.msg.sort.change"/></h3>
+							<button type="button" onclick="fnSetSort('LATEST','condSort','frm','currentPageNo')"><spring:message code="counsel.msg.sortBy.latest"/></button>
+							<button type="button" onclick="fnSetSort('END','condSort','frm','currentPageNo')"><spring:message code="compny.vacancy.msg.sortBy.end"/></button>
+							<button type="button" onclick="fnSetSort('VIEW','condSort','frm','currentPageNo')"><spring:message code="counsel.msg.sortBy.view"/></button>
+						</span> --%>
 					</div>
 					</form>
 				</div>
 				<!-- //bbs_info -->
-
 
 				<c:if test="${!empty resultList}">
 				<div class="bbs_basic">
@@ -208,9 +253,20 @@
 									<div class="put_box">
 										<a href="javascript:void(0);" onclick="fnVacancyView('${data.vacancySeq}','frm');" class="link">${data.vacancyTitle}</a>
 									</div>
+
 									<div class="other_box type2">
 										<span class="top_box">
-											<span class="day">30</span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
+											<c:choose>
+												<c:when test="${data.vacancyStsCd == 'VCS0000000002'}"><!-- 채용공고 마감 -->
+													<span class="close">${data.vacancyStsNm}</span>
+												</c:when>
+												<c:otherwise>
+													<span class="${data.remainDiv}">${data.remainDt}<c:if test="${data.remainDiv == 'hurry'}">Hour</c:if></span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
+												</c:otherwise>
+											</c:choose>
+											<c:if test="${!empty data.videoIntvwPatcptnSeq}">
+											<button type="button" onclick="fnVideoIntvwOpen('${data.videoIntvwPatcptnSeq}','${data.vacancySeq}','dialogVideo');" class="bbs_btn small">online interview</button>
+											</c:if>
 										</span>
 										<c:choose>
 
@@ -226,7 +282,7 @@
 											<c:otherwise>
 												<c:choose>
 													<c:when test="${data.intvwStsCd == 'ITV0000000003'}"><!-- 인터뷰 거절-->
-														<a href="javascript:void(0);" onclick="fnIntvwRejectView('htmlDataSet_${status.count}');">${data.vacancyStsNm}</a>
+														<a href="javascript:void(0);" onclick="fnIntvwRejectView('htmlDataSet_${status.count}');">${data.intvwStsNm}</a>
 													</c:when>
 													<c:otherwise>
 														${data.intvwStsNm}
@@ -257,7 +313,7 @@
 
 					</span>
 					<span class="bbs_right">
-						<button type="button" class="bbs_btn delete">Delete</button>
+						<button type="button" class="bbs_btn delete" onclick="fnDelIntvw()"><spring:message code="button.delete" /></button>
 					</span>
 				</div>
 				<!-- //bbs_btn_wrap -->
@@ -309,6 +365,69 @@
 						<button type="button" onclick="fnCloseReject('dialog');" class="close">close of popup</button>
 					</section>
 				</div>
+
+				<div id="dialogVideo" style="display:none" class="bbs_popup"><!-- 팝업 가로, 세로 지정하지 않았습니다. 필요에 딸라 지정해서 사용 -->
+					<section class="box_wrap">
+						<div class="title_box">
+							<h1 class="title">Online interview</h1>
+						</div>
+						<div class="contents_box">
+							<form>
+								<fieldset>
+									<legend>Online interview</legend>
+
+									<table class="table">
+										<caption>Online interview</caption>
+										<colgroup>
+											<col style="width:30%" />
+											<col />
+										</colgroup>
+										<tbody>
+											<tr>
+												<th scope="row"><label for="videoUserNm">User</label></th>
+												<td id="videoUserNm"></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoUserCell">User Mobile no.</label></th>
+												<td id="videoUserCell"></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoCompnyNm">Company</label></th>
+												<td id="videoCompnyNm"></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoVacancyTitle">Job vacancy</label></th>
+												<td id="videoVacancyTitle"></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoMngerNm">Contact person</label></th>
+												<td id="videoMngerNm"></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoMngerCell">Mobile no.</label></th>
+												<td id="videoMngerCell"></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoJobskJcNm">My job center</label></th>
+												<td><span id="videoJobskJcNm"></span>(<spring:message code="mypage.intvw.msg"/>)</td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoCompnyJcNm">Company’s job center</label></th>
+												<td><span id="videoJobskJcNm"></span>(<spring:message code="mypage.intvw.msg2"/>)</td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="videoIntvwDt">Interview date</label></th>
+												<td id="videoIntvwDt"></td>
+											</tr>
+										</tbody>
+									</table>
+								</fieldset>
+							</form>
+						</div>
+						<button type="button" onclick="fnCloseReject('dialogVideo');" class="close">close of popup</button>
+					</section>
+				</div>
+
 
 			</div>
 	    	<!-- //contents -->

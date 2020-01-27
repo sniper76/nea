@@ -173,7 +173,7 @@
 								<c:choose>
 									<c:when test="${empty result2 }">
 										<button id="btn_imgAdd" type="button" class="add_photo btn_fileSelect">Add Logo</button>
-										<img id="uploadImg" src="../../images/board/dummy_photo.png" alt="" class="photo btn_fileSelect" style="display: none; cursor: pointer;"/>
+										<img id="uploadImg" src="${pageContext.request.contextPath}/images/board/dummy_photo.png" alt="" class="photo btn_fileSelect" style="display: none; cursor: pointer;"/>
 									</c:when>
 									<c:otherwise>
 										<button id="btn_imgAdd" type="button" class="add_photo btn_fileSelect" style="display: none;">Add Logo</button>

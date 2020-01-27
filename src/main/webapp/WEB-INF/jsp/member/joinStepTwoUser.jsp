@@ -262,7 +262,8 @@
 				return false;
 			}
 
-	  		var val = $("input:radio[name='confirmDiv']").val();
+	  		var confirmDivVal = $("input:radio[name='confirmDiv']:checked").val();
+
 
 			if (!fnCheckEmail($("#userEmail").val())) {
 				alertify.alert("<spring:message code="login.stop.errors.email"/>", function (e){
@@ -301,10 +302,12 @@
 
 
 	  		var data = {
-	  			sendDivision: val,
+	  			sendDivision: confirmDivVal,
 	  			userEmail: $("#userEmail").val(),
 	  			userCell: $("#userCell").val()
 	  		}
+
+	  		//console.log("##################data="+JSON.stringify(data))
 
 	  		$.ajax({
 	  			url: contextPath + "/common/getCertifyNoAjax.do",
@@ -314,7 +317,11 @@
 	  		})
 	  		.done(function(data) {
 	  			var msg = "<spring:message code="login.stop.msg.email"/>";//email
-	  			if($("input:radio[name='confirmDiv']").val() == "S") {//sms
+
+
+	  			//console.log("@@@@@@@@@@@@@@@@@@@rdo val="+$("input:radio[name='confirmDiv']").val());
+
+	  			if(confirmDivVal == "S") {//sms
 	  				msg = "<spring:message code="login.stop.msg.sms"/>";
 	  			}
 
@@ -459,14 +466,14 @@
 									<th scope="row"><span class="exactly y"><spring:message code="member.join.msg.required"/></span> <label for="userEmail"><spring:message code="login.stop.email"/></label></th>
 									<td>
 										<input type="text" id="userEmail" name="userEmail" maxlength="100"/>
-										<button type="button" id="userEmailBtn" class="btn check noround" onclick="javascript:fnUserEmailDupChk('userEmail','userEmailDupYn');"><spring:message code="member.join.step.two.msg.duplication"/></button>
+										<button type="button" id="userEmailBtn" class="btn check noround" onclick="fnUserEmailDupChk('userEmail','userEmailDupYn');"><spring:message code="member.join.step.two.msg.duplication"/></button>
 									</td>
 								</tr>
 								<tr>
 									<th scope="row"><span class="exactly y"><spring:message code="member.join.msg.required"/></span> <label for="userCell"><spring:message code="login.findId.cell"/></label></th>
 									<td>
 										<input type="text" id="userCell" name="userCell" maxlength="15" onKeyPress="return fnCheckNumber(event);"/>
-										<button type="button" id="userCellBtn" class="btn check noround" onclick="javascript:fnUserCellPhoneDupChk('userCell','userCellDupYn');"><spring:message code="member.join.step.two.msg.duplication"/></button>
+										<button type="button" id="userCellBtn" class="btn check noround" onclick="fnUserCellPhoneDupChk('userCell','userCellDupYn');"><spring:message code="member.join.step.two.msg.duplication"/></button>
 									</td>
 								</tr>
 								<tr>

@@ -41,12 +41,14 @@ import ony.cmm.common.bean.ConditionBean;
 import ony.cmm.common.bean.FileBean;
 import ony.cmm.common.bean.LikeBean;
 import ony.cmm.common.bean.LocCdBean;
+import ony.cmm.common.bean.SmsBean;
 import ony.cmm.common.service.CommonService;
 import ony.cmm.common.util.EncryptUtil;
 import ony.cmm.common.util.SessionUtil;
 import ony.cpes.external.member.bean.MemberBean;
 import ony.cpes.external.member.service.MemberService;
 import ony.cpes.external.mypage.compny.bean.CondVacancyBean;
+import ony.cpes.external.mypage.compny.bean.VideoIntvwPatcptnBean;
 import ony.cpes.external.mypage.compny.service.CompnyVacancyService;
 import ony.cpes.external.mypage.privt.bean.CondPrivtMemBean;
 import ony.cpes.external.mypage.privt.bean.OfferBean;
@@ -158,6 +160,11 @@ public class CommonController extends BaseController{
   		String rndStr = StringUtil.randomStrNumber(6);//랜덤 숫자,random number
 
   		if(StringUtils.equals(ConstVal.SEND_DIVISION_SMS_VAL, certifyBean.getSendDivision())) {//cell phone,email send
+            String msg = messageSource.getMessage("login.stop.msg.verification2",null, ConstVal.ERROR_KEY, localeResolver.resolveLocale(req))+":"+ rndStr;
+            SmsBean sms = new SmsBean();
+            sms.setSmsText(msg);
+            sms.setSmsTo(certifyBean.getUserCell());
+            commonService.insertSmsLog(sms);
 
   		} else {//email send
 
@@ -187,7 +194,7 @@ public class CommonController extends BaseController{
 	public ModelAndView getEmailDupChk(Locale locale, @ModelAttribute("CertifyBean") CertifyBean certifyBean, HttpServletRequest req, HttpServletResponse res) throws Exception {
 		ModelAndView mv = new ModelAndView();
 
-		EncryptUtil.getAes256Enc(certifyBean.getUserEmail());
+		certifyBean.setUserEmail(EncryptUtil.getAes256Enc(certifyBean.getUserEmail()));
 		int cnt = memberService.selectEmailDupChk(certifyBean);
 		if(cnt > 0) {
 			certifyBean.setSuccessYn(ConstVal.NO_VAL);
@@ -219,7 +226,7 @@ public class CommonController extends BaseController{
 	public ModelAndView getCellPhoneDupChk(Locale locale, @ModelAttribute("CertifyBean") CertifyBean certifyBean, HttpServletRequest req, HttpServletResponse res) throws Exception {
 		ModelAndView mv = new ModelAndView();
 
-		EncryptUtil.getAes256Enc(certifyBean.getUserCell());
+		certifyBean.setUserCell(EncryptUtil.getAes256Enc(certifyBean.getUserCell()));
 		int cnt = memberService.selectCellPhoneDupChk(certifyBean);
 		if(cnt > 0) {
 			certifyBean.setSuccessYn(ConstVal.NO_VAL);
@@ -443,12 +450,9 @@ public class CommonController extends BaseController{
 
   		PrivtMemBean param = privtMemService.selectPwd(privtMemBean);
 
-  		System.out.println("============curPwd="+Encryption.getSHA512(privtMemBean.getCurPwd()));
-  		System.out.println("============orgPwd="+param.getUserPwd());
-  		System.out.println("============newPwd="+Encryption.getSHA512(privtMemBean.getNewPwd()));
 
-  		if(StringUtils.equals(Encryption.getSHA512(privtMemBean.getCurPwd()), param.getUserPwd())) {//현재비밀번호와 디비에 있는 비밀번호가 같을를경우만  CURRENT PWD = ORG PWD EQUAL
-  			privtMemBean.setNewPwd(Encryption.getSHA512(privtMemBean.getNewPwd()));
+  		if(StringUtils.equals(EncryptUtil.getSha512(privtMemBean.getCurPwd()), param.getUserPwd())) {//현재비밀번호와 디비에 있는 비밀번호가 같을를경우만  CURRENT PWD = ORG PWD EQUAL
+  			privtMemBean.setNewPwd(EncryptUtil.getSha512(privtMemBean.getNewPwd()));
   			if(privtMemService.updatePwd(privtMemBean) > 0) {
       			ajaxResultBean.setSuccessYn(ConstVal.YES_VAL);
 	      		ajaxResultBean.setStatCd(ConstVal.STAT_CD_SUCCESS_VAL);
@@ -529,7 +533,7 @@ public class CommonController extends BaseController{
   		if(!StringUtil.isEmpty(param)) {
 	  		privtMemBean.setUserAuthCd(SessionUtil.getUserAuthCd(req));
 
-	  		if(StringUtils.equals(Encryption.getSHA512(privtMemBean.getUserPwd()), param.getUserPwd())) {//현재비밀번호와 디비에 있는 비밀번호가 같을를경우만  CURRENT PWD = ORG PWD EQUAL
+	  		if(StringUtils.equals(EncryptUtil.getSha512(privtMemBean.getUserPwd()), param.getUserPwd())) {//현재비밀번호와 디비에 있는 비밀번호가 같을를경우만  CURRENT PWD = ORG PWD EQUAL
 
 	  			if(privtMemService.deleteMember(privtMemBean) > 0) {
 	      			ajaxResultBean.setSuccessYn(ConstVal.YES_VAL);
@@ -581,7 +585,7 @@ public class CommonController extends BaseController{
 		String userSeq = SessionUtil.getUserSeq(req);
 		privtMemBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
 		privtMemBean.setUserSeq(userSeq);
-  		privtMemBean.setUserPwd(Encryption.getSHA512(privtMemBean.getUserPwd()));
+  		privtMemBean.setUserPwd(EncryptUtil.getSha512(privtMemBean.getUserPwd()));
 
 
   		if(privtMemService.selectPrivtMemberPwdChk(privtMemBean) < 1) {//비밀번호 확인
@@ -939,5 +943,43 @@ public class CommonController extends BaseController{
 		mv.setViewName(ConstVal.JSON_VIEW_KEY);
 		return mv;
 	}
+
+	 /**
+	   * 북마크 일괄 삭제
+	   * bookmark insert
+	   * @param req
+	   * @param res
+	   * @return ModelAndView
+	   * @throws Exception
+	 */
+	@RequestMapping(value = "/cpes/all/common/videoIntvwViewAjax", method = RequestMethod.POST)
+	public ModelAndView videoIntvwViewAjax(Locale locale,
+			@ModelAttribute("ConditionBean") ConditionBean conditionBean,
+			Principal principal,HttpServletRequest req, HttpServletResponse res) throws Exception {
+		ModelAndView mv = new ModelAndView();
+
+		AjaxResultBean ajaxResultBean = new AjaxResultBean();
+
+		String userSeq = SessionUtil.getUserSeq(req);
+		conditionBean.setLangCd(locale.getLanguage().toUpperCase());
+		conditionBean.setCondUserSeq(userSeq);
+
+		ajaxResultBean.setSuccessYn(ConstVal.YES_VAL);
+		ajaxResultBean.setStatCd(ConstVal.STAT_CD_SUCCESS_VAL);
+
+		VideoIntvwPatcptnBean videoIntvwPatcptnBean = commonService.selectVideoIntvw(conditionBean);
+		if(StringUtil.isEmpty(videoIntvwPatcptnBean)) {
+			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
+			ajaxResultBean.setStatCd(ConstVal.CODE_01_VAL);
+		} else {
+			videoIntvwPatcptnBean.setUserCell(EncryptUtil.getAes256Dec(videoIntvwPatcptnBean.getUserCell()));
+			mv.addObject(ConstVal.RESULT2_KEY, videoIntvwPatcptnBean);
+		}
+
+		mv.addObject(ConstVal.RESULT_KEY,ajaxResultBean);
+		mv.setViewName(ConstVal.JSON_VIEW_KEY);
+		return mv;
+	}
+
 
 }

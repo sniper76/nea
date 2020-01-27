@@ -38,14 +38,14 @@
 
 	<!-- Job Fair Booth Reservation Waiting -->
 	<insert id="insertJobFairBoothResvWait" parameterType="ony.cpes.external.jobfair.bean.JobFairBoothResvWaitBean">
-		<selectKey resultType="string" keyProperty="fairBoothResvWaitSeq" order="BEFORE">
+		<selectKey resultType="string" keyProperty="fairBoothWaitSeq" order="BEFORE">
         	SELECT FN_GET_UUID_SEQ() AS STR FROM DUAL
     	</selectKey>
-		INSERT INTO CPES_FAIR_BOOTH_RESV_WAIT(
-		       FAIR_BOOTH_RESV_WAIT_SEQ, COMPNY_INSTT_SEQ, COMPNY_INSTT_DIV_CD, FAIR_SEQ, MNGER_NM, MNGER_EMAIL, MNGER_CELL
+		INSERT INTO CPES_FAIR_BOOTH_WAIT_REQ(
+		       FAIR_BOOTH_WAIT_SEQ, COMPNY_INSTT_SEQ, COMPNY_INSTT_DIV_CD, FAIR_SEQ, MNGER_NM, MNGER_EMAIL, MNGER_CELL
 			 , REG_USER_SEQ, REG_DT
 		) VALUES(
-		       #{fairBoothResvWaitSeq}
+		       #{fairBoothWaitSeq}
 		     , #{compnyInsttSeq}
 		     , #{compnyInsttDivCd}
 		     , #{fairSeq}

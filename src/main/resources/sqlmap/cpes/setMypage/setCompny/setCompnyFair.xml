@@ -40,7 +40,7 @@
 	<update id="updateInviteCancel"  parameterType="ony.cpes.external.mypage.privt.bean.CondFairBean">
 		/*setCompnyFair.updateInviteCancel*/
 		UPDATE CPES_FAIR_PATCPTN_COMPNY SET
-			DEL_YN = 'Y',
+			CANCEL_YN = 'Y',
 			REQ_DT = null,
 			MOD_DT = now(),
 			MOD_USER_SEQ = #{modUserSeq}

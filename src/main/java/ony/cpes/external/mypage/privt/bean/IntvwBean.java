@@ -43,6 +43,10 @@ public class IntvwBean extends CommonBean{
 	private String vacancyStsCd;
 	private String vacancyStsNm;
 	private String intvwRejectCd;
+	private String displayYn;
+	private String remainDiv;
+	private String remainDt;
+	private String videoIntvwPatcptnSeq;
 
 	public int getTotCareerTermYearCnt() {
 		return totCareerTermYearCnt;
@@ -229,6 +233,30 @@ public class IntvwBean extends CommonBean{
 	}
 	public void setIntvwRejectCd(String intvwRejectCd) {
 		this.intvwRejectCd = intvwRejectCd;
+	}
+	public String getDisplayYn() {
+		return displayYn;
+	}
+	public void setDisplayYn(String displayYn) {
+		this.displayYn = displayYn;
+	}
+	public String getRemainDiv() {
+		return remainDiv;
+	}
+	public void setRemainDiv(String remainDiv) {
+		this.remainDiv = remainDiv;
+	}
+	public String getRemainDt() {
+		return remainDt;
+	}
+	public void setRemainDt(String remainDt) {
+		this.remainDt = remainDt;
+	}
+	public String getVideoIntvwPatcptnSeq() {
+		return videoIntvwPatcptnSeq;
+	}
+	public void setVideoIntvwPatcptnSeq(String videoIntvwPatcptnSeq) {
+		this.videoIntvwPatcptnSeq = videoIntvwPatcptnSeq;
 	}
 
 

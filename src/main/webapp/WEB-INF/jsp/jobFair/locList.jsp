@@ -109,11 +109,11 @@
        			if (data.newYn == 'Y') {
        				newClass = 'new';
        			}
-       			var fileUrl = '${pageContext.request.contextPath}'+data.filePath;
+       			var fileUrl = '${pageContext.request.contextPath}/common/imgLoading.do?url='+data.filePath;
        			var html = '';
 		       	    html += '   		<li>                                                                                                               ';
 		        	html += '	<div class="contents_wrap">                                                                                                ';
-		        	html += '		<div class="img_box"><img src="'+fileUrl+'" alt="image" onerror=\"fnNoImage(this)\" /></div>';
+		        	html += '		<div class="img_box"><img src="'+fileUrl+'" alt="image" onerror="fnNoImage(this)" /></div>';
 		        	html += '		<div class="contents_box '+data.fairDivClass+'">                               ';
 		        	html += '			<div class="title_box '+newClass+'">                                               ';
 		        	html += '				<a href="javascript:void(0);" onclick="fnGoView(\''+data.fairSeq+'\');" class="title">'+data.fairNm+'</a>                                             ';

@@ -213,7 +213,7 @@
 										<tr>
 											<th scope="col"><spring:message code="mypage.private.interest.msg7"/></th>
 											<td>
-												<input id="condSalAmt" name="condSalAmt" type="text" value="${param.condSalAmt}" maxlength="6" style="width:80px;" onKeyPress="return fnCheckNumber(event);" />$
+												$<input id="condSalAmt" name="condSalAmt" type="text" value="${param.condSalAmt}" maxlength="6" style="width:80px;" onKeyPress="return fnCheckNumber(event);" />
 											</td>
 										</tr>
 										<tr>
@@ -360,7 +360,7 @@
 
 						<li>
 							<div class="contents_wrap">
-								<div class="img_box"><img src="${pageContext.request.contextPath}/images/contents/recruitment_dummy.png" onerror="fnNoImage(this);" alt="image" /></div>
+								<span class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${data.filePath}" alt="company logo" onerror="fnNoImage(this)" /></span>
 								<div class="contents_box"><!-- 모집중일 경우 클래스 recruiting , 교육 마감일 경우 클래스 closed 추가, 삭제된 글일 경우 클래스 deleted 추가 -->
 									<div class="title_box <c:if test="${data.newYn == 'Y'}">new</c:if>"><!-- 새글일 경우 클래스 new 추가 -->
 										<span class="tit">${data.compnyNm}</span>

@@ -166,7 +166,7 @@
 				'N',
 				0,
 				'N',
-				#{bgnDt},
+				STR_TO_DATE(#{bgnDt},'%d/%m/%Y'),
 				#{recrumtMemb},
 				#{spot},
 				#{vacancyCloseDt},
@@ -194,7 +194,6 @@
 				#{minEduDegreeYn},
 				#{minWorkExpYn},
 				'N'
-
 			)
         ]]>
     </insert>
@@ -415,7 +414,7 @@
 				'N',
 				0,
 				'N',
-				#{bgnDt},
+				STR_TO_DATE(#{bgnDt},'%d/%m/%Y'),
 				IF(length(#{recrumtMemb}) = 0,null,#{recrumtMemb}),
 				#{spot},
 				#{vacancyCloseDt},
@@ -542,6 +541,7 @@
 			UPDATE CPES_VACANCY SET
 				VACANCY_TITLE = #{vacancyTitle},
 				ISCO_CD = #{iscoCd},
+				BGN_DT = STR_TO_DATE(#{bgnDt},'%d/%m/%Y'),
 				END_DT = STR_TO_DATE(#{endDt},'%d/%m/%Y'),
 				WORK_BGN_DT = STR_TO_DATE(#{workBgnDt},'%d/%m/%Y'),
 				RECRUMT_DIFFCLT_YN = #{recrumtDiffcltYn},
@@ -619,6 +619,7 @@
 			UPDATE CPES_VACANCY_TEMP SET
 				VACANCY_TITLE = #{vacancyTitle},
 				ISCO_CD = #{iscoCd},
+				BGN_DT = STR_TO_DATE(#{bgnDt},'%d/%m/%Y'),
 				END_DT = STR_TO_DATE(#{endDt},'%d/%m/%Y'),
 				WORK_BGN_DT = STR_TO_DATE(#{workBgnDt},'%d/%m/%Y'),
 				RECRUMT_DIFFCLT_YN = #{recrumtDiffcltYn},
@@ -796,4 +797,22 @@
 		AND COMPNY_SEQ = (SELECT A.COMPNY_SEQ FROM CPES_COMPNY A WHERE A.USER_SEQ = #{regUserSeq})
     </update>
 
+	<!-- 인터뷰 삭제-->
+	<update id="deleteIntvw"  parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+		/*setCompnyVacancy.deleteIntvw*/
+		UPDATE CPES_INTVW SET
+			DEL_YN = 'Y',
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE INTVW_SEQ = #{condSeq}
+		AND EXISTS (
+			SELECT
+				B.VACANCY_SEQ
+			FROM CPES_APPLIC A
+			INNER JOIN CPES_VACANCY B
+			ON A.VACANCY_SEQ = B.VACANCY_SEQ
+			WHERE A.APPLIC_SEQ = #{condSeq2}
+			AND B.COMPNY_SEQ = (SELECT COMPNY_SEQ FROM CPES_COMPNY WHERE USER_SEQ = #{condUserSeq})
+		) /* 자신의 채용공고 */
+	</update>
 </mapper>

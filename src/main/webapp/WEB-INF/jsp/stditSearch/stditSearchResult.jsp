@@ -82,9 +82,13 @@
 							<p><spring:message code="counsel.msg.no.data"/></p>
 						</li>
 					</c:if>
-					<c:forEach items="${resultList }" var="result">
+					<c:forEach items="${resultList }" var="result" varStatus="status">
+						<c:set var="genderCdClass" value="male"/>
+						<c:if test="${result.genderCd == 'GEN0000000002'}">
+							<c:set var="genderCdClass" value="female"/>
+						</c:if>
 						<li>
-							<div class="contents_wrap male"><!-- 남성일 경우 클래스 male 추가, 여성일 경우 클래스 femail 추가 -->
+							<div class="contents_wrap ${genderCdClass}"><!-- 남성일 경우 클래스 male 추가, 여성일 경우 클래스 femail 추가 -->
 								<div class="img_box">
 									<img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${result.filePath}" alt="image" onerror="fnNoImage(this)"/>
 								</div>
@@ -103,7 +107,7 @@
 										</a>
 									</div>
 									<div class="top_box">
-										<span class="name"><c:out value="${result.userNm }" /></span>
+										<span class="name">${masking:getNmMasking(result.userNm, 'N')}</span>
 										<span class="age">
 											(<span><c:out value="${result.genderNm }" /></span> <span><c:out value="${result.age }" /></span>)
 										</span>
@@ -116,7 +120,9 @@
 									<div class="other_box">
 										<span class="top_box">
 											<span class="date type2"><strong><c:out value="${result.jcAgreeDt }" /></strong> updated</span>
-											<button type="button" class="interest">interest</button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
+											<sec:authorize access="hasAnyRole('ROLE_CMPNY')">
+											<button type="button" id="btnBkmk_${status.count}" onclick="fnBkmkType2('${result.bkmkSeq}','${result.resumeSeq}',LIKE_CATEGORY_RESUME,'btnBkmk_${status.count}','bkmkSapn_${status.count}');" class="interest <c:if test="${!empty result.bkmkSeq and result.bkmkSeq != ''}">on</c:if>"><spring:message code="mypage.compny.profile.title13"/></button><!--  활성화 되어야 할 때 클래스 on 추가, 비활성 되어야 할 때 클래스 close 추가  -->
+											</sec:authorize>
 										</span>
 									</div>
 								</div>

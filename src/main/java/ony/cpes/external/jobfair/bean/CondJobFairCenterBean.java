@@ -27,8 +27,22 @@ public class CondJobFairCenterBean extends CommonBean {
 	private String condSort;
 	private String condFairDivCd;
 	private String condAreaCd;
+	private String posTop;
+	private String posLeft;
 	private String returnUrl;
 
+	public String getPosLeft() {
+		return posLeft;
+	}
+	public void setPosLeft(String posLeft) {
+		this.posLeft = posLeft;
+	}
+	public String getPosTop() {
+		return posTop;
+	}
+	public void setPosTop(String posTop) {
+		this.posTop = posTop;
+	}
 	public String getReturnUrl() {
 		return returnUrl;
 	}

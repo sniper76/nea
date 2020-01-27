@@ -7,6 +7,7 @@
 		AND RE.PRI_RESUME_YN = 'Y'
 		AND RE.JOBSK_REQ_YN = 'Y'
 		AND JR.JOBSK_STS_CD = 'JSC0000000001'
+		AND JR.DEL_YN = 'N'
 
 		<if test="keyword != null and keyword != ''">
 			AND (RE.RESUME_KEYWORD LIKE CONCAT('%', #{keyword}, '%') OR RE.RESUME_TITLE LIKE CONCAT('%', #{keyword}, '%'))
@@ -85,49 +86,27 @@
 	</sql>
 
 	<select id="selectHrSearchResultTotCnt" parameterType="ony.cpes.external.hrSearch.bean.HrSearchBean" resultType="int">
+		/*hrSearch.selectHrSearchResultTotCnt*/
 		SELECT COUNT(1) AS CNT
-		FROM (SELECT RE.RESUME_SEQ
-				   , RE.RESUME_TITLE
-				   , RE.TOT_CAREER_TERM_YEAR_CNT
-				   , RE.ADDR_FULL_CD
-				   , (SELECT EDU_DEGREE_CD FROM CPES_RESUME_GENRL_EDU WHERE RESUME_SEQ = RE.RESUME_SEQ LIMIT 1) AS EDU_DEGREE_CD
-				   , RE.PREFER_JOB_TITLE
-				   , FN_GET_USER_AGE(US.BIRTH) AS AGE
-				   , JR.JC_AGREE_DT
-				   , RE.FILE_GRP_SEQ
-				   , RE.USE_YN
-				   , RE.PRI_RESUME_YN
-				   , RE.JOBSK_REQ_YN
-				   , JR.JOBSK_STS_CD
-				   , RE.RESUME_KEYWORD
-				   , RE.EMPLOY_FORM_CD
-				   , RE.EXPCT_MIN_SALARY_AMT
-				   , RE.EXPCT_MAX_SALARY_AMT
-				   , RE.PREFER_EMPLOY_TYPE_CD
-				   , RE.PREFER_CRTCT_TYPE
-				   , RE.DISABL_YN
-				   , RE.RET_MIGRAT_YN
-				   , US.GENDER_CD
-				   , US.USER_AUTH_CD
-				FROM CPES_RESUME RE
-					INNER JOIN CPES_JOBSK_REQ JR
-					ON RE.RESUME_SEQ = JR.RESUME_SEQ
-						INNER JOIN CPES_USER US
-						ON RE.USER_SEQ = US.USER_SEQ
+		FROM CPES_RESUME RE
+			INNER JOIN CPES_JOBSK_REQ JR
+			ON RE.RESUME_SEQ = JR.RESUME_SEQ
+				INNER JOIN CPES_USER US
+				ON RE.USER_SEQ = US.USER_SEQ
 
-						<include refid="whereCond"/>
-			 ) A
+				<include refid="whereCond"/>
 
 			<if test="youthYn != null and youthYn != ''">
 				<![CDATA[
-				WHERE A.AGE <= 15
-				AND A.AGE <= 35
+				AND FN_GET_USER_AGE(US.BIRTH) <= 15
+				AND FN_GET_USER_AGE(US.BIRTH) <= 35
 				]]>
 			</if>
 
 	</select>
 
 	<select id="selectHrSearchResultList" parameterType="ony.cpes.external.hrSearch.bean.HrSearchBean" resultType="ony.cpes.external.hrSearch.bean.HrSearchBean">
+		/*hrSearch.selectHrSearchResultList*/
 		SELECT A.RESUME_SEQ
 			 , A.RESUME_TITLE
 			 , A.TOT_CAREER_TERM_YEAR_CNT
@@ -141,6 +120,7 @@
 			 , FN_GET_COMMON_NM('GENDER_CD', A.GENDER_CD, #{langCd}) AS GENDER_NM
 			 , FN_GET_USER_NM_BY_USER_SEQ(A.USER_SEQ, #{langCd}) AS USER_NM
 			 , FN_GET_COMMON_NM('EDU_DEGREE_CD', A.EDU_DEGREE_CD, #{langCd}) AS EDU_DEGREE_NM
+			 , A.GENDER_CD
 		FROM (SELECT RE.RESUME_SEQ
 				   , RE.RESUME_TITLE
 				   , RE.TOT_CAREER_TERM_YEAR_CNT
@@ -165,7 +145,6 @@
 				   , US.GENDER_CD
 				   , RE.USER_SEQ
 				   , (SELECT COUNT(1) FROM CPES_RESUME_OPEN_COMPNY WHERE RESUME_SEQ = RE.RESUME_SEQ) AS OPEN_CNT
-				   , (SELECT COUNT(1) FROM CPES_BKMK WHERE CATE_CD = 'BCT0000000006' AND TABLE_KEY_SEQ = RE.RESUME_SEQ) AS BKMK_CNT
 				   , US.USER_AUTH_CD
 				FROM CPES_RESUME RE
 					INNER JOIN CPES_JOBSK_REQ JR

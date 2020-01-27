@@ -136,7 +136,7 @@
 									<a href="javascript:fnGoList('frmSearch');" class="bbs_btn list"><spring:message code="button.list"/></a>
 								</span>
 								<span class="bbs_right">
-									<input type="button" id="btn_submit" value="<spring:message code="button.create"/>" class="bbs_btn write" />
+									<input type="button" id="btn_submit" value="<spring:message code="button.save"/>" class="bbs_btn write" />
 									<a href="javascript:fnClearForm('frm');" class="bbs_btn cancel"><spring:message code="login.findPwd.btn.cancel"/></a>
 								</span>
 							</div>

@@ -68,7 +68,6 @@
 							<span class="img_box"><img src="${pageContext.request.contextPath}/common/imgLoading.do?url=${data.logoFilePath}" alt="company logo" onerror="fnNoImage(this)" /></span>
 							<a href="javascript:fnCompnyView('<c:out value="${data.compnySeq}" />');" class="title_box">
 								<strong class="title"><c:out value="${data.compnyNm}" /></strong>
-								<a href="javascript:void(0);" onclick="fnVacancyView('<c:out value="${data.vacancySeq}" />','frm')" class="title"><c:out value="${data.vacancyTitle}" /></a>
 							</a>
 							<span class="cont_box">
 								<span class="cont"><c:out value="${data.isicNm}" />&nbsp;</span>

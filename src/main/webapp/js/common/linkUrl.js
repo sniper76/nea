@@ -780,9 +780,9 @@ function fnBkmk(seq, contentSeq, cateCd, tagId, btnId) {
 				$("#"+tagId).empty();
 				var btnHtml = "";
 				if(seq == null || seq == "") {//북마크 추가
-					btnHtml = "<button type=\"button\" id=\"btnBkmk\" onclick=\"fnBkmk('"+data.result.returnVal+"','"+contentSeq+"','"+cateCd+"', '"+tagId+"', '"+btnId+"');\" class=\"button save on\">"+ btnText +"</button>";
+					btnHtml = "<button type=\"button\" id=\""+btnId+"\" onclick=\"fnBkmk('"+data.result.returnVal+"','"+contentSeq+"','"+cateCd+"', '"+tagId+"', '"+btnId+"');\" class=\"button save on\">"+ btnText +"</button>";
 				} else {
-					btnHtml = "<button type=\"button\" id=\"btnBkmk\" onclick=\"fnBkmk('','"+contentSeq+"','"+cateCd+"', '"+tagId+"', '"+btnId+"');\" class=\"button save\">"+ btnText +"</button>";
+					btnHtml = "<button type=\"button\" id=\""+btnId+"\" onclick=\"fnBkmk('','"+contentSeq+"','"+cateCd+"', '"+tagId+"', '"+btnId+"');\" class=\"button save\">"+ btnText +"</button>";
 				}
 
 				//console.log("=============btnHtml="+btnHtml);
@@ -1199,7 +1199,6 @@ function fnGoEduTrnngByUrl(url) {
 * frmId 폼아이디
 */
 function fnBkmkDelList(seqArr, frmId) {
-
 	alertify.confirm(confirmDeleteMsg2, function (e) {
 		if (e) {
 			$.ajax({
@@ -1483,16 +1482,25 @@ function fnSelectBoxEmpty(id,noOptionYn) {
 * cntryId 국가코드
 * selectedVal 강제선택
 */
-function fnAreaCdList(obj,lvl,id,id2,cntryId,selectedVal) {
+function fnAreaCdList(obj,lvl,id,id2,cntryId,selectedVal,requiredValYn) {
 	var val = $(obj).val();
 	if(cntryId == null | cntryId == "") {
 		cntryId = CONTRY_CD_CAMBODIA;
 	}
 
-	if(val == "") {
+	if(val == "" && (requiredValYn == null || requiredValYn == 'Y')) {
 		alertify.alert(areaNotValueMsg, function (e){
 
 		});
+		return false;
+	}
+	if(val == "") {
+		if(lvl == "" || lvl == null) {
+			if(id1 !=null && id1 !="") fnSelectBoxEmpty(id1,"Y");
+			if(id2 !=null && id2 !="") fnSelectBoxEmpty(id2,"Y");
+		} else if(lvl == "1") {
+			if(id2 !=null && id2 !="") fnSelectBoxEmpty(id2,"Y");
+		}
 		return false;
 	}
 
@@ -1647,6 +1655,87 @@ function fnGoNewEduTrnngView(seq,div) {
 
 	$form.append(condSeq);
 	$form.submit();
+}
 
 
+//채용공고 상세
+function fnVacancyView2(seq) {
+	var $form = $('<form></form>');
+
+	var url = contextPath + "/vacancy/view.do";
+
+	$form.attr('action', url);
+	$form.attr('method', 'post');
+	$form.appendTo('body');
+
+	var condSeq = "<input type=\"hidden\" name=\"condSeq\" value=\""+seq+"\">";
+
+
+	$form.append(condSeq);
+	$form.submit();
+}
+
+// 이력서 상세 화면
+function fnResumeView(seq, tempFlag){
+	var tempVal = "0";
+	if(tempFlag == "Y"){
+		tempVal = "1";
+	}
+
+	var $form = $('<form></form>');
+
+	var url = contextPath + "/cpes/private/resume/resumeDetail.do";
+
+	$form.attr('action', url);
+	$form.attr('method', 'post');
+	$form.appendTo('body');
+
+	var resumeSeq = "<input type=\"hidden\" name=\"resumeSeq\" value=\""+seq+"\">";
+	var tempFlag = "<input type=\"hidden\" name=\"tempFlag\" value=\""+tempVal+"\">";
+
+	$form.append(resumeSeq).append(tempFlag);
+	$form.submit();
+
+}
+
+
+function fnVideoIntvwOpen(seq, seq2, dialogId) {
+
+
+
+	$(".ui-dialog-titlebar").remove();//다이얼로그 상단 타이틀 제거
+
+	$.ajax({
+		url: contextPath + "/cpes/all/common/videoIntvwViewAjax.do",
+		method: METHOD_POST,
+		data: {
+			condSeq: seq,
+			condSeq2: seq2
+		},
+		dataType: AJAX_DATA_TYPE_JSON
+	})
+	.done(function(data) {
+		if(data.result.successYn == "Y") {
+			$("#videoUserNm").html(data.result2.userNm);
+			$("#videoUserCell").html(data.result2.userCell);
+			$("#videoCompnyNm").html(data.result2.compnyNm);
+			$("#videoVacancyTitle").html(data.result2.vacancyTitle);
+			$("#videoMngerNm").html(data.result2.mngerNm);
+			$("#videoMngerCell").html(data.result2.mngerCell);
+			$("#videoJobskJcNm").html(data.result2.jobskJcNm);
+			$("#videoCompnyJcNm").html(data.result2.compnyJcNm);
+			$("#videoIntvwDt").html(data.result2.videoIntvwDt +" " + data.result2.videoTimeTableNm);
+
+			$('#'+dialogId).dialog({
+		    	title: '',
+		      	modal: true,
+		      	width: '700',
+		      	height: '300',
+		      	hideCloseButton: true
+			});
+		}
+	})
+	.fail(function(xhr, status, errorThrown) {
+		alertify.alert(systemMsg);
+	})
 }

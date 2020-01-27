@@ -17,10 +17,11 @@
 			, CASE WHEN B.PREFER_EMPLOY_TYPE_CD = 'PET0000000002' THEN B.PREFER_EMPLOY_TYPE_CD ELSE 'X' END WORK_TIME_PART_CD
 			, CASE WHEN B.PREFER_CRTCT_TYPE = 'CRT0000000001' THEN B.PREFER_CRTCT_TYPE ELSE 'X' END EMPLOY_CTRCT_DECID_CD
 			, CASE WHEN B.PREFER_CRTCT_TYPE = 'CRT0000000002' THEN B.PREFER_CRTCT_TYPE ELSE 'X' END EMPLOY_CTRCT_UNDECID_CD
-			, CASE WHEN B.TOT_CAREER_TERM_YEAR_CNT <= 1 AND B.TOT_CAREER_TERM_YEAR_CNT > 0 THEN '-1'
-					WHEN B.TOT_CAREER_TERM_YEAR_CNT > 1 AND B.TOT_CAREER_TERM_YEAR_CNT <= 2 THEN '-2'
-					WHEN B.TOT_CAREER_TERM_YEAR_CNT > 2 AND B.TOT_CAREER_TERM_YEAR_CNT <= 5 THEN '-5'
-					WHEN B.TOT_CAREER_TERM_YEAR_CNT > 5 THEN '+5' ELSE '0' END MIN_WORK_EXP
+			, CASE WHEN ((B.TOT_CAREER_TERM_YEAR_CNT * 12) + B.TOT_CAREER_TERM_MONTH_CNT) > 0 AND ((B.TOT_CAREER_TERM_YEAR_CNT * 12) + B.TOT_CAREER_TERM_MONTH_CNT) <= 12 THEN '-1'
+					WHEN ((B.TOT_CAREER_TERM_YEAR_CNT * 12) + B.TOT_CAREER_TERM_MONTH_CNT) > 12 AND ((B.TOT_CAREER_TERM_YEAR_CNT * 12) + B.TOT_CAREER_TERM_MONTH_CNT) <= 24 THEN '-2'
+					WHEN ((B.TOT_CAREER_TERM_YEAR_CNT * 12) + B.TOT_CAREER_TERM_MONTH_CNT) > 24 AND ((B.TOT_CAREER_TERM_YEAR_CNT * 12) + B.TOT_CAREER_TERM_MONTH_CNT) <= 60 THEN '-5'
+					WHEN ((B.TOT_CAREER_TERM_YEAR_CNT * 12) + B.TOT_CAREER_TERM_MONTH_CNT) > 60 THEN '+5'
+                    ELSE '0' END MIN_WORK_EXP
 			, C.ISCO_CD AS ISCO_CD_STR
 			, D.ADDR_CD AS LOC_CD_STR
 			, E.EDU_DEGREE_CD AS EDU_DEGREE_CD_STR
@@ -32,9 +33,18 @@
 		FROM CPES_USER A
 		INNER JOIN CPES_RESUME B
 		ON A.USER_SEQ = B.USER_SEQ
-		LEFT OUTER JOIN (SELECT LI.RESUME_SEQ, GROUP_CONCAT(LI.ISCO_CD ORDER BY LI.ISCO_CD ASC SEPARATOR ',') AS ISCO_CD
-			FROM CPES_RESUME_ISCO LI
-			GROUP BY LI.RESUME_SEQ) C
+		LEFT OUTER JOIN (SELECT C.RESUME_SEQ, CONCAT(D.ISCO_FULL_CD, ',', C.ISCO_CD) AS ISCO_CD
+				FROM CPES_USER A
+				INNER JOIN CPES_RESUME B
+				ON A.USER_SEQ = B.USER_SEQ
+		        INNER JOIN CPES_RESUME_ISCO C
+		        ON B.RESUME_SEQ = C.RESUME_SEQ
+                INNER JOIN CPES_ISCO_CD D
+                ON C.ISCO_CD = D.ISCO_CD
+				WHERE A.USER_SEQ = #{userSeq}
+				AND B.PRI_RESUME_YN = 'Y'
+				AND B.USE_YN = 'Y'
+		        LIMIT 1) C
 		ON B.RESUME_SEQ = C.RESUME_SEQ
 		LEFT OUTER JOIN (SELECT LI.RESUME_SEQ, GROUP_CONCAT(LI.ADDR_CD ORDER BY LI.ADDR_CD ASC SEPARATOR ',') AS ADDR_CD
 			FROM CPES_RESUME_HOPE_WORK_LOC LI
@@ -137,17 +147,25 @@
        	<if test="employCtrctDecidCd != null or employCtrctUndecidCd != null">
         AND ( M.EMPLOY_CTRCT_CD = #{employCtrctDecidCd} OR M.EMPLOY_CTRCT_CD = #{employCtrctUndecidCd} )
        	</if>
-       	<if test="preferEmploymtTypeCd != null">
-        AND ( M.PREFER_EMPLOYMT_TYPE_CD = #{preferEmploymtTypeCd} OR M.PREFER_EMPLOYMT_TYPE_CD = #{preferEmploymtTypeCd} )
+       	<if test="workTimeFullCd != null or workTimePartCd != null">
+        AND ( M.PREFER_EMPLOYMT_TYPE_CD = #{workTimeFullCd} OR M.PREFER_EMPLOYMT_TYPE_CD = #{workTimePartCd} )
        	</if>
        	<if test="hopeSalary != null">
         AND ( M.MIN_SALARY_AMT <![CDATA[ >= ]]> #{hopeSalary} AND M.MAX_SALARY_AMT <![CDATA[ <= ]]> #{hopeSalary} )
        	</if>
-       	<if test="condAddrCd != null">
-        AND M.ADDR_CD LIKE CONCAT(#{condAddrCd}, '%')
+       	<if test="locCdStr != null">
+        AND M.ADDR_CD LIKE CONCAT(SUBSTRING_INDEX(#{locCdStr}, ',', -1), '%')
        	</if>
        	<if test="minWorkExp != null">
-        AND M.MIN_WORK_EXP = #{minWorkExp}
+       	<choose>
+       		<when test="'0'.toString() == minWorkExp">
+       	AND M.MIN_WORK_EXP_YN = 'N'
+       		</when>
+       		<otherwise>
+       	AND M.MIN_WORK_EXP_YN = 'Y'
+        AND M.MIN_WORK_EXP BETWEEN #{minWorkExp} AND #{maxWorkExp}
+       		</otherwise>
+       	</choose>
        	</if>
        	<if test="!langCds.isEmpty()">
         AND (
@@ -190,7 +208,7 @@
 				FN_GET_COMMON_NM('EMPLOY_CTRCT_CD', B.EMPLOY_CTRCT_CD, #{langCd}) AS EMPLOY_CTRCT_NM,
 				FN_GET_COMMON_NM('EMPLOY_CTRCT_TYPE_CD', B.EMPLOY_CTRCT_TYPE_CD, #{langCd}) AS EMPLOY_CTRCT_TYPE_NM,
 				FN_GET_COMMON_NM('SALARY_UNIT_CD', B.SALARY_UNIT_CD, #{langCd}) AS SALARY_UNIT_NM,
-				FN_GET_COMMON_NM('MIN_EDU_DEGREE_CD', B.MIN_EDU_DEGREE_CD, #{langCd}) AS MIN_EDU_DEGREE_NM,
+				FN_GET_COMMON_NM('EDU_DEGREE_CD', B.MIN_EDU_DEGREE_CD, #{langCd}) AS MIN_EDU_DEGREE_NM,
 				FN_GET_COMMON_NM('VACANCY_TYPE_CD', B.VACANCY_TYPE_CD, #{langCd}) AS VACANCY_TYPE_NM,
 				FN_GET_COMMON_NM('PREFER_EMPLOYMT_TYPE_CD', B.PREFER_EMPLOYMT_TYPE_CD, #{langCd}) AS PREFER_EMPLOYMT_TYPE_NM,
 				FN_GET_COMMON_NM('EXPCT_SALARY_CD', B.EXPCT_SALARY_CD, #{langCd}) AS EXPCT_SALARY_NM,
@@ -208,21 +226,24 @@
                F.PREFERNT_COND_CD,
                B.PREFER_EMPLOYMT_TYPE_CD,
                B.MIN_WORK_EXP,
+               B.MIN_WORK_EXP_YN,
                B.REG_DT,
-		 FN_GET_NEW_YN(B.REG_DT) AS NEW_YN,
-		 (
-	          	 	SELECT BKMK_SEQ
-	          	 	FROM CPES_BKMK F
-	          	 	WHERE F.CATE_CD = 'BCT0000000003'
-	          	 	AND F.TABLE_KEY_SEQ = B.VACANCY_SEQ
-	          	 	AND F.USER_SEQ = #{userSeq}
-	          	 	LIMIT 1
-	          	 ) AS BKMK_SEQ,
-		 FN_GET_FILE_PATH(C.LOGO_FILE_GRP_SEQ) AS FILE_PATH
-		     , DATEDIFF(B.END_DT, NOW()) AS REMAIN_DAYS
-		     , TIMESTAMPDIFF(HOUR, NOW(), B.END_DT) AS REMAIN_HOURS
-		     , B.BKMK_CNT
-		     , B.VIEW_CNT
+		     FN_GET_REMAIN_CNT(B.END_DT) AS REMAIN_DT,
+		     FN_GET_REMAIN_DIV(B.END_DT) AS REMAIN_DIV,
+			 FN_GET_NEW_YN(B.REG_DT) AS NEW_YN,
+			 (
+		          	 	SELECT BKMK_SEQ
+		          	 	FROM CPES_BKMK F
+		          	 	WHERE F.CATE_CD = 'BCT0000000003'
+		          	 	AND F.TABLE_KEY_SEQ = B.VACANCY_SEQ
+		          	 	AND F.USER_SEQ = #{userSeq}
+		          	 	LIMIT 1
+		          	 ) AS BKMK_SEQ,
+			 FN_GET_FILE_PATH(C.LOGO_FILE_GRP_SEQ) AS FILE_PATH,
+		     DATEDIFF(B.END_DT, NOW()) AS REMAIN_DAYS,
+		     TIMESTAMPDIFF(HOUR, NOW(), B.END_DT) AS REMAIN_HOURS,
+		     B.BKMK_CNT,
+		     B.VIEW_CNT
            FROM CPES_VACANCY B
            INNER JOIN CPES_COMPNY C
            ON B.COMPNY_SEQ = C.COMPNY_SEQ
@@ -347,36 +368,8 @@
 	<!-- select vacancy count of auto matching  -->
 	<select id="selectMatchingAutoCnt" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean" resultType="int">
 		/*matching.selectMatchingAutoCnt*/
-		SELECT COUNT(1) AS CNT
-		  FROM CPES_VACANCY A
-		       LEFT OUTER JOIN
-		       CPES_VACANCY_LOC B
-		          ON B.VACANCY_SEQ = A.VACANCY_SEQ
-		       LEFT OUTER JOIN
-		       CPES_COMPNY D
-		           ON D.COMPNY_SEQ = A.COMPNY_SEQ
-		       CROSS JOIN (
-		        SELECT RESUME_SEQ, EXPCT_MIN_SALARY_AMT
-		          FROM CPES_RESUME
-		         WHERE USER_SEQ = #{userSeq}
-		           AND USE_YN = 'Y'
-		           AND PRI_RESUME_YN = 'Y'
-		           AND JC_AGREE_STS_CD = 'JAS0000000001'
-		           AND RESUME_STS_CD = 'RSS0000000002'
-		           AND JC_VERITY_USER_SEQ IS NOT NULL
-		         LIMIT 1
-		       ) X
-		 WHERE A.VACANCY_STS_CD = 'VCS0000000001'
-		   AND A.REG_DT <![CDATA[ <= ]]> DATE_ADD(A.REG_DT, INTERVAL 1 MONTH)
-		   AND A.USE_YN = 'Y'
-		   AND A.DEL_YN = 'N'
-	</select>
-
-	<!-- select vacancy list of auto matching  -->
-	<select id="selectMatchingAutoList" resultType="ony.cpes.external.vacancy.bean.VacancyBean" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
-		/*matching.selectMatchingAutoList*/
-		SELECT * FROM (
-		SELECT A.VACANCY_SEQ
+		SELECT COUNT(1) AS CNT FROM (
+		SELECT DISTINCT A.VACANCY_SEQ
 		     , A.VACANCY_TITLE
 		     , A.BKMK_CNT
 		     , A.VIEW_CNT
@@ -385,14 +378,7 @@
 		     , A.MIN_SALARY_AMT
 		     , A.MAX_SALARY_AMT
 		     , FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
-		     , (
-		        SELECT BKMK_SEQ
-		          FROM CPES_BKMK
-		         WHERE TABLE_KEY_SEQ = A.VACANCY_SEQ
-		           AND USER_SEQ = #{userSeq}
-		           AND CATE_CD = 'BCT0000000003'
-		         LIMIT 1
-		       ) AS BKMK_SEQ
+			 , FN_GET_BKMK_SEQ(#{userSeq}, 'BCT0000000003', A.VACANCY_SEQ) AS BKMK_SEQ
 		     , FN_GET_FILE_PATH(D.LOGO_FILE_GRP_SEQ) AS FILE_PATH
 		     , FN_GET_REMAIN_CNT(A.END_DT) REMAIN_DT
 		     , FN_GET_REMAIN_DIV(A.END_DT) REMAIN_DIV
@@ -401,42 +387,68 @@
 		     , FN_GET_COMMON_NM('VACANCY_STS_CD', A.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM
 		     , FN_GET_COMMON_NM('PREFER_EMPLOYMT_TYPE_CD', A.PREFER_EMPLOYMT_TYPE_CD, #{langCd}) AS PREFER_EMPLOYMT_TYPE_NM
 		     , FN_GET_COMMON_NM('EMPLOY_FORM_CD', A.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_NM
-		     , FN_GET_ADDR_NM(SUBSTR(B.ADDR_CD,1,3), '2', #{langCd}) AS ADDR_FULL_NM
+		     , (
+		        SELECT FN_GET_ADDR_NM(SUBSTR(ADDR_FULL_CD,1,3), '2', #{langCd})
+		          FROM CPES_VACANCY_LOC
+		         WHERE VACANCY_SEQ = A.VACANCY_SEQ
+		         LIMIT 1
+		       ) AS ADDR_FULL_NM
 		     , FN_GET_COMMON_NM('EMPLOY_FORM_CD',A.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_CD
 		     , FN_GET_BASE_DATE_CHAR(A.END_DT, #{langCd}) AS END_DT
 		     , A.END_DT AS END_DATE
 		     , (
-		        SELECT SUM((FN_GET_MATCH_EDU_POINT(A.MIN_EDU_DEGREE_CD,A1.EDU_DEGREE_CD))) AS PNT
-		          FROM CPES_RESUME_GENRL_EDU A1
-		         WHERE A1.RESUME_SEQ = X.RESUME_SEQ
+				SELECT SUM((FN_GET_MATCH_EDU_POINT(A.MIN_EDU_DEGREE_CD, X2.EDU_DEGREE_CD))) AS PNT
+				  FROM CPES_RESUME X1
+				       INNER JOIN
+				       CPES_RESUME_GENRL_EDU X2
+				          ON X2.RESUME_SEQ = X1.RESUME_SEQ
+				 WHERE X1.USER_SEQ = #{userSeq}
+				   AND X1.USE_YN = 'Y'
+				   AND X1.PRI_RESUME_YN = 'Y'
+				   AND X1.JC_AGREE_STS_CD = 'JAS0000000001'
+				   AND X1.RESUME_STS_CD = 'RSS0000000002'
 		       ) +
 		       FN_GET_MATCH_WAGE_POINT(A.MIN_SALARY_AMT,X.EXPCT_MIN_SALARY_AMT) +
 		       (
-		        SELECT SUM(FN_GET_MATCH_LOC_POINT(
-		               SUBSTRING_INDEX(SUBSTRING_INDEX(A1.ADDR_FULL_CD,',',-4),',',1),
-		               SUBSTRING_INDEX(SUBSTRING_INDEX(A1.ADDR_FULL_CD,',',-3),',',1),
-		               B.ADDR_FULL_CD
-		               )) AS PNT
-		          FROM CPES_RESUME_HOPE_WORK_LOC A1
-		         WHERE A1.RESUME_SEQ = X.RESUME_SEQ
+		        SELECT SUM(FN_GET_MATCH_LOC_POINT(Y2.ADDR_1_CD, Y2.ADDR_2_CD, Y1.ADDR_FULL_CD)) AS PNT
+		          FROM CPES_VACANCY_LOC Y1
+		               CROSS JOIN (
+		                SELECT SUBSTRING(X2.ADDR_CD,1,3) AS ADDR_1_CD
+		                     , SUBSTRING(X2.ADDR_CD,1,5) AS ADDR_2_CD
+		                  FROM CPES_RESUME X1
+		                       INNER JOIN
+		                       CPES_RESUME_HOPE_WORK_LOC X2
+		                          ON X2.RESUME_SEQ = X1.RESUME_SEQ
+		                 WHERE X1.USER_SEQ = #{userSeq}
+		                   AND X1.USE_YN = 'Y'
+		                   AND X1.PRI_RESUME_YN = 'Y'
+		                   AND X1.JC_AGREE_STS_CD = 'JAS0000000001'
+		                   AND X1.RESUME_STS_CD = 'RSS0000000002'
+		                 LIMIT 1
+		               ) Y2
+		          WHERE Y1.VACANCY_SEQ = A.VACANCY_SEQ
 		       ) + (
 		        SELECT SUM(FN_GET_MATCH_OCCU_POINT(
-		               SUBSTRING_INDEX(SUBSTRING_INDEX(B1.CD_LVL,'=>',-4),'=>',1),
-		               SUBSTRING_INDEX(SUBSTRING_INDEX(B1.CD_LVL,'=>',-3),'=>',1),
-		               SUBSTRING_INDEX(SUBSTRING_INDEX(B1.CD_LVL,'=>',-2),'=>',1),
-		               SUBSTRING_INDEX(SUBSTRING_INDEX(B1.CD_LVL,'=>',-1),'=>',1),
-		               A.ISCO_CD
+		                 SUBSTRING_INDEX(SUBSTRING_INDEX(X3.CD_LVL,'=>',-4),'=>',1),
+		                 SUBSTRING_INDEX(SUBSTRING_INDEX(X3.CD_LVL,'=>',-3),'=>',1),
+		                 SUBSTRING_INDEX(SUBSTRING_INDEX(X3.CD_LVL,'=>',-2),'=>',1),
+		                 SUBSTRING_INDEX(SUBSTRING_INDEX(X3.CD_LVL,'=>',-1),'=>',1),
+		                 A.ISCO_CD
 		               )) AS PNT
-		          FROM CPES_RESUME_ISCO A1
+		          FROM CPES_RESUME X1
 		               INNER JOIN
-		               CPES_ISCO_CD B1
-		                  ON B1.ISCO_CD = A1.ISCO_CD
-		         WHERE A1.RESUME_SEQ = X.RESUME_SEQ
+		               CPES_RESUME_ISCO X2
+		                  ON X2.RESUME_SEQ = X1.RESUME_SEQ
+		               INNER JOIN
+		               CPES_ISCO_CD X3
+		                  ON X3.ISCO_CD = X2.ISCO_CD
+		         WHERE X1.USER_SEQ = #{userSeq}
+		           AND X1.USE_YN = 'Y'
+		           AND X1.PRI_RESUME_YN = 'Y'
+		           AND X1.JC_AGREE_STS_CD = 'JAS0000000001'
+		           AND X1.RESUME_STS_CD = 'RSS0000000002'
 		       ) AS MATCH_TOTAL_POINT
 		  FROM CPES_VACANCY A
-		       LEFT OUTER JOIN
-		       CPES_VACANCY_LOC B
-		          ON B.VACANCY_SEQ = A.VACANCY_SEQ
 		       LEFT OUTER JOIN
 		       CPES_COMPNY D
 		           ON D.COMPNY_SEQ = A.COMPNY_SEQ
@@ -455,18 +467,113 @@
 		   AND A.USE_YN = 'Y'
 		   AND A.DEL_YN = 'N'
 		       ) Z
+		 WHERE Z.MATCH_TOTAL_POINT <![CDATA[ > ]]> 0
+	</select>
+
+	<!-- select vacancy list of auto matching  -->
+	<select id="selectMatchingAutoList" resultType="ony.cpes.external.vacancy.bean.VacancyBean" parameterType="ony.cpes.external.mypage.privt.bean.MatchingBean">
+		/*matching.selectMatchingAutoList*/
+		SELECT * FROM (
+		SELECT DISTINCT A.VACANCY_SEQ
+		     , A.VACANCY_TITLE
+		     , A.BKMK_CNT
+		     , A.VIEW_CNT
+		     , A.REG_DT
+		     , A.RECRUMT_MEMB
+		     , A.MIN_SALARY_AMT
+		     , A.MAX_SALARY_AMT
+		     , FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+			 , FN_GET_BKMK_SEQ(#{userSeq}, 'BCT0000000003', A.VACANCY_SEQ) AS BKMK_SEQ
+		     , FN_GET_FILE_PATH(D.LOGO_FILE_GRP_SEQ) AS FILE_PATH
+		     , FN_GET_REMAIN_CNT(A.END_DT) REMAIN_DT
+		     , FN_GET_REMAIN_DIV(A.END_DT) REMAIN_DIV
+		     , FN_GET_COMPNY_NM(A.COMPNY_SEQ,#{langCd}) AS COMPNY_NM
+		     , A.VACANCY_STS_CD
+		     , FN_GET_COMMON_NM('VACANCY_STS_CD', A.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM
+		     , FN_GET_COMMON_NM('PREFER_EMPLOYMT_TYPE_CD', A.PREFER_EMPLOYMT_TYPE_CD, #{langCd}) AS PREFER_EMPLOYMT_TYPE_NM
+		     , FN_GET_COMMON_NM('EMPLOY_FORM_CD', A.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_NM
+		     , (
+		        SELECT FN_GET_ADDR_NM(SUBSTR(ADDR_FULL_CD,1,3), '2', #{langCd})
+		          FROM CPES_VACANCY_LOC
+		         WHERE VACANCY_SEQ = A.VACANCY_SEQ
+		         LIMIT 1
+		       ) AS ADDR_FULL_NM
+		     , FN_GET_COMMON_NM('EMPLOY_FORM_CD',A.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_CD
+		     , FN_GET_BASE_DATE_CHAR(A.END_DT, #{langCd}) AS END_DT
+		     , A.END_DT AS END_DATE
+		     , (
+				SELECT SUM((FN_GET_MATCH_EDU_POINT(A.MIN_EDU_DEGREE_CD, X2.EDU_DEGREE_CD))) AS PNT
+				  FROM CPES_RESUME X1
+				       INNER JOIN
+				       CPES_RESUME_GENRL_EDU X2
+				          ON X2.RESUME_SEQ = X1.RESUME_SEQ
+				 WHERE X1.USER_SEQ = #{userSeq}
+				   AND X1.USE_YN = 'Y'
+				   AND X1.PRI_RESUME_YN = 'Y'
+				   AND X1.JC_AGREE_STS_CD = 'JAS0000000001'
+				   AND X1.RESUME_STS_CD = 'RSS0000000002'
+		       ) +
+		       FN_GET_MATCH_WAGE_POINT(A.MIN_SALARY_AMT,X.EXPCT_MIN_SALARY_AMT) +
+		       (
+		        SELECT SUM(FN_GET_MATCH_LOC_POINT(Y2.ADDR_1_CD, Y2.ADDR_2_CD, Y1.ADDR_FULL_CD)) AS PNT
+		          FROM CPES_VACANCY_LOC Y1
+		               CROSS JOIN (
+		                SELECT SUBSTRING(X2.ADDR_CD,1,3) AS ADDR_1_CD
+		                     , SUBSTRING(X2.ADDR_CD,1,5) AS ADDR_2_CD
+		                  FROM CPES_RESUME X1
+		                       INNER JOIN
+		                       CPES_RESUME_HOPE_WORK_LOC X2
+		                          ON X2.RESUME_SEQ = X1.RESUME_SEQ
+		                 WHERE X1.USER_SEQ = #{userSeq}
+		                   AND X1.USE_YN = 'Y'
+		                   AND X1.PRI_RESUME_YN = 'Y'
+		                   AND X1.JC_AGREE_STS_CD = 'JAS0000000001'
+		                   AND X1.RESUME_STS_CD = 'RSS0000000002'
+		                 LIMIT 1
+		               ) Y2
+		          WHERE Y1.VACANCY_SEQ = A.VACANCY_SEQ
+		       ) + (
+		        SELECT SUM(FN_GET_MATCH_OCCU_POINT(
+		                 SUBSTRING_INDEX(SUBSTRING_INDEX(X3.CD_LVL,'=>',-4),'=>',1),
+		                 SUBSTRING_INDEX(SUBSTRING_INDEX(X3.CD_LVL,'=>',-3),'=>',1),
+		                 SUBSTRING_INDEX(SUBSTRING_INDEX(X3.CD_LVL,'=>',-2),'=>',1),
+		                 SUBSTRING_INDEX(SUBSTRING_INDEX(X3.CD_LVL,'=>',-1),'=>',1),
+		                 A.ISCO_CD
+		               )) AS PNT
+		          FROM CPES_RESUME X1
+		               INNER JOIN
+		               CPES_RESUME_ISCO X2
+		                  ON X2.RESUME_SEQ = X1.RESUME_SEQ
+		               INNER JOIN
+		               CPES_ISCO_CD X3
+		                  ON X3.ISCO_CD = X2.ISCO_CD
+		         WHERE X1.USER_SEQ = #{userSeq}
+		           AND X1.USE_YN = 'Y'
+		           AND X1.PRI_RESUME_YN = 'Y'
+		           AND X1.JC_AGREE_STS_CD = 'JAS0000000001'
+		           AND X1.RESUME_STS_CD = 'RSS0000000002'
+		       ) AS MATCH_TOTAL_POINT
+		  FROM CPES_VACANCY A
+		       LEFT OUTER JOIN
+		       CPES_COMPNY D
+		           ON D.COMPNY_SEQ = A.COMPNY_SEQ
+		       CROSS JOIN (
+		        SELECT RESUME_SEQ, EXPCT_MIN_SALARY_AMT
+		          FROM CPES_RESUME
+		         WHERE USER_SEQ = #{userSeq}
+		           AND USE_YN = 'Y'
+		           AND PRI_RESUME_YN = 'Y'
+		           AND JC_AGREE_STS_CD = 'JAS0000000001'
+		           AND RESUME_STS_CD = 'RSS0000000002'
+		         LIMIT 1
+		       ) X
+		 WHERE A.VACANCY_STS_CD = 'VCS0000000001'
+		   AND A.REG_DT <![CDATA[ <= ]]> DATE_ADD(A.REG_DT, INTERVAL 1 MONTH)
+		   AND A.USE_YN = 'Y'
+		   AND A.DEL_YN = 'N'
+		       ) Z
+		 WHERE Z.MATCH_TOTAL_POINT <![CDATA[ > ]]> 0
 		 ORDER BY MATCH_TOTAL_POINT DESC
-		<choose>
-			<when test="condSort != null and condSort.equals('LIKE')">
-				, BKMK_CNT DESC, REG_DT DESC
-			</when>
-			<when test="condSort != null and condSort.equals('VIEW')">
-				, VIEW_CNT DESC, REG_DT DESC
-			</when>
-			<otherwise>
-	  			, REG_DT DESC
-			</otherwise>
-		</choose>
 		 LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
 	</select>
 

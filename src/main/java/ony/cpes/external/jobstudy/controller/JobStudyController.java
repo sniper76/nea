@@ -142,4 +142,18 @@ public class JobStudyController extends BaseController{
 	  	return mv;
 
 	}
+
+	  @RequestMapping("/selectJobStudySearch")
+	  public ModelAndView selectJobStudySearch(Locale locale,
+	  			@ModelAttribute("CondJobStudyBean") CondJobStudyBean condJobStudyBean,
+	  			Principal principal,HttpServletRequest req, HttpServletResponse res) throws Exception {
+		  ModelAndView mv = new ModelAndView();
+		  mv.setViewName("jobStudy/searchResult.one");//게시판 기본유형,BASIC TYPE
+
+		  condJobStudyBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
+		  mv.addObject(ConstVal.RESULT_KEY, jobStudyService.selectJobStudySearch(condJobStudyBean));
+		  mv.addObject("param", condJobStudyBean);
+
+		  return mv;
+	  }
 }

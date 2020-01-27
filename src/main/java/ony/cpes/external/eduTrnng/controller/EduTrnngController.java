@@ -136,7 +136,7 @@ public class EduTrnngController extends BaseController{
 
 		  mv.addObject("applyClass", (count <= 0 ? ("RSC0000000003".equals(eduTrnngBean.getRecrumtStsCd()) ? "" : "on") : ""));
 		  mv.addObject(ConstVal.RESULT_KEY, eduTrnngBean);
-		  mv.addObject(ConstVal.RESULT_LIST_KEY, insttEduTrnngService.selectEduTrnngAddrList(condEduTrnngBean));//주소목록
+//		  mv.addObject(ConstVal.RESULT_LIST_KEY, insttEduTrnngService.selectEduTrnngAddrList(condEduTrnngBean));//주소목록
 
 		  return mv;
 
@@ -180,7 +180,7 @@ public class EduTrnngController extends BaseController{
 
 		  mv.addObject("applyClass", (count <= 0 ? ("RSC0000000003".equals(eduTrnngBean.getRecrumtStsCd()) ? "" : "on") : ""));
 		  mv.addObject(ConstVal.RESULT_KEY, eduTrnngBean);
-		  mv.addObject(ConstVal.RESULT_LIST_KEY, insttEduTrnngService.selectEduTrnngAddrList(condEduTrnngBean));//주소목록
+//		  mv.addObject(ConstVal.RESULT_LIST_KEY, insttEduTrnngService.selectEduTrnngAddrList(condEduTrnngBean));//주소목록
 
 		  return mv;
 
@@ -390,7 +390,7 @@ public class EduTrnngController extends BaseController{
 
 		CpesPaginationTag pTag = new CpesPaginationTag();
 
-		mv.addObject("totalPageCount", paginationInfo.getTotalPageCount());
+		mv.addObject("totalPageCount", paginationInfo.getTotalRecordCount());
 		mv.addObject("currentPageNo", paginationInfo.getCurrentPageNo());
 		mv.addObject(ConstVal.PAGINATION_INFO_KEY, pTag.getPagination(req, paginationInfo, "fnGoSrch"));
 
@@ -464,7 +464,7 @@ public class EduTrnngController extends BaseController{
 
 		CpesPaginationTag pTag = new CpesPaginationTag();
 
-		mv.addObject("totalPageCount", paginationInfo.getTotalPageCount());
+		mv.addObject("totalPageCount", paginationInfo.getTotalRecordCount());
 		mv.addObject("currentPageNo", paginationInfo.getCurrentPageNo());
 		mv.addObject(ConstVal.PAGINATION_INFO_KEY, pTag.getPagination(req, paginationInfo, "fnGoSrch"));
 
@@ -595,7 +595,7 @@ public class EduTrnngController extends BaseController{
 
 		CpesPaginationTag pTag = new CpesPaginationTag();
 
-		mv.addObject("totalPageCount", paginationInfo.getTotalPageCount());
+		mv.addObject("totalPageCount", paginationInfo.getTotalRecordCount());
 		mv.addObject("currentPageNo", paginationInfo.getCurrentPageNo());
 		mv.addObject(ConstVal.PAGINATION_INFO_KEY, pTag.getPagination(req, paginationInfo, "fnGoSrch"));
 
@@ -674,7 +674,7 @@ public class EduTrnngController extends BaseController{
 
 		CpesPaginationTag pTag = new CpesPaginationTag();
 
-		mv.addObject("totalPageCount", paginationInfo.getTotalPageCount());
+		mv.addObject("totalPageCount", paginationInfo.getTotalRecordCount());
 		mv.addObject("currentPageNo", paginationInfo.getCurrentPageNo());
 		mv.addObject(ConstVal.PAGINATION_INFO_KEY, pTag.getPagination(req, paginationInfo, "fnGoSrch"));
 

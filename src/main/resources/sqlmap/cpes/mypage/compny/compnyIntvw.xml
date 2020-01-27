@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="compnyIntvw">
+
+	<sql id="whereVacancyIntwvVideoList">
+		 WHERE A.VACANCY_SEQ = #{vacancySeq}
+		<if test="intvwBgnDt != null and !intvwBgnDt.equals('')">
+		   AND F.VIDEO_INTVW_DT <![CDATA[ >= ]]> STR_TO_DATE(#{intvwBgnDt}, '%d/%m/%Y')
+		</if>
+		<if test="intvwEndDt != null and !intvwEndDt.equals('')">
+		   AND F.VIDEO_INTVW_DT <![CDATA[ < ]]> DATE_ADD(STR_TO_DATE(#{intvwEndDt}, '%d/%m/%Y'), INTERVAL 1 DAY)
+		</if>
+		<if test="jcCd != null and !jcCd.equals('')">
+		   AND F.JOBSK_JC_CD = #{jcCd}
+		</if>
+		<if test="intvwTypeCd != null and intvwTypeCd.equals('ONL')">
+		   AND F.VIDEO_INTVW_PATCPTN_SEQ IS NOT NULL
+		</if>
+		<if test="intvwTypeCd != null and intvwTypeCd.equals('NOA')">
+		   AND F.VIDEO_INTVW_PATCPTN_SEQ IS NULL
+		</if>
+		<if test="userNm != null and !userNm.equals('')">
+		   AND (D.USER_NM_KH LIKE CONCAT(#{userNm},'%') OR D.USER_NM_EN LIKE CONCAT(#{userNm},'%'))
+		</if>
+	</sql>
+
+	<!-- 화상면접신청관리::총건수 -->
+	<select id="selectVacancyIntwvVideoListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.compny.bean.CondCompnyIntvwBean">
+		/*compnyIntvw.selectVacancyIntwvVideoListCnt*/
+		SELECT COUNT(1) AS CNT
+		  FROM CPES_VACANCY A
+		       INNER JOIN
+		       CPES_APPLIC B
+		          ON B.VACANCY_SEQ = A.VACANCY_SEQ
+		       INNER JOIN
+		       CPES_RESUME C
+		          ON C.RESUME_SEQ = B.RESUME_SEQ
+		       INNER JOIN
+		       CPES_USER D
+		          ON D.USER_SEQ = C.USER_SEQ
+		       INNER JOIN
+		       CPES_INTVW E
+		          ON E.APPLIC_SEQ = B.APPLIC_SEQ
+		         AND E.INTVW_TYPE_CD = 'IVTC000000001'
+		         AND E.INTVW_STS_CD = 'ITV0000000002'
+		         AND E.DEL_YN = 'N'
+		       LEFT OUTER JOIN
+		       CPES_VIDEO_INTVW_PATCPTN F
+		          ON F.INTVW_SEQ = E.INTVW_SEQ
+		         AND F.USER_SEQ = D.USER_SEQ
+		<include refid="whereVacancyIntwvVideoList"/>
+    </select>
+
+	<!-- 화상면접신청관리::목록 -->
+	<select id="selectVacancyIntwvVideoList" resultType="ony.cpes.external.mypage.compny.bean.VacancyIntvwBean" parameterType="ony.cpes.external.mypage.compny.bean.CondCompnyIntvwBean">
+		/*compnyIntvw.selectVacancyIntwvVideoList*/
+		SELECT A.VACANCY_SEQ
+		     , B.APPLIC_SEQ
+		     , C.RESUME_SEQ
+		     , E.INTVW_SEQ
+		     , D.USER_SEQ
+		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN D.USER_NM_KH
+		            ELSE D.USER_NM_EN
+		       END USER_NM
+		     , D.USER_CELL
+		     , FN_GET_JOB_CNTR_NM(C.JC_CD, #{langCd}) AS JC_NM
+		     , CONCAT(DATE_FORMAT(F.VIDEO_INTVW_DT,'%d/%m/%Y'), ' ',
+		              SUBSTRING(FN_GET_COMMON_NM('VIDEO_TIME_TABLE_CD', F.VIDEO_TIME_TABLE_CD, #{langCd}),1,5)
+		       ) AS INTVW_DT
+		     , DATE_FORMAT(F.REG_DT,'%d/%m/%y') AS REG_DT
+		     , F.VIDEO_INTVW_PATCPTN_SEQ
+		     , CASE WHEN F.VIDEO_INTVW_DT > CURDATE() THEN 'Y' ELSE 'N' END ABLE_DEL_YN
+		  FROM CPES_VACANCY A
+		       INNER JOIN
+		       CPES_APPLIC B
+		          ON B.VACANCY_SEQ = A.VACANCY_SEQ
+		       INNER JOIN
+		       CPES_RESUME C
+		          ON C.RESUME_SEQ = B.RESUME_SEQ
+		       INNER JOIN
+		       CPES_USER D
+		          ON D.USER_SEQ = C.USER_SEQ
+		       INNER JOIN
+		       CPES_INTVW E
+		          ON E.APPLIC_SEQ = B.APPLIC_SEQ
+		         AND E.INTVW_TYPE_CD = 'IVTC000000001'
+		         AND E.INTVW_STS_CD = 'ITV0000000002'
+		         AND E.DEL_YN = 'N'
+		       LEFT OUTER JOIN
+		       CPES_VIDEO_INTVW_PATCPTN F
+		          ON F.INTVW_SEQ = E.INTVW_SEQ
+		         AND F.USER_SEQ = D.USER_SEQ
+		<include refid="whereVacancyIntwvVideoList" />
+		 ORDER BY INTVW_DT
+		 LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+    </select>
+
+	<!-- 화상면접신청 정보 -->
+	<select id="selectVacancyIntwvVideoPatcptn" resultType="ony.cpes.external.mypage.compny.bean.VideoIntvwPatcptnBean" parameterType="hashmap">
+		/*compnyIntvw.selectVacancyIntwvVideoPatcptn*/
+		SELECT A.VIDEO_INTVW_PATCPTN_SEQ
+		     , A.INTVW_SEQ
+		     , A.JOBSK_JC_CD
+		     , A.VIDEO_TIME_TABLE_CD
+		     , DATE_FORMAT(A.VIDEO_INTVW_DT, '%d/%m/%Y') AS VIDEO_INTVW_DT
+		     , A.COMPNY_JC_CD
+		     , A.COMPNY_SEQ
+		     , A.USER_SEQ
+		     , A.REG_USER_SEQ
+		     , A.REG_DT
+		     , FN_GET_JOB_CNTR_NM(A.COMPNY_JC_CD, #{langCd}) AS COMPNY_JC_NM
+		     , FN_GET_JOB_CNTR_NM(A.JOBSK_JC_CD, #{langCd}) AS JOBSK_JC_NM
+		     , FN_GET_COMMON_NM('VIDEO_TIME_TABLE_CD', A.VIDEO_TIME_TABLE_CD, #{langCd}) AS VIDEO_TIME_TABLE_NM
+		     , CASE WHEN A.VIDEO_INTVW_DT > CURDATE() THEN 'Y' ELSE 'N' END ABLE_DEL_YN
+		  FROM CPES_VIDEO_INTVW_PATCPTN A
+		       INNER JOIN
+		       CPES_USER B
+		          ON B.USER_SEQ = A.USER_SEQ
+		 WHERE A.VIDEO_INTVW_PATCPTN_SEQ = #{videoIntvwPatcptnSeq}
+	</select>
+
+	<!-- 잡센터의 휴일 목록 -->
+	<select id="selectJcHolidayList" resultType="string" parameterType="hashmap">
+		/*compnyIntvw.selectJcHolidayList*/
+		SELECT DATE_FORMAT(DT,'%d/%m/%Y') AS DT
+		  FROM CPES_VIDEO_INTVW_HOLIDAY
+		 WHERE JC_CD = #{jcCd}
+		 ORDER BY DT
+	</select>
+
+	<!-- 화상면접 인터뷰 시간 테이블 조회 -->
+	<select id="selectVacancyIntwvVideoTimeList" resultType="ony.cmm.common.bean.CommDtlCdBean" parameterType="ony.cpes.external.mypage.compny.bean.VideoIntvwPatcptnBean">
+		/*compnyIntvw.selectVacancyIntwvVideoTimeList*/
+		SELECT DTL_CD
+		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN CD_KH_NM ELSE CD_EN_NM END CD_NM
+		  FROM CPES_COMM_DTL_CD
+		 WHERE GRP_CD='VIDEO_TIME_TABLE_CD'
+		   AND USE_YN = 'Y'
+		   AND DTL_CD NOT IN (
+		        SELECT VIDEO_TIME_TABLE_CD
+		          FROM CPES_VIDEO_INTVW_PATCPTN
+		         WHERE COMPNY_JC_CD = #{compnyJcCd}
+		           AND VIDEO_INTVW_DT <![CDATA[ >= ]]> STR_TO_DATE(#{videoIntvwDt},'%d/%m/%Y')
+		           AND VIDEO_INTVW_DT <![CDATA[ <  ]]> DATE_ADD(STR_TO_DATE(#{videoIntvwDt},'%d/%m/%Y'), INTERVAL 1 DAY)
+		        UNION ALL
+		        SELECT VIDEO_TIME_TABLE_CD
+		          FROM CPES_VIDEO_INTVW_PATCPTN
+		         WHERE JOBSK_JC_CD = #{jobskJcCd}
+		           AND VIDEO_INTVW_DT <![CDATA[ >= ]]> STR_TO_DATE(#{videoIntvwDt},'%d/%m/%Y')
+		           AND VIDEO_INTVW_DT <![CDATA[ <  ]]> DATE_ADD(STR_TO_DATE(#{videoIntvwDt},'%d/%m/%Y'), INTERVAL 1 DAY)
+		       )
+		 ORDER BY SORT
+	</select>
+
+</mapper>

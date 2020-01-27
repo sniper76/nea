@@ -872,6 +872,9 @@
 		RESUME_ISCO_SEQ
 		, ISCO_CD
 		, RESUME_SEQ
+		, ISCO_FULL_CD
+		, ISCO_FULL_NM
+		, ISCO_UPPER_CD
 		, REG_USER_SEQ
 		, REG_DT
 		, MOD_USER_SEQ
@@ -880,6 +883,9 @@
 		#{resumeIscoSeq}
 		, #{iscoCd}
 		, #{resumeSeq}
+		, #{iscoFullCd}
+		, #{iscoFullNm}
+		, #{iscoUpperCd}
 		, #{regUserSeq}
 		, NOW()
 		, #{modUserSeq}

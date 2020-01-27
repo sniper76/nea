@@ -45,7 +45,8 @@
 			VIEW_YN,
 			WRITE_DT,
 			WRITER_NM,
-			BAN_YN
+			TITLE_BAN_YN,
+			CONTENT_BAN_YN
     	) VALUES (
 			'N',
 			#{bulletinMngSeq},
@@ -73,7 +74,8 @@
 			'Y',
 			now(),
 			#{writerNm},
-			#{banYn}
+			#{titleBanYn},
+			#{contentBanYn}
     	)
 	</insert>
 
@@ -153,7 +155,8 @@
 			MOD_USER_SEQ = #{modUserSeq},
 			AGREE_YN = 'N',
 			VIEW_YN = 'N',
-			BAN_YN = #{banYn}
+			TITLE_BAN_YN = #{titleBanYn},
+			CONTENT_BAN_YN = #{contentBanYn}
 		WHERE BULLETIN_SEQ = #{bulletinSeq}
 		AND REG_USER_SEQ = #{regUserSeq}
 	</update>

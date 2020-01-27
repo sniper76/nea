@@ -51,6 +51,8 @@ public class JobCenterBean extends CommonBean {
 	private String addrFullCd;
 	private String addrFullNm;
 	private String newYn;
+	private String jcNm;
+
 	public String getJc() {
 		return jc;
 	}
@@ -231,4 +233,11 @@ public class JobCenterBean extends CommonBean {
 	public void setNewYn(String newYn) {
 		this.newYn = newYn;
 	}
+	public String getJcNm() {
+		return jcNm;
+	}
+	public void setJcNm(String jcNm) {
+		this.jcNm = jcNm;
+	}
+
 }

@@ -405,4 +405,14 @@ public class CompnyVacancyDAO  extends EgovAbstractMapper {
 		return  getSqlSession().selectList("compnyVacancy.selectIntvwList", param);
 	}
 
+	/**
+	 * 면접 삭제
+	 * interview delete
+	 * @param param
+	 * @return int
+	 */
+	public int deleteIntvw(CondApplicBean param) {
+		return getSqlSession().update("setCompnyVacancy.deleteIntvw", param);
+	}
+
 }

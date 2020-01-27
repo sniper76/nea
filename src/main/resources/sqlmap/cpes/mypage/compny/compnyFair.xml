@@ -10,11 +10,14 @@
 			WHERE G.USER_SEQ = #{condUserSeq}
 			LIMIT 1
 		)
-		AND A.INVITE_YN = 'Y' /* 초청여부 */
-		<if test="condTypeCd != null and condTypeCd.equals('JOIN')">
-			AND A.COMPNY_RESP_YN = 'Y' /* 기업_응답_여부 */
-			AND A.JC_AGREE_STS_CD = 'JAS0000000001' /* 승인처리 */
-		</if>
+		<choose>
+			<when test="condTypeCd != null and condTypeCd.equals('JOIN')">
+				AND A.INVITE_YN &lt;&gt; 'Y' /* 초청여부 */
+			</when>
+			<otherwise>
+				AND A.INVITE_YN = 'Y' /* 초청여부 */
+			</otherwise>
+		</choose>
 		AND A.DEL_YN = 'N' /* 삭제여부 */
 		AND B.USE_YN = 'Y'  /* 채용행사 사용여부 */
 		AND B.DEL_YN = 'N'  /* 채용행사 삭제여부 */
@@ -28,7 +31,7 @@
 			WHERE G.USER_SEQ = #{condUserSeq}
 			LIMIT 1
 		)
-		AND C.COMPNY_INSTT_DIV_CD = 'CIDC000000001'
+		AND C.COMPNY_INSTT_DIV_CD = 'CID0000000001'
 		AND A.USE_YN = 'Y'
 		AND B.USE_YN = 'Y'  /* 채용행사 사용여부 */
 		AND B.DEL_YN = 'N'  /* 채용행사 삭제여부 */
@@ -98,7 +101,8 @@
 				 FN_GET_FILE_PATH(B.THUMB_FILE_GRP_SEQ) AS IMAGE_PATH,
 				 B.FAIR_STS_CD,
 				 FN_GET_COMMON_NM('FAIR_STS_CD', B.FAIR_STS_CD, #{langCd}) AS FAIR_STS_NM,
-				 FN_GET_NEW_YN(B.REG_DT) AS NEW_YN
+				 FN_GET_NEW_YN(B.REG_DT) AS NEW_YN,
+				 A.CANCEL_YN
             FROM CPES_FAIR_PATCPTN_COMPNY A
             INNER JOIN CPES_FAIR_MST B
 			ON A.FAIR_SEQ = B.FAIR_SEQ
@@ -195,7 +199,6 @@
 			ON A.BOOTH_SEQ = C.BOOTH_SEQ
 
 
-
        ]]>
             <include refid="whereBoothCond"/>
 
@@ -233,10 +236,13 @@
 			ON A.FAIR_SEQ = B.FAIR_SEQ
 			INNER JOIN CPES_FAIR_BOOTH_HIST C
 			ON A.BOOTH_SEQ = C.BOOTH_SEQ
+
        ]]>
             <include refid="whereBoothCond"/>
             <include refid="sortCond"/>
 			LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
     </select>
+
+
 
 </mapper>

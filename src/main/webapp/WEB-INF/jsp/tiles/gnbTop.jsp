@@ -49,6 +49,7 @@
 	        	<ul>
 		            <li><a href="${pageContext.request.contextPath}/index.do?lang=en">English</a></li>
 		            <li><a href="${pageContext.request.contextPath}/index.do?lang=kh">Khmer</a></li>
+		            <li><a href="${pageContext.request.contextPath}/index.do?lang=ko">Korea</a></li>
 	            </ul>
 	        </div>
         </div>
@@ -56,19 +57,32 @@
     </div>
 	<div class="search_box">
 		<div class="wrap search_wrap">
-			<button type="button" class="search_open">Search Open</button>
+			<button type="button" class="search_open"><spring:message code="comm.search.lbl02" /></button><!-- Search Open -->
 			<div class="search">
-				<h2 class="skip">Search</h2>
-				<form method="post">
+				<h2 class="skip"><spring:message code="button.search" /></h2>
+				<form name="IntegratedSearchFrm" method="post" action="${pageContext.request.contextPath}/searchResult.do">
 					<fieldset>
-						<legend>Search</legend>
-						<label for="total_search" class="skip">input the search</label>
-						<input type="search" id="total_search" placeholder="input the search keyword" />
-						<input type="submit" value="search" />
+						<legend><spring:message code="button.search" /></legend><!-- Search -->
+						<label for="condText" class="skip"><spring:message code="comm.search.msg02" /></label><!-- input the search -->
+						<input type="search" id="condText" name="condText" placeholder="<spring:message code="comm.search.msg01" />" /><!-- input the search keyword -->
+						<input type="button" value="<spring:message code="button.search" />" onclick="fnIntegratedSearch()" /><!-- Search -->
 					</fieldset>
 				</form>
+				<script>
+					function fnIntegratedSearch() {
+						var condText = $("#condText").val();
+						if(condText == null || $.trim(condText) == '') {
+							alertify.alert("<spring:message code="mypage.compny.vacancy.msg15"/>", function (e){
+								$("#condText").focus();
+							});
+							return;
+						}
+						var f = $("[name=IntegratedSearchFrm]")[0];
+						f.submit();
+					}
+				</script>
 			</div>
-			<button type="button" class="search_close">Search Closed</button>
+			<button type="button" class="search_close"><spring:message code="comm.search.lbl01" /></button><!-- Search Closed -->
 		</div>
 	</div>
     <!-- //search_box -->
@@ -126,7 +140,7 @@
 					<ul class="clearfix">
 						<sec:authorize access="hasRole('ROLE_CMPNY')">
 							<li><a href="${pageContext.request.contextPath}/cpes/compny/hrSearch/hrSearchForm.do">Job Seeker Search</a>
-							<li><a href="${pageContext.request.contextPath}/cpes/compny/stditSearch/stditSearchForm.do">Student/Intern Search</a>
+							<li><a href="${pageContext.request.contextPath}/cpes/compny/stditSearch/stditSearchResult.do">Student/Intern Search</a>
 						</sec:authorize>
 <!-- 						<li><a href="">Detail Search</a></li>
 						<li><a href="">Search by Category</a></li> -->

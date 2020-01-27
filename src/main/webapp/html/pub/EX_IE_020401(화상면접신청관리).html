@@ -23,7 +23,7 @@
 </div>
 
 <hr />
-
+<div id="wrapper">
 <header id="header">
     <div class="wrap header_wrap">
 		<h1 class="logo">
@@ -243,111 +243,238 @@
 
                 <div id="contents">
 
-<div class="srch_box">
-	<div class="top_area">
-		<span class="cont_box">
-			<strong class="title">Total CV</strong>&nbsp;:
-			<span class="cont">5,000</span>
-		</span>
-		<span class="cont_box">
-			<strong class="title">Due Today</strong>&nbsp;:
-			<span class="cont">300</span>
-		</span>
+<div class="search_matching">
+	<div class="box_wrap recruitment_list">
+		<form>
+			<fieldset>
+				<legend>Search Auto Matching</legend>
+				<button type="button" class="open">
+					<span class="contents_wrap">
+						<span class="check_area">
+							<label for="checkbox1">Select Recruitment Notice</label>
+							<input type="radio" name="checkbox" id="checkbox1" />
+						</span>
+						<span class="contents_box">
+							<span class="title_box"><!-- 새글일 경우 클래스 new 추가 -->
+								<strong class="title">Construction Project Planning Manager1</strong>
+							</span>
+							<span class="cont_box">
+								<span class="cont">
+									<span class="con">08/10/2019 ~ 08/11/2019</span>
+									<span class="con">Job Cacancy : 20</span>
+								</span>
+							</span>
+							<span class="other_box">
+								<span class="top_box">
+									<span class="day">30</span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
+								</span>
+							</span>
+						</span>
+					</span>
+				</button>
+				<div class="child_box">
+					<ul class="clearfix">
+					<li>
+						<span class="contents_wrap">
+							<span class="check_area">
+								<label for="checkbox2">Select Recruitment Notice</label>
+								<input type="radio" name="checkbox" id="checkbox2" />
+							</span>
+							<span class="contents_box">
+								<span class="title_box"><!-- 새글일 경우 클래스 new 추가 -->
+									<strong class="title">Construction Project Planning Manager2</strong>
+								</span>
+								<span class="cont_box">
+									<span class="cont">
+										<span class="con">08/10/2019 ~ 08/11/2019</span>
+										<span class="con">Job Cacancy : 20</span>
+									</span>
+								</span>
+								<span class="other_box">
+									<span class="top_box">
+										<span class="day">30</span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
+									</span>
+								</span>
+							</span>
+						</span>
+					</li>
+					<li>
+						<span class="contents_wrap">
+							<span class="check_area">
+								<label for="checkbox3">Select Recruitment Notice</label>
+								<input type="radio" name="checkbox" id="checkbox3" />
+							</span>
+							<span class="contents_box">
+								<span class="title_box"><!-- 새글일 경우 클래스 new 추가 -->
+									<strong class="title">Construction Project Planning Manager3</strong>
+								</span>
+								<span class="cont_box">
+									<span class="cont">
+										<span class="con">08/10/2019 ~ 08/11/2019</span>
+										<span class="con">Job Cacancy : 20</span>
+									</span>
+								</span>
+								<span class="other_box">
+									<span class="top_box">
+										<span class="day hurry">18Hour</span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
+									</span>
+								</span>
+							</span>
+						</span>
+					</li>
+					</ul>
+				</div>
+				<button type="submit" class="submit">Select</button>
+			</fieldset>
+		</form>
 	</div>
-	<div class="srch_area"><!-- 상세 검색 있을 때 클래스 advanced 추가 -->
-		<div class="box_wrap">
-			<form>
-				<fieldset>
-					<legend>Search</legend>
-					<div class="contents_box">
-						<label for="serch_sel" class="skip">Category Selection</label>
-						<select id="serch_sel">
-							<option value="">Processing</option>
-							<option value="">Approved</option>
-							<option value="">Rejected</option>
-						</select>
-						<label for="serch_text" class="skip">input the search</label>
-						<input type="text" id="serch_text" class="text" />
-						<button type="submit" class="submit">Search</button>
+</div>
+<!-- //search_matching -->
+
+<div class="box type6">
+    <div class="box_wrap">
+        <ul class="bu">
+		<li>온라인 인터뷰는 관할 잡센타의 온라인 인터뷰 시스템을 이용한 인터뷰입니다.</li>
+		<li>회사와 동일 지역에 거주하지 않는 구직자와 인터뷰가 필요할 경우 선택하세요.</li>
+		<li>먼저 면접자와 날짜, 시간을 확인하신 후 선택하세요.</li>
+		<li>수정/취소는 면접일 1일 전까지만 가능합니다.</li>
+		</ul>
+    </div>
+</div>
+
+<div class="cv_search">
+	<div class="box_wrap">
+		<form>
+			<fieldset>
+				<legend>CV Search</legend>
+				<ul class="clearfix">
+				<li>
+					<div class="cont_box">
+						<strong class="title">Interview Date</strong>
+						<span class="cont">
+							<span class="period_box">
+								<span class="date_box">
+									<label for="start_date" class="skip">start date</label>
+									<input type="text" id="start_date" title="Start date Select from calendar" placeholder="DD/MM/YYYY" />
+									<button type="button">Start date Select from calendar</button>
+								</span>
+								~&nbsp;
+								<span class="date_box">
+									<label for="end_date" class="skip">end date</label>
+									<input type="text" id="end_date" title="End date Select from calendar" placeholder="DD/MM/YYYY" />
+									<button type="button">End date Select from calendar</button>
+								</span>
+							</span>
+						</span>
 					</div>
-				</fieldset>
-			</form>
-		</div>
+				</li>
+				<li>
+					<div class="cont_box type2">
+						<strong class="title">Job center</strong>
+						<span class="cont">
+							<label for="job_center" class="skip">Job center</label>
+							<select id="job_center">
+								<option value="">All</option>
+								<option value="">All</option>
+								<option value="">All</option>
+							</select>
+						</span>
+					</div>
+					<div class="cont_box type2">
+						<strong class="title">Online interview</strong>
+						<span class="cont">
+							<label for="online_interview" class="skip">Online interview</label>
+							<select id="online_interview">
+								<option value="">All</option>
+								<option value="">All</option>
+								<option value="">All</option>
+							</select>
+						</span>
+					</div>
+				</li>
+				<li>
+					<div class="cont_box">
+						<strong class="title">Job seeker</strong>
+						<span class="cont">
+							<label for="job_seeker" class="skip">Job seeker</label>
+							<input type="text" id="job_seeker" class="con" />
+						</span>
+					</div>
+				</li>
+				</ul>
+				<button type="submit" class="submit">Search</button>
+			</fieldset>
+		</form>
 	</div>
 </div>
 
-<p class="margin_b_5">※ Use NEA Online Interview Service. <span class="em_point">You can interview anyone at a far distance.</span></p>
-<div class="bbs_basic">
-	<ul class="recruitment_list type2 clearfix"><!-- 인기채용공고 목록일 경우 클래스 popularity 추가, 교육기관,교육프로그램일 경우 클래스 adu 추가, 직업훈련일 경우 클래스 type2 추가 -->
-	<li>
-		<div class="contents_wrap">
-			<div class="contents_box"><!-- 사전고용일 경우 클래스 employement , 스킬일 경우 클래스 skill 추가 -->
-				<div class="title_box"><!-- 새글일 경우 클래스 new 추가 -->
-					<a href="" class="title">Construction Project Planning Manager</a>
-				</div>
-				<div class="cont_box">
-					<span class="cont">
-						<span class="con">08/10/2019 09:30 AM ~ 11:30 AM</span>
-					</span>
-				</div>
-				<div class="other_box type2">
-					<span class="top_box">
-						<span class="Processing">Processing</span><!-- 처리중일 경우 클래스 Processing 추가, 승인일 경우 클래스 approved 추가, 미승인일 경우 클래스 rejected 추가 -->
-					</span>
-					<span class="bottom_box">
-						<span class="date type3">08/10/2019</span>
-					</span>
-				</div>
-			</div>
-		</div>
-	</li>
-	<li>
-		<div class="contents_wrap">
-			<div class="contents_box"><!-- 사전고용일 경우 클래스 employement , 스킬일 경우 클래스 skill 추가 -->
-				<div class="title_box"><!-- 새글일 경우 클래스 new 추가 -->
-					<a href="" class="title">Construction Project Planning Manager</a>
-				</div>
-				<div class="cont_box">
-					<span class="cont">
-						<span class="con">08/10/2019 09:30 AM ~ 11:30 AM</span>
-					</span>
-				</div>
-				<div class="other_box type2">
-					<span class="top_box">
-						<span class="approved">Approved</span>
-					</span>
-					<div class="bottom_box">
-						<span class="date type3">08/10/2019</span>
-					</div>
-				</div>
-			</div>
-		</div>
-	</li>
-	<li>
-		<div class="contents_wrap">
-			<div class="contents_box"><!-- 사전고용일 경우 클래스 employement , 스킬일 경우 클래스 skill 추가 -->
-				<div class="title_box"><!-- 새글일 경우 클래스 new 추가 -->
-					<a href="" class="title">Construction Project Planning Manager</a>
-				</div>
-				<div class="cont_box">
-					<span class="cont">
-						<span class="con">08/10/2019 09:30 AM ~ 11:30 AM</span>
-					</span>
-				</div>
-				<div class="other_box type2">
-					<span class="top_box">
-						<span class="rejected">Rejected</span>
-					</span>
-					<div class="bottom_box">
-						<span class="date type3">08/10/2019</span>
-					</div>
-				</div>
-			</div>
-		</div>
-	</li>
-	</ul>
+<div class="bbs_info clearfix"><!-- 서브페이지에 탭 메뉴가 있을 경우 클래스 tab_confirm 추가  -->
+	<div class="bbs_left bbs_count">
+		<strong class="currently">1</strong>
+		<span class="total">/&nbsp;1</span>
+		<span class="order">
+			<strong class="skip">Change list order</strong>
+			<button type="button">Latest</button>
+			<button type="button">View</button>
+			<button type="button">like</button>
+		</span>
+	</div>
 </div>
+<!-- //bbs_info -->
 
+<table class="bbs_table react_table" data-rwdb="yes"><!-- thead가 있는 경우 data-rwdb="yes" 추가 -->
+	<caption>테이블명 - 테이블 설명</caption>
+	<colgroup>
+		<col style="width:6%;" />
+		<col style="width:18%;" />
+		<col style="width:15%;" />
+		<col style="width:15%;" />
+		<col style="width:18%;" />
+		<col style="width:14%;" />
+		<col style="width:14%;" />
+	</colgroup>
+	<thead>
+	<tr>
+		<th scope="col">선택</th>
+		<th scope="col">job seeker</th>
+		<th scope="col">Phone number</th>
+		<th scope="col">Job center</th>
+		<th scope="col">Online interview</th>
+		<th scope="col">Updated</th>
+		<th scope="col">Interview</th>
+	</tr>
+	</thead>
+	<tbody class="text_center">
+	<tr>
+		<td>
+			<span class="check_box">
+				<label for="#check1" class="skip">Select</label>
+				<input type="checkbox" id="check1" />
+			</span>
+		</td>
+		<td class="subject"><a href="">Khunt Vanni</a></td>
+		<td>000-000-0000</td>
+		<td>Phnom penh</td>
+		<td>31/01/2020 11:00</td>
+		<td>30/01/2020</td>
+		<td><a href="" class="bbs_btn small">View</a></td>
+	</tr>
+	<tr>
+		<td>
+			<span class="check_box">
+				<label for="#check2" class="skip">Select</label>
+				<input type="checkbox" id="check2" />
+			</span>
+		</td>
+		<td><a href="">Khunt Vanni</a></td>
+		<td>000-000-0000</td>
+		<td>Phnom penh</td>
+		<td>31/01/2020 11:00</td>
+		<td>30/01/2020</td>
+		<td><a href="" class="bbs_btn type08 small">Apply</a></td>
+	</tr>
+	</tbody>
+</table>
 
 
 <div class="bbs_btn_wrap clearfix">
@@ -355,7 +482,7 @@
 
 	</span>
 	<span class="bbs_right">
-		<a href="" class="bbs_btn save">Apply Online Interview</a>
+		<button type="button" class="bbs_btn delete">Delete</button>
 	</span>
 </div>
 <!--  //bbs_btn_wrap  -->
@@ -377,6 +504,176 @@
 	<a href="" class="next_end">Last page</a>
 </div>
 <!--  //pagination  -->
+
+
+
+
+<!------------------------------------------   리스트 end   ------------------------------------------------->
+
+
+
+
+<div class="bbs_basic">
+	<form method="post">
+		<fieldset>
+			<legend>Write a post</legend>
+			<div class="bbs_write_top"><span><span class="exactly y">necessary</span>Necessary</span></div>
+			<table class="bbs_table write">
+				<caption>Online Interview Write - My job center, job seeker's job center, Interview Date, Interview time Input</caption>
+				<colgroup>
+					<col style="width:20%;">
+					<col style="width:80%;">
+				</colgroup>
+				<tbody>
+				<tr>
+					<th scope="row"><span class="exactly"></span> Job seeker</th><!-- 필수 황목일 경우 exacly 에 클래스 y 추가 -->
+					<td class="subject">Khut Vanni</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="exactly"></span> Mobile no.</th><!-- 필수 황목일 경우 exacly 에 클래스 y 추가 -->
+					<td>000-000-000</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="exactly y">necessary</span> <label for="job_center">My job center</label></th><!-- 필수 황목일 경우 exacly 에 클래스 y 추가 -->
+					<td>
+						<select id="job_center">
+							<option value="">phnom penh</option>
+							<option value="">phnom penh</option>
+							<option value="">phnom penh</option>
+							<option value="">phnom penh</option>
+						</select>
+						<p class="bbs_description">인터뷰 당일 방문할 잡센터를 선택하세요.</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="exactly y">necessary</span> <label for="job_seeker">Job seeker's job center</label></th><!-- 필수 황목일 경우 exacly 에 클래스 y 추가 -->
+					<td>
+						<select id="job_seeker">
+							<option value="">phnom penh</option>
+							<option value="">phnom penh</option>
+							<option value="">phnom penh</option>
+							<option value="">phnom penh</option>
+						</select>
+						<p class="bbs_description">인터뷰 당일 구직자가 방문할 잡센터를 선택하세요.</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="exactly y">necessary</span> Interview Date</th>
+					<td>
+						<span class="bbs_time type2">
+							<label for="date" class="skip">date</label>
+							<input type="text" id="date">
+							<button type="button">open calender</button>
+						</span>
+						<p class="bbs_description">인터뷰 날짜는 1일 후부터 7일 이내에만 선택 가능합니다.</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="exactly y">necessary</span> <label for="interview_time">Interview Time</label></th><!-- 필수 황목일 경우 exacly 에 클래스 y 추가 -->
+					<td>
+						<select id="interview_time">
+							<option value="">09:00 ~ 09:30 AM</option>
+							<option value="">09:00 ~ 09:30 AM</option>
+							<option value="">09:00 ~ 09:30 AM</option>
+							<option value="">09:00 ~ 09:30 AM</option>
+						</select>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+			<!-- //bbs_table write -->
+			
+			<div class="bbs_btn_wrap clearfix">
+				<span class="bbs_left">
+					<a href="" class="bbs_btn list">LIST</a>
+				</span>
+				<span class="bbs_right">
+					<input type="submit" value="OK" class="bbs_btn save" />
+					<a href="" class="bbs_btn cancel">CANCEL</a>
+				</span>
+			</div>
+			<!-- //bbs_btn_wrap -->
+
+		</fieldset>
+	</form>
+</div>
+<!-- //bbs_basic -->
+
+
+
+
+<!------------------------------------------   신청 end   ------------------------------------------------->
+
+
+
+
+
+<div class="bbs_basic">
+	<table class="bbs_table">
+		<caption>Online Interview View - Job seeker, Mobile no., My job center, job seeker's job center, Interview Date, Interview time</caption>
+		<colgroup>
+			<col style="width:20%;">
+			<col style="width:80%;">
+		</colgroup>
+		<tbody>
+		<tr>
+			<th scope="row">Job seeker</th>
+			<td class="subject">Khut Vanni</td>
+		</tr>
+		<tr>
+			<th scope="row">Mobile no.</th>
+			<td>000-000-000</td>
+		</tr>
+		<tr>
+			<th scope="row">My job center</th>
+			<td>
+				Phnom penh
+				<p class="bbs_description">인터뷰 당일 방문해야 하는 잡센터입니다.</p>
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">Job seeker's job center</th>
+			<td>
+				Seam reap
+				<p class="bbs_description">인터뷰 당일 구직자가 방문해야 하는 잡센터입니다.</p>
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">Interview Date</th>
+			<td>10/10/2020 10:00 ~ 10:30 AM</td>
+		</tr>
+		</tbody>
+	</table>
+	<!-- //bbs_table write -->
+	<p class="bbs_write_bottom">* 수정/취소는 면접일 1일 전까지만 가능합니다.</p>
+	
+	<div class="bbs_btn_wrap clearfix">
+		<span class="bbs_left">
+			<a href="" class="bbs_btn list">LIST</a>
+		</span>
+		<span class="bbs_right">
+			<a href="" class="bbs_btn modify">MODIFY</a>
+			<a href="" class="bbs_btn delete">DELETE</a>
+		</span>
+	</div>
+	<!-- //bbs_btn_wrap -->
+</div>
+<!-- //bbs_basic -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -460,6 +757,6 @@
     </div>
 </footer>
 <!-- //footer -->
-
+</div>
 </body>
 </html>

@@ -11,7 +11,7 @@
 			<li>
 				<div class="contents_wrap">
 					<div class="contents_box">
-						<div class="title_box"><!-- 새글일 경우 클래스 new 추가 -->
+						<div class="title_box <c:if test="${data.newYn == 'Y'}">new</c:if>"><!-- 새글일 경우 클래스 new 추가 -->
 							<a href="javascript:void(0);" onclick="fnVacancyView('${data.vacancySeq}','frm');" class="title">${data.vacancyTitle}</a>
 						</div>
 						<div class="cont_box">
@@ -23,7 +23,7 @@
 							</span>
 						</div>
 						<div class="other_box">
-							<span class="date">${data.remainDt}</span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
+							<span class="${data.remainDiv}">${data.remainDt}<c:if test="${data.remainDiv == 'hurry'}">Hour</c:if></span><!-- 시간으로 표시해야 할 경우 클래스 hurry 추가, 마감일 때 클래스 close 추가 -->
 							<sec:authorize access="hasAnyRole('ROLE_USER,ROLE_STDIT')">
 								<span id="bkmkSapn_${status.count}"><button type="button" id="btnBkmk_${status.count}" onclick="fnBkmkType2('${data.bkmkSeq}','${data.vacancySeq}',LIKE_CATEGORY_VACANCY,'btnBkmk_${status.count}','bkmkSapn_${status.count}');" class="interest <c:if test="${!empty data.bkmkSeq and data.bkmkSeq != ''}">on</c:if>">interest</button>
 								</span>

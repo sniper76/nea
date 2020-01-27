@@ -9,7 +9,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,27 +17,23 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import egovframework.rte.fdl.property.EgovPropertyService;
 import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
+
 import ony.cmm.common.ConstVal;
-import ony.cmm.common.bean.CommonBean;
 import ony.cmm.common.bean.ConditionBean;
 import ony.cmm.common.service.CommonService;
-import ony.cmm.common.util.EncryptUtil;
 import ony.cmm.common.util.SessionUtil;
-import ony.cpes.external.member.bean.MemberBean;
 import ony.cpes.external.vacancy.bean.CondVacancyBean;
 import ony.cpes.external.vacancy.bean.VacancyBean;
 import ony.cpes.external.vacancy.service.VacancyService;
 import ony.framework.BaseController;
 import ony.framework.util.PageUtil;
 import ony.framework.util.StringUtil;
-
 
 @RequestMapping("/vacancy")
 @Controller
@@ -137,6 +132,7 @@ public class VacancyController  extends BaseController {
       	condVacancyBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
 		conditionBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
 		conditionBean.setCondCntryId(ConstVal.ONE_VAL);
+		condVacancyBean.setCondLimit(60);//채용공고 60개
 
       	if(principal != null) {
       		condVacancyBean.setCondUserSeq(SessionUtil.getUserSeq(req));
@@ -162,6 +158,27 @@ public class VacancyController  extends BaseController {
 
 		conditionBean.setCondGrpCd(ConstVal.GRP_CD_LANG_CD_VAL);
 	  	mv.addObject("langCd", commonService.selectCommCdList(conditionBean));//	//외국어
+
+
+    	mv.addObject("latestList", vacancyService.selectMainVacancyList(condVacancyBean));//최근 채용공고
+
+
+    	condVacancyBean.setCondLimit(6);
+    	mv.addObject("monthList", vacancyService.selectMonthCompnyList(condVacancyBean));//이달의 인기기업
+
+
+    	condVacancyBean.setCondLimit(50);
+    	PaginationInfo paginationInfo = PageUtil.getPageInfo(1, 10, 10);//page info
+      	condVacancyBean.setFirstIndex(paginationInfo.getFirstRecordIndex());
+      	condVacancyBean.setLastIndex(paginationInfo.getLastRecordIndex());
+      	condVacancyBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+	  	int totCnt = vacancyService.selectTodayVacancyListCnt(condVacancyBean);
+	  	paginationInfo.setTotalRecordCount(totCnt);
+    	mv.addObject(ConstVal.PAGINATION_INFO_KEY, paginationInfo);
+    	if(totCnt > 0) {
+    		mv.addObject("todayList", vacancyService.selectTodayVacancyList(condVacancyBean));//오늘의 인기 채용공고
+    	}
 
   		return mv;
 	}
@@ -428,8 +445,11 @@ public class VacancyController  extends BaseController {
 		ModelAndView mv = new ModelAndView();
 	  	mv.setViewName("vacancy/popularCompny.one");
 
-		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
-		String userAuthCd = SessionUtil.getUserAuthCd(req);
+	  	String userSeq = "";
+	  	if(principal != null) {
+	  		userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+	  	}
+
 	  	String langCd = locale.getLanguage().toUpperCase();
 
       	// Select ISIC Code List (1 Depth)
@@ -485,7 +505,10 @@ public class VacancyController  extends BaseController {
 		ModelAndView mv = new ModelAndView();
 	  	mv.setViewName("vacancy/popularCompnyWeek.one");
 
-		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+	  	String userSeq = "";
+	  	if(principal != null) {
+	  		userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+	  	}
 	  	String langCd = locale.getLanguage().toUpperCase();
 
       	// 업종 콤보박스 조회 (1 Depth)
@@ -541,7 +564,11 @@ public class VacancyController  extends BaseController {
 		ModelAndView mv = new ModelAndView();
 	  	mv.setViewName("vacancy/popularCompnyMonth.one");
 
-		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+	  	String userSeq = "";
+	  	if(principal != null) {
+	  		userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+	  	}
+
 	  	String langCd = locale.getLanguage().toUpperCase();
 
       	// Select ISIC Code List (1 Depth)
@@ -597,7 +624,13 @@ public class VacancyController  extends BaseController {
 		ModelAndView mv = new ModelAndView();
 	  	mv.setViewName("vacancy/popularCompnyAccumulate.one");
 
-		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+		String userSeq = "";
+
+		if(principal != null) {
+			userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+		}
+
+
 	  	String langCd = locale.getLanguage().toUpperCase();
 
       	// Select ISIC Code List (1 Depth)
@@ -647,7 +680,11 @@ public class VacancyController  extends BaseController {
 		ModelAndView mv = new ModelAndView();
 	  	mv.setViewName("vacancy/popularVacancy.one");
 
-		String userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+		String userSeq = "";
+
+		if(principal != null) {
+			userSeq = StringUtil.nvl(SessionUtil.getUserSeq(req));
+		}
 	  	String langCd = locale.getLanguage().toUpperCase();
 
 	  	// 직종 콤보박스 (1 Depth)
@@ -672,6 +709,55 @@ public class VacancyController  extends BaseController {
 		mv.addObject(ConstVal.RESULT_LIST_KEY, vacancyService.selectVacancyPopulateList(condVacancyBean));
 
   		return mv;
+	}
+
+
+	/**
+	 * 오늘의 인기 채용공고 목록
+	 * today vacancy list
+	 * @param req
+	 * @param res
+	 * @return ModelAndView
+	 * @throws Exception
+	 */
+	  @RequestMapping("/todayVacancyListAjax")
+	  public ModelAndView todayVacancyListAjax(Locale locale,
+	  			@RequestParam(required = false, defaultValue = "1") int currentPageNo,
+	  			@RequestParam(required = false, defaultValue = "10") int pageUnit,
+	  			@RequestParam(required = false, defaultValue = "10") int pageSize,
+				@ModelAttribute("ConditionBean") ConditionBean conditionBean,
+				@ModelAttribute("CondVacancyBean") CondVacancyBean condVacancyBean,
+				Principal principal,
+				HttpServletRequest req,
+				HttpServletResponse res) throws Exception {
+
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("vacancy/todayVacancyList.empty");
+
+	  	PaginationInfo paginationInfo = PageUtil.getPageInfo(currentPageNo, pageUnit, pageSize);
+		mv.addObject(ConstVal.PAGINATION_INFO_KEY, paginationInfo);
+
+		conditionBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
+		condVacancyBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
+
+		if(principal != null) {
+			condVacancyBean.setCondUserSeq(SessionUtil.getUserSeq(req));
+		}
+
+
+    	condVacancyBean.setCondLimit(50);
+      	condVacancyBean.setFirstIndex(paginationInfo.getFirstRecordIndex());
+      	condVacancyBean.setLastIndex(paginationInfo.getLastRecordIndex());
+      	condVacancyBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+	  	int totCnt = vacancyService.selectTodayVacancyListCnt(condVacancyBean);
+	  	paginationInfo.setTotalRecordCount(totCnt);
+    	mv.addObject(ConstVal.PAGINATION_INFO_KEY, paginationInfo);
+    	if(totCnt > 0) {
+    		mv.addObject("todayList", vacancyService.selectTodayVacancyList(condVacancyBean));//오늘의 인기 채용공고
+    	}
+		return mv;
+
 	}
 
 }

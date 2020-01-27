@@ -52,16 +52,30 @@ public class BulletinBean extends CommonBean {
 	private String nextYn;//이전글다음글,pre or next
 	private String emptyYn;//이전글다음글 없는지  체크
 	private String modifyYn;//수정,삭제 가능여부
-	private String banYn;//금칙어 여부
+	private String titleBanYn;//금칙어 여부
+	private String contentBanYn;//금칙어 여부
 
 	// 조회 관련
 	private String likeSeq;
+	private String fileCnt;
 
-	public String getBanYn() {
-		return banYn;
+	public String getFileCnt() {
+		return fileCnt;
 	}
-	public void setBanYn(String banYn) {
-		this.banYn = banYn;
+	public void setFileCnt(String fileCnt) {
+		this.fileCnt = fileCnt;
+	}
+	public String getTitleBanYn() {
+		return titleBanYn;
+	}
+	public void setTitleBanYn(String titleBanYn) {
+		this.titleBanYn = titleBanYn;
+	}
+	public String getContentBanYn() {
+		return contentBanYn;
+	}
+	public void setContentBanYn(String contentBanYn) {
+		this.contentBanYn = contentBanYn;
 	}
 	public String getLikeSeq() {
 		return likeSeq;

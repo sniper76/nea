@@ -256,6 +256,9 @@
 				$('#span_isco').find('span').each(function(){
 					var iscoObj = new Object();
 					iscoObj.iscoCd = $(this).find('input[name=iscoCd]').val();
+					iscoObj.iscoFullCd = $(this).find('input[name=iscoFullCd]').val();
+					iscoObj.iscoFullNm = $(this).find('input[name=iscoFullNm]').val();
+					iscoObj.iscoUpperCd = $(this).find('input[name=iscoUpperCd]').val();
 
 					iscoList.push(iscoObj);
 				});
@@ -956,6 +959,9 @@
 				$('#span_isco').find('span').each(function(){
 					var iscoObj = new Object();
 					iscoObj.iscoCd = $(this).find('input[name=iscoCd]').val();
+					iscoObj.iscoFullCd = $(this).find('input[name=iscoFullCd]').val();
+					iscoObj.iscoFullNm = $(this).find('input[name=iscoFullNm]').val();
+					iscoObj.iscoUpperCd = $(this).find('input[name=iscoUpperCd]').val();
 
 					iscoList.push(iscoObj);
 				});
@@ -1265,6 +1271,9 @@
 
     	function fnIscoSet(json){
     		var iscoHtml = '<span class="bbs_add">' + json.commonNm + '<input type="hidden" class="iscoCd" name="iscoCd" value="' + json.commonCd + '"/>';
+    		iscoHtml += "<input type='hidden' name='iscoFullNm' value='" + json.commonFullNm + "'/>";
+    		iscoHtml += "<input type='hidden' name='iscoFullCd' value='" + json.commonFullCd + "'/>";
+    		iscoHtml += "<input type='hidden' name='iscoUpperCd' value='" + json.upperCd + "'/>";
     		iscoHtml += '<button type="button" class="delete">delete</button></span>';
 			$('#span_isco').append(iscoHtml);
 			$('#span_isco').closest('.form_element').addClass('active');
@@ -1405,7 +1414,9 @@
 						</li>
 						<li>
 							<div class="cont">
-								<a href="" class="btn check noround">Change Personal Info</a>
+								<form id="memberChangeFrm" action="${pageContext.request.contextPath}/cpes/private/member/modify.do" method="post">
+									<a href="javascript:fnGoWrite('memberChangeFrm');" class="btn check noround">Change Personal Info</a>
+								</form>
 							</div>
 						</li>
 						</ul>
@@ -1811,7 +1822,10 @@
 									<c:forEach items="${iscoList }" var="iscoCd">
 										<span>
 											<c:out value="${iscoCd.iscoCdNm }" escapeXml="false"/>
-											<input type="hidden" class="iscoCd" name="iscoCd" value="${iscoCd.iscoCd}"/>
+											<input type="hidden" name="iscoCd" value="${iscoCd.iscoCd}"/>
+											<input type="hidden" name="iscoFullCd" value="${iscoCd.iscoFullCd}"/>
+											<input type="hidden" name="iscoFullNm" value="${iscoCd.iscoFullNm}"/>
+											<input type="hidden" name="iscoUpperCd" value="${iscoCd.iscoUpperCd}"/>
 											<button type="button" class="delete">delete</button>
 										</span>
 									</c:forEach>

@@ -23,6 +23,7 @@ public class MatchingSrchBean extends CommonBean {
 	private String employCtrctDecidCd;
 	private String employCtrctUndecidCd;
 	private String minWorkExp;
+	private String maxWorkExp;
 	private String preferEmploymtTypeCd;
 	private Integer hopeSalary;
 	private List<String> langCds;
@@ -31,6 +32,12 @@ public class MatchingSrchBean extends CommonBean {
 	private String condSort;
 	private String condAddrCd;
 
+	public String getMaxWorkExp() {
+		return maxWorkExp;
+	}
+	public void setMaxWorkExp(String maxWorkExp) {
+		this.maxWorkExp = maxWorkExp;
+	}
 	public String getCondAddrCd() {
 		return condAddrCd;
 	}

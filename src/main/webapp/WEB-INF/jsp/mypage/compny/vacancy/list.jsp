@@ -265,6 +265,14 @@
 												</span><!-- 채용중일 때 클래스 recruiting 추가, 마감일 때 클래스 close 추가 -->
 											</span>
 											<span class="bottom_box">
+												<c:choose>
+													<c:when test="${data.tempYn == 'Y'}">
+														<button onclick="fnVacancyModify('${data.vacancySeq}','Y');" class="bbs_btn small"><spring:message code="button.modify"/></button>
+													</c:when>
+													<c:when test="${data.modifyYn == 'Y'}">
+														<button onclick="fnVacancyModify('${data.vacancySeq}','N');" class="bbs_btn small"><spring:message code="button.modify"/></button>
+													</c:when>
+												</c:choose>
 												<c:if test="${data.statNm == 'C' or data.statNm == 'E' or data.statNm == 'W' or data.statNm == 'R'}">
 													<button onclick="fnVacancyCopy('${data.vacancySeq}');" class="bbs_btn small"><spring:message code="mypage.compny.vacancy.msg16"/></button>
 												</c:if>

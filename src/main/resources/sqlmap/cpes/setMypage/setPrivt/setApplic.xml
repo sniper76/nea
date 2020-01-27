@@ -74,7 +74,8 @@
 			REG_USER_SEQ,
 			RESUME_OPEN_DT,
 			RESUME_SEQ,
-			VACANCY_SEQ
+			VACANCY_SEQ,
+			DEL_YN
 		) VALUES (
 			#{applicCancelDt},
 			'N',
@@ -87,10 +88,17 @@
 			now(),
 			#{regUserSeq},
 			#{resumeOpenDt},
-			#{resumeSeq},
-			#{vacancySeq}
+			(
+				SELECT A.RESUME_SEQ
+				FROM CPES_RESUME A
+				WHERE A.USER_SEQ = #{regUserSeq}
+				AND PRI_RESUME_YN = 'Y'
+			),
+			#{vacancySeq},
+			'N'
 		)
 	</insert>
+
 
 	<!-- delete application-->
 	<update id="deleteApplic" parameterType="ony.cpes.external.mypage.privt.bean.ApplicBean">
@@ -170,7 +178,8 @@
 			REG_USER_SEQ,
 			RESUME_OPEN_DT,
 			RESUME_SEQ,
-			VACANCY_SEQ
+			VACANCY_SEQ,
+			DEL_YN
 		) VALUES (
 			#{applicCancelDt},
 			'N',
@@ -189,7 +198,8 @@
 				WHERE USER_SEQ = #{regUserSeq}
 				AND PRI_RESUME_YN = 'Y'
 			),
-			#{vacancySeq}
+			#{vacancySeq},
+			'N'
 		)
 	</insert>
 
@@ -233,5 +243,26 @@
 			AND B.USER_SEQ = #{regUserSeq}
 		) /* 자신의 이력서 */
 	</update>
+
+
+	<!-- 인터뷰 삭제-->
+	<update id="deleteIntvw"  parameterType="ony.cpes.external.mypage.privt.bean.CondApplicBean">
+		/*setApplic.deleteIntvw*/
+		UPDATE CPES_INTVW SET
+			DEL_YN = 'Y',
+			MOD_DT = now(),
+			MOD_USER_SEQ = #{modUserSeq}
+		WHERE INTVW_SEQ = #{condSeq}
+		AND EXISTS (
+			SELECT
+				B.RESUME_SEQ
+			FROM CPES_APPLIC A
+			INNER JOIN CPES_RESUME B
+			ON A.RESUME_SEQ = B.RESUME_SEQ
+			WHERE A.APPLIC_SEQ = #{condSeq2}
+			AND B.USER_SEQ = #{condUserSeq}
+		) /* 자신의 이력서 */
+	</update>
+
 
 </mapper>

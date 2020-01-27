@@ -13,6 +13,7 @@
 			   END AS ISCO_NM
 			 , A.CD_LVL
 			 , A.UPPER_CD
+			 , FN_GET_FILE_PATH(A.THUMB_FILE_GRP_SEQ) AS FILE_PATH
 		FROM CPES_ISCO_CD A
 		WHERE A.USE_YN = 'Y'
 		AND A.LVL = '1'
@@ -64,6 +65,33 @@
 				 , A.UPPER_CD
 				 , A.CATE_NM
 				 , A.EXPLN
+				 , CASE WHEN #{langCd} = 'KH' THEN A.OCCUP_INC_KH
+				 		ELSE A.OCCUP_INC_EN END AS OCCUP_INC_NM
+				 , CASE WHEN #{langCd} = 'KH' THEN A.OCCUP_EXC_KH
+				 		ELSE A.OCCUP_EXC_EN END AS OCCUP_EXC_NM
+				 , CASE WHEN #{langCd} = 'KH' THEN A.NOTE_KH
+				 		ELSE A.NOTE_EN END AS NOTE_NM
+				 , CASE WHEN #{langCd} = 'KH' THEN A.DEF_KH
+				 		ELSE A.DEF_EN END AS DEF_NM
+				 , CASE WHEN #{langCd} = 'KH' THEN A.TASK_KH
+				 		ELSE A.TASK_EN END AS TASK_NM
+				 , CASE WHEN #{langCd} = 'KH' THEN A.TITLE_KH
+				 		ELSE A.TITLE_EN END AS TITLE_NM
+				 , CASE WHEN #{langCd} = 'KH' THEN A.DUTIES_KH
+				 		ELSE A.DUTIES_EN END AS DUTIES_NM
+				 , CASE WHEN #{langCd} = 'KH' THEN A.SKILL_KH
+				 		ELSE A.SKILL_EN END AS SKILL_NM
+				 , CASE WHEN #{langCd} = 'KH' THEN A.RESPONSIBILITIES_KH
+				 		ELSE A.RESPONSIBILITIES_EN END AS RESPONSIBILITIES_NM
+				 , CASE WHEN #{langCd} = 'KH' THEN A.EDU_TRNNG_KH
+				 		ELSE A.EDU_TRNNG_EN END AS EDU_TRNNG_NM
+				 , CASE WHEN #{langCd} = 'KH' THEN A.HIGH_EDU_KH
+				 		ELSE A.HIGH_EDU_EN END AS HIGH_EDU_NM
+				 , CASE WHEN #{langCd} = 'KH' THEN A.MAJOR_STUDY_KH
+				 		ELSE A.MAJOR_STUDY_EN END AS MAJOR_STUDY_NM
+				 , CASE WHEN #{langCd} = 'KH' THEN A.SKILL_RELATED_EXP_KH
+				 		ELSE A.SKILL_RELATED_EXP_EN END AS SKILL_RELATED_EXP_NM
+				 , FN_GET_COMMON_NM('JOB_CATE_CD', A.JOB_CATE_CD, #{langCd}) AS JOB_CATE_NM
 			FROM CPES_ISCO_CD A
 			WHERE A.ISCO_CD = #{condSeq}
 			AND A.USE_YN = 'Y'
@@ -128,6 +156,46 @@
 			</when>
 		</choose>
 		GROUP BY TBL.CD_LVL
+	</select>
+
+	<select id="selectJobStudySearch" resultType="ony.cpes.external.jobstudy.bean.JobStudyBean" parameterType="ony.cpes.external.jobstudy.bean.CondJobStudyBean">
+		/*jobStudy.selectJobStudySearchList*/
+		SELECT A.ISCO_CD
+			 , A.ISCO_NM
+			 , A.LVL
+			 , A.JOB_CATE_NM
+			 , CASE WHEN A.LVL = '1' THEN A.ISCO_NM
+			 	ELSE IFNULL((SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN KH_NM ELSE EN_NM END
+			 				FROM CPES_ISCO_CD WHERE LVL = '1' AND ISCO_CD = LEFT(A.ISCO_CD, 1)), '') END AS DEPTH_NM1
+			 , CASE WHEN A.LVL = '2' THEN A.ISCO_NM
+			 	ELSE IFNULL((SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN KH_NM ELSE EN_NM END
+		 					FROM CPES_ISCO_CD WHERE LVL = '2' AND ISCO_CD = LEFT(A.ISCO_CD, 2)), '') END AS DEPTH_NM2
+			 , CASE WHEN A.LVL = '3' THEN A.ISCO_NM
+			 	ELSE IFNULL((SELECT CASE WHEN UPPER(#{langCd}) = 'KH' THEN KH_NM ELSE EN_NM END
+			 				FROM CPES_ISCO_CD WHERE LVL = '3' AND ISCO_CD = LEFT(A.ISCO_CD, 3)), '') END AS DEPTH_NM3
+			 , CASE WHEN A.LVL = '4' THEN A.ISCO_NM ELSE '' END AS DEPTH_NM4
+		FROM (SELECT IC.ISCO_CD
+				 , CASE WHEN #{langCd} = 'KH' THEN IC.KH_NM
+						 		ELSE IC.EN_NM
+						   END AS ISCO_NM
+				 , IC.LVL
+				 , FN_GET_COMMON_NM('JOB_CATE_CD', IC.JOB_CATE_CD, #{langCd}) AS JOB_CATE_NM
+			FROM CPES_ISCO_CD IC
+			WHERE USE_YN = 'Y'
+			) A
+
+		<where>
+			<if test="condText != null and condText != ''">
+				<choose>
+					<when test="condType == 'TITLE'">
+						AND A.ISCO_NM LIKE CONCAT('%', #{condText}, '%')
+					</when>
+					<when test="condType == 'CATE'">
+						AND A.JOB_CATE_NM LIKE CONCAT('%', #{condText}, '%')
+					</when>
+				</choose>
+			</if>
+		</where>
 	</select>
 
 </mapper>

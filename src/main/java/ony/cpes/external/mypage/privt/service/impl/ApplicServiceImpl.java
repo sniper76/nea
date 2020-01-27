@@ -392,4 +392,33 @@ public class ApplicServiceImpl implements ApplicService {
 		return applicDAO.updateIntvwReject(param);
 	}
 
+
+	/**
+	 * 면접 삭제
+	 * interview delete
+	 * @param param
+	 * @return int
+	 */
+	public int deleteIntvw(CondApplicBean param) throws Exception {
+    	int result = 0;
+
+    	if(StringUtil.isEmpty(param.getCondStr())) {
+    		return 0;
+    	} else {
+    		String[] strArr = param.getCondStr().split(ConstVal.COMMA_VAL);
+
+    		if(strArr != null && strArr.length > 0) {
+        		for(int i=0; i<strArr.length; i++) {
+
+        			param.setCondSeq(strArr[i].split(ConstVal.UNDER_VAR_VAL)[0]);
+        			param.setCondSeq2(strArr[i].split(ConstVal.UNDER_VAR_VAL)[1]);
+
+        			result = result + applicDAO.deleteIntvw(param);
+
+        		}
+    		}
+    	}
+
+    	return result;
+	}
 }

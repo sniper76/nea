@@ -266,7 +266,7 @@
 				return false;
 			}
 
-	  		var val = $("input:radio[name='confirmDiv']").val();
+	  		var confirmDivVal = $("input:radio[name='confirmDiv']:checked").val();
 
 			if (!fnCheckEmail($("#userEmail").val())) {
 				alertify.alert("<spring:message code="login.stop.errors.email"/>", function (e){
@@ -304,7 +304,7 @@
 
 
 	  		var data = {
-	  			sendDivision: val,
+	  			sendDivision: confirmDivVal,
 	  			userEmail: $("#userEmail").val(),
 	  			userCell: $("#userCell").val()
 	  		}
@@ -317,7 +317,7 @@
 	  		})
 	  		.done(function(data) {
 	  			var msg = "<spring:message code="login.stop.msg.email"/>";//email
-	  			if($("input:radio[name='confirmDiv']").val() == "S") {//sms
+	  			if(confirmDivVal == "S") {//sms
 	  				msg = "<spring:message code="login.stop.msg.sms"/>";
 	  			}
 

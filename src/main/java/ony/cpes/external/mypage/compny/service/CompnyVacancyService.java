@@ -136,4 +136,13 @@ public interface CompnyVacancyService {
 	 * @return List<IntvwBean>
 	 */
 	public List<IntvwBean> selectIntvwList(CondVacancyBean param) throws Exception;
+
+
+	/**
+	 * 면접 삭제
+	 * interview delete
+	 * @param param
+	 * @return int
+	 */
+	public int deleteIntvw(CondApplicBean param) throws Exception;
 }
