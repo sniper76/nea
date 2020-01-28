@@ -5,13 +5,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ony.cmm.common.bean.CondIntegratedSearchBean;
+import ony.cmm.common.bean.SynonymBean;
 import ony.cmm.common.dao.IntegratedSearchDAO;
 import ony.cmm.common.service.IntegratedSearchService;
 import ony.cpes.external.jobfair.bean.JobFairCenterBean;
 import ony.cpes.external.mypage.instt.bean.InsttMemBean;
 import ony.cpes.external.mypage.privt.bean.EduTrnngBean;
 import ony.cpes.external.mypage.privt.bean.ResumeBean;
-import ony.cpes.external.mypage.compny.bean.CondVacancyBean;
 import ony.cpes.external.vacancy.bean.VacancyBean;
 
 @Service("IntegratedSearchService")
@@ -21,12 +22,23 @@ public class IntegratedSearchServiceImpl implements IntegratedSearchService {
 	private IntegratedSearchDAO integratedSearchDAO;
 
 	/**
+	 * 동의어 조회
+	 * @param param
+	 * @return
+	 * @throws Exception
+	 */
+	public List<SynonymBean> selectIntegratedSearchSynonymList(CondIntegratedSearchBean param) throws Exception {
+		return integratedSearchDAO.selectIntegratedSearchSynonymList(param);
+	}
+
+
+	/**
 	 * 통합검색::Vacancy 조회::총건수
 	 * @param param
 	 * @return
 	 * @throws Exception
 	 */
-	public Integer selectIntegratedSearchVacancyListCnt(CondVacancyBean param) throws Exception {
+	public Integer selectIntegratedSearchVacancyListCnt(CondIntegratedSearchBean param) throws Exception {
 		return integratedSearchDAO.selectIntegratedSearchVacancyListCnt(param);
 	}
 
@@ -36,7 +48,7 @@ public class IntegratedSearchServiceImpl implements IntegratedSearchService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<VacancyBean> selectIntegratedSearchVacancyList(CondVacancyBean param) throws Exception {
+	public List<VacancyBean> selectIntegratedSearchVacancyList(CondIntegratedSearchBean param) throws Exception {
 		return integratedSearchDAO.selectIntegratedSearchVacancyList(param);
 	}
 
@@ -47,7 +59,7 @@ public class IntegratedSearchServiceImpl implements IntegratedSearchService {
 	 * @return
 	 * @throws Exception
 	 */
-	public Integer selectIntegratedSearchResumeListCnt(CondVacancyBean param) throws Exception {
+	public Integer selectIntegratedSearchResumeListCnt(CondIntegratedSearchBean param) throws Exception {
 		return integratedSearchDAO.selectIntegratedSearchResumeListCnt(param);
 	}
 
@@ -57,7 +69,7 @@ public class IntegratedSearchServiceImpl implements IntegratedSearchService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<ResumeBean> selectIntegratedSearchResumeList(CondVacancyBean param) throws Exception {
+	public List<ResumeBean> selectIntegratedSearchResumeList(CondIntegratedSearchBean param) throws Exception {
 		return integratedSearchDAO.selectIntegratedSearchResumeList(param);
 	}
 
@@ -68,7 +80,7 @@ public class IntegratedSearchServiceImpl implements IntegratedSearchService {
 	 * @return
 	 * @throws Exception
 	 */
-	public Integer selectIntegratedSearchJobFairListCnt(CondVacancyBean param) throws Exception {
+	public Integer selectIntegratedSearchJobFairListCnt(CondIntegratedSearchBean param) throws Exception {
 		return integratedSearchDAO.selectIntegratedSearchJobFairListCnt(param);
 	}
 
@@ -78,7 +90,7 @@ public class IntegratedSearchServiceImpl implements IntegratedSearchService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<JobFairCenterBean> selectIntegratedSearchJobFairList(CondVacancyBean param) throws Exception {
+	public List<JobFairCenterBean> selectIntegratedSearchJobFairList(CondIntegratedSearchBean param) throws Exception {
 		return integratedSearchDAO.selectIntegratedSearchJobFairList(param);
 	}
 
@@ -89,7 +101,7 @@ public class IntegratedSearchServiceImpl implements IntegratedSearchService {
 	 * @return
 	 * @throws Exception
 	 */
-	public Integer selectIntegratedSearchTrainingProgramListCnt(CondVacancyBean param) throws Exception {
+	public Integer selectIntegratedSearchTrainingProgramListCnt(CondIntegratedSearchBean param) throws Exception {
 		return integratedSearchDAO.selectIntegratedSearchTrainingProgramListCnt(param);
 	}
 
@@ -99,7 +111,7 @@ public class IntegratedSearchServiceImpl implements IntegratedSearchService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<EduTrnngBean> selectIntegratedSearchTrainingProgramList(CondVacancyBean param) throws Exception {
+	public List<EduTrnngBean> selectIntegratedSearchTrainingProgramList(CondIntegratedSearchBean param) throws Exception {
 		return integratedSearchDAO.selectIntegratedSearchTrainingProgramList(param);
 	}
 
@@ -110,7 +122,7 @@ public class IntegratedSearchServiceImpl implements IntegratedSearchService {
 	 * @return
 	 * @throws Exception
 	 */
-	public Integer selectIntegratedSearchNEATrainingListCnt(CondVacancyBean param) throws Exception {
+	public Integer selectIntegratedSearchNEATrainingListCnt(CondIntegratedSearchBean param) throws Exception {
 		return integratedSearchDAO.selectIntegratedSearchNEATrainingListCnt(param);
 	}
 
@@ -120,7 +132,7 @@ public class IntegratedSearchServiceImpl implements IntegratedSearchService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<EduTrnngBean> selectIntegratedSearchNEATrainingList(CondVacancyBean param) throws Exception {
+	public List<EduTrnngBean> selectIntegratedSearchNEATrainingList(CondIntegratedSearchBean param) throws Exception {
 		return integratedSearchDAO.selectIntegratedSearchNEATrainingList(param);
 	}
 
@@ -131,7 +143,7 @@ public class IntegratedSearchServiceImpl implements IntegratedSearchService {
 	 * @return
 	 * @throws Exception
 	 */
-	public Integer selectIntegratedSearchRelatedInstitutionListCnt(CondVacancyBean param) throws Exception {
+	public Integer selectIntegratedSearchRelatedInstitutionListCnt(CondIntegratedSearchBean param) throws Exception {
 		return integratedSearchDAO.selectIntegratedSearchRelatedInstitutionListCnt(param);
 	}
 
@@ -141,7 +153,7 @@ public class IntegratedSearchServiceImpl implements IntegratedSearchService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<InsttMemBean> selectIntegratedSearchRelatedInstitutionList(CondVacancyBean param) throws Exception {
+	public List<InsttMemBean> selectIntegratedSearchRelatedInstitutionList(CondIntegratedSearchBean param) throws Exception {
 		return integratedSearchDAO.selectIntegratedSearchRelatedInstitutionList(param);
 	}
 

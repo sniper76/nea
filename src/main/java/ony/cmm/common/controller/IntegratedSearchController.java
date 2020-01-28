@@ -19,11 +19,12 @@ import org.springframework.web.servlet.ModelAndView;
 import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import ony.cmm.common.ConstVal;
 import ony.cmm.common.bean.AjaxResultBean;
+import ony.cmm.common.bean.CondIntegratedSearchBean;
+import ony.cmm.common.bean.SynonymBean;
 import ony.cmm.common.service.CommonService;
 import ony.cmm.common.service.IntegratedSearchService;
 import ony.cmm.common.util.SessionUtil;
 import ony.cpes.external.jobfair.bean.JobFairCenterBean;
-import ony.cpes.external.mypage.compny.bean.CondVacancyBean;
 import ony.cpes.external.mypage.instt.bean.InsttMemBean;
 import ony.cpes.external.mypage.privt.bean.EduTrnngBean;
 import ony.cpes.external.mypage.privt.bean.ResumeBean;
@@ -66,7 +67,7 @@ public class IntegratedSearchController extends BaseController {
 		@RequestParam(required = false, defaultValue = "1") int currentPageNo,
 		@RequestParam(required = false, defaultValue = "10") int pageUnit,
 		@RequestParam(required = false, defaultValue = "10") int pageSize,
-		@ModelAttribute("CondVacancyBean") CondVacancyBean conditionBean,
+		@ModelAttribute("CondIntegratedSearchBean") CondIntegratedSearchBean conditionBean,
 		Principal principal,
 		HttpServletRequest req,
 		HttpServletResponse res) throws Exception {
@@ -84,11 +85,23 @@ public class IntegratedSearchController extends BaseController {
       	conditionBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
 
       	conditionBean.setLangCd(langCd);
-  		conditionBean.setCondUserSeq(userSeq);
+  		conditionBean.setRegUserSeq(userSeq);
   		conditionBean.setCd(userAuthCd);
 
 	  	int totCnt = 0;
 	    List<VacancyBean> dataList = null;
+	    List<SynonymBean> synonymList = null;
+
+	    if(conditionBean == null || conditionBean.getCondText() == null || "".equals(conditionBean.getCondText().trim())) {
+			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
+      		ajaxResultBean.setStatCd(ConstVal.CODE_02_VAL);
+    		mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+		  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+	    	return mv;
+	    }
+
+	    synonymList = integratedSearchService.selectIntegratedSearchSynonymList(conditionBean);
+	    conditionBean.setSynonymList(synonymList);
 
 	    totCnt= integratedSearchService.selectIntegratedSearchVacancyListCnt(conditionBean);
 	    paginationInfo.setTotalRecordCount(totCnt);
@@ -125,7 +138,7 @@ public class IntegratedSearchController extends BaseController {
 		@RequestParam(required = false, defaultValue = "1") int currentPageNo,
 		@RequestParam(required = false, defaultValue = "10") int pageUnit,
 		@RequestParam(required = false, defaultValue = "10") int pageSize,
-		@ModelAttribute("CondVacancyBean") CondVacancyBean conditionBean,
+		@ModelAttribute("CondIntegratedSearchBean") CondIntegratedSearchBean conditionBean,
 		Principal principal,
 		HttpServletRequest req,
 		HttpServletResponse res
@@ -144,11 +157,23 @@ public class IntegratedSearchController extends BaseController {
       	conditionBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
 
       	conditionBean.setLangCd(langCd);
-  		conditionBean.setCondUserSeq(userSeq);
+  		conditionBean.setRegUserSeq(userSeq);
   		conditionBean.setCd(userAuthCd);
 
 	  	int totCnt = 0;
 	    List<ResumeBean> dataList = null;
+	    List<SynonymBean> synonymList = null;
+
+	    if(conditionBean == null || conditionBean.getCondText() == null || "".equals(conditionBean.getCondText().trim())) {
+			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
+      		ajaxResultBean.setStatCd(ConstVal.CODE_02_VAL);
+    		mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+		  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+	    	return mv;
+	    }
+
+	    synonymList = integratedSearchService.selectIntegratedSearchSynonymList(conditionBean);
+	    conditionBean.setSynonymList(synonymList);
 
 	    totCnt= integratedSearchService.selectIntegratedSearchResumeListCnt(conditionBean);
 	    paginationInfo.setTotalRecordCount(totCnt);
@@ -185,7 +210,7 @@ public class IntegratedSearchController extends BaseController {
 		@RequestParam(required = false, defaultValue = "1") int currentPageNo,
 		@RequestParam(required = false, defaultValue = "10") int pageUnit,
 		@RequestParam(required = false, defaultValue = "10") int pageSize,
-		@ModelAttribute("CondVacancyBean") CondVacancyBean conditionBean,
+		@ModelAttribute("CondIntegratedSearchBean") CondIntegratedSearchBean conditionBean,
 		Principal principal,
 		HttpServletRequest req,
 		HttpServletResponse res
@@ -204,11 +229,23 @@ public class IntegratedSearchController extends BaseController {
       	conditionBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
 
       	conditionBean.setLangCd(langCd);
-  		conditionBean.setCondUserSeq(userSeq);
+  		conditionBean.setRegUserSeq(userSeq);
   		conditionBean.setCd(userAuthCd);
 
 	  	int totCnt = 0;
 	    List<JobFairCenterBean> dataList = null;
+	    List<SynonymBean> synonymList = null;
+
+	    if(conditionBean == null || conditionBean.getCondText() == null || "".equals(conditionBean.getCondText().trim())) {
+			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
+      		ajaxResultBean.setStatCd(ConstVal.CODE_02_VAL);
+    		mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+		  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+	    	return mv;
+	    }
+
+	    synonymList = integratedSearchService.selectIntegratedSearchSynonymList(conditionBean);
+	    conditionBean.setSynonymList(synonymList);
 
 	    totCnt= integratedSearchService.selectIntegratedSearchJobFairListCnt(conditionBean);
 	    paginationInfo.setTotalRecordCount(totCnt);
@@ -245,7 +282,7 @@ public class IntegratedSearchController extends BaseController {
 		@RequestParam(required = false, defaultValue = "1") int currentPageNo,
 		@RequestParam(required = false, defaultValue = "10") int pageUnit,
 		@RequestParam(required = false, defaultValue = "10") int pageSize,
-		@ModelAttribute("CondVacancyBean") CondVacancyBean conditionBean,
+		@ModelAttribute("CondIntegratedSearchBean") CondIntegratedSearchBean conditionBean,
 		Principal principal,
 		HttpServletRequest req,
 		HttpServletResponse res
@@ -264,11 +301,23 @@ public class IntegratedSearchController extends BaseController {
       	conditionBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
 
       	conditionBean.setLangCd(langCd);
-  		conditionBean.setCondUserSeq(userSeq);
+  		conditionBean.setRegUserSeq(userSeq);
   		conditionBean.setCd(userAuthCd);
 
 	  	int totCnt = 0;
 	    List<EduTrnngBean> dataList = null;
+	    List<SynonymBean> synonymList = null;
+
+	    if(conditionBean == null || conditionBean.getCondText() == null || "".equals(conditionBean.getCondText().trim())) {
+			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
+      		ajaxResultBean.setStatCd(ConstVal.CODE_02_VAL);
+    		mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+		  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+	    	return mv;
+	    }
+
+	    synonymList = integratedSearchService.selectIntegratedSearchSynonymList(conditionBean);
+	    conditionBean.setSynonymList(synonymList);
 
 	    totCnt= integratedSearchService.selectIntegratedSearchTrainingProgramListCnt(conditionBean);
 	    paginationInfo.setTotalRecordCount(totCnt);
@@ -305,7 +354,7 @@ public class IntegratedSearchController extends BaseController {
 		@RequestParam(required = false, defaultValue = "1") int currentPageNo,
 		@RequestParam(required = false, defaultValue = "10") int pageUnit,
 		@RequestParam(required = false, defaultValue = "10") int pageSize,
-		@ModelAttribute("CondVacancyBean") CondVacancyBean conditionBean,
+		@ModelAttribute("CondIntegratedSearchBean") CondIntegratedSearchBean conditionBean,
 		Principal principal,
 		HttpServletRequest req,
 		HttpServletResponse res
@@ -324,11 +373,23 @@ public class IntegratedSearchController extends BaseController {
       	conditionBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
 
       	conditionBean.setLangCd(langCd);
-  		conditionBean.setCondUserSeq(userSeq);
+  		conditionBean.setRegUserSeq(userSeq);
   		conditionBean.setCd(userAuthCd);
 
 	  	int totCnt = 0;
 	    List<EduTrnngBean> dataList = null;
+	    List<SynonymBean> synonymList = null;
+
+	    if(conditionBean == null || conditionBean.getCondText() == null || "".equals(conditionBean.getCondText().trim())) {
+			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
+      		ajaxResultBean.setStatCd(ConstVal.CODE_02_VAL);
+    		mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+		  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+	    	return mv;
+	    }
+
+	    synonymList = integratedSearchService.selectIntegratedSearchSynonymList(conditionBean);
+	    conditionBean.setSynonymList(synonymList);
 
 	    totCnt= integratedSearchService.selectIntegratedSearchNEATrainingListCnt(conditionBean);
 	    paginationInfo.setTotalRecordCount(totCnt);
@@ -365,7 +426,7 @@ public class IntegratedSearchController extends BaseController {
 		@RequestParam(required = false, defaultValue = "1") int currentPageNo,
 		@RequestParam(required = false, defaultValue = "10") int pageUnit,
 		@RequestParam(required = false, defaultValue = "10") int pageSize,
-		@ModelAttribute("CondVacancyBean") CondVacancyBean conditionBean,
+		@ModelAttribute("CondIntegratedSearchBean") CondIntegratedSearchBean conditionBean,
 		Principal principal,
 		HttpServletRequest req,
 		HttpServletResponse res
@@ -384,11 +445,23 @@ public class IntegratedSearchController extends BaseController {
       	conditionBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
 
       	conditionBean.setLangCd(langCd);
-  		conditionBean.setCondUserSeq(userSeq);
+  		conditionBean.setRegUserSeq(userSeq);
   		conditionBean.setCd(userAuthCd);
 
 	  	int totCnt = 0;
 	    List<InsttMemBean> dataList = null;
+	    List<SynonymBean> synonymList = null;
+
+	    if(conditionBean == null || conditionBean.getCondText() == null || "".equals(conditionBean.getCondText().trim())) {
+			ajaxResultBean.setSuccessYn(ConstVal.NO_VAL);
+      		ajaxResultBean.setStatCd(ConstVal.CODE_02_VAL);
+    		mv.addObject(ConstVal.RESULT_KEY, ajaxResultBean);
+		  	mv.setViewName(ConstVal.JSON_VIEW_KEY);
+	    	return mv;
+	    }
+
+	    synonymList = integratedSearchService.selectIntegratedSearchSynonymList(conditionBean);
+	    conditionBean.setSynonymList(synonymList);
 
 	    totCnt= integratedSearchService.selectIntegratedSearchRelatedInstitutionListCnt(conditionBean);
 	    paginationInfo.setTotalRecordCount(totCnt);

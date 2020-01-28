@@ -16,7 +16,7 @@
 				}
 			});
 			$("#condText2").keypress(function( event ) {
-				if( event.which == 13 ) {
+				if( event.which == 13 ) {/*
 					var params = {
 							condAreaCd2 : $('div.detail_area select#condAreaCd2').val(),
 							condText2 : $('div.detail_area input#condText2').val(),
@@ -29,8 +29,8 @@
 							pageIndex : firstIndex,
 							pageUnit : pageUnit,
 							pageSize : pageSize,
-					};
-		    		fnGoSrch(1, params);
+					};*/
+		    		fnGoSrch(1, fnGetParams(true, firstIndex));
 				}
 			});
 
@@ -44,7 +44,7 @@
 					alertify.alert("<spring:message code="mypage.compny.vacancy.msg15"/>", function (e){
 					});
 					return false;
-				}*/
+				}*//*
 				var params = {
 						condAreaCd2 : $('div.detail_area select#condAreaCd2').val(),
 						condText2 : $('div.detail_area input#condText2').val(),
@@ -57,15 +57,48 @@
 						pageIndex : firstIndex,
 						pageUnit : pageUnit,
 						pageSize : pageSize,
-				};
+				};*/
 
-				fnGoSrch(1, params)
+				fnGoSrch(1, fnGetParams(true, firstIndex));
 			});
 
 			$('div.bbs_info .bbs_count span.order button').click(function() {
 				fnGoSrchSort(this.id);
 			});
 		});
+
+    	function fnGetParams(detail, page, sort) {
+    		var params;
+    		if(sort) {
+    			params = {
+    					condSort : sort,
+    			};
+    		}
+    		if(detail) {
+				params = {
+						condAreaCd2 : $('div.detail_area select#condAreaCd2').val(),
+						condText2 : $('div.detail_area input#condText2').val(),
+						condKeyword : $('div.detail_area select#condKeyword').val(),
+						condInsttuCd : $('div.detail_area select#condInsttuCd').val(),
+						condPcTypeCd : $('div.detail_area select#condPcTypeCd').val(),
+						condTrnngNatnexpDivCd : $('div.detail_area input:radio[name=condTrnngNatnexpDivCd]:checked').val(),
+						condFreePaidYn : $('div.detail_area input:radio[name=condFreePaidYn]:checked').val(),
+						condRecruitStsCd : $('div.detail_area input:radio[name=condRecruitStsCd]:checked').val(),
+						pageIndex : page,
+						pageUnit : pageUnit,
+						pageSize : pageSize,
+				};
+    			return params;
+    		}
+    		params = {
+					condAreaCd : $('div.srch_area select#condAreaCd').val(),
+					condText : $('div.srch_area input#condText').val(),
+					pageIndex : page,
+					pageUnit : pageUnit,
+					pageSize : pageSize,
+			};
+    		return params;
+    	}
 
     	function fnSetAdvanceSrch() {
     		$('div.detail_area select#condAreaCd2').val('');
@@ -81,13 +114,13 @@
     	function fnGoSrch(page, params) {
     		//console.log('params', params);
 			if(params == undefined) {
-				params = {
+				params = fnGetParams(false, page);/*{
 						condAreaCd : $('div.srch_area select#condAreaCd').val(),
 						condText : $('div.srch_area input#condText').val(),
 						pageIndex : page,
 						pageUnit : pageUnit,
 						pageSize : pageSize,
-				};
+				};*/
 				// detail init
 				fnSetAdvanceSrch();
 				if($('button.advanced_search').is('.on')){
@@ -177,18 +210,18 @@
        	}
 
        	function fnGoSrchSort(gubun) {
-			var params = {
+			var params = fnGetParams(false, firstIndex, gubun);/*{
 					condAreaCd : $('div.srch_area select#condAreaCd').val(),
 					condText : $('div.srch_area input#condText').val(),
 					pageIndex : firstIndex,
 					pageUnit : pageUnit,
 					pageSize : pageSize,
 					condSort : gubun,
-			};
+			};*/
 
 			if ($('div.detail_area').is(":visible")) {
 				//console.log('active');
-				params = {
+				params = fnGetParams(true, firstIndex, gubun);/*{
 						condAreaCd2 : $('div.detail_area select#condAreaCd2').val(),
 						condText2 : $('div.detail_area input#condText2').val(),
 						condKeyword : $('div.detail_area select#condKeyword').val(),
@@ -201,7 +234,7 @@
 						pageUnit : pageUnit,
 						pageSize : pageSize,
 						condSort : gubun,
-				};
+				};*/
 			}
 
        		fnGoSrch(1, params);

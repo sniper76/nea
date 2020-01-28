@@ -5,45 +5,37 @@
 	<sql id="whereCond">
 		<!-- 검색조건,search condition -->
 		<where>
-		<choose>
-			<when test="condText != null and !condText.equals('') and !langCd.equals('KH')"><!-- 선택언어가 KH가 아닌경우 -->
-				<choose>
-		   			<when test="condType == null or condType.equals('')">
-		   				AND ( A.JC_EN LIKE CONCAT('%',#{condText},'%')
-		   				      OR A.ADDR_EN LIKE CONCAT('%',#{condText},'%')
-		   				)
-					</when>
-					<when test="condType != null and condType.equals('TITLE')">
-						 AND A.JC_EN LIKE CONCAT('%',#{condText},'%')
-					</when>
-					<when test="condType != null and condType.equals('CONTENT')">
-						 AND A.ADDR_EN LIKE CONCAT('%',#{condText},'%')
-					</when>
-				</choose>
-			</when>
-			<when test="condText != null and !condText.equals('') and langCd.equals('KH')"><!-- 선택언어가 KH인경우 -->
-				<choose>
-		   			<when test="condType == null or condType.equals('')">
-		   				AND ( A.JC_KH LIKE CONCAT('%',#{condText},'%')
-		   				      OR A.ADDR_KH LIKE CONCAT('%',#{condText},'%')
-		   				)
-					</when>
-					<when test="condType != null and condType.equals('TITLE')">
-						 AND A.JC_KH LIKE CONCAT('%',#{condText},'%')
-					</when>
-					<when test="condType != null and condType.equals('CONTENT')">
-						 AND A.ADDR_KH LIKE CONCAT('%',#{condText},'%')
-					</when>
-				</choose>
-			</when>
-		</choose>
+		<if test="condText != null and !condText.equals('')">
+			<choose>
+	   			<when test="condType == null or condType.equals('')">
+	   				AND ( A.JC_EN LIKE CONCAT('%',#{condText},'%')
+	   				      OR A.JC_KH LIKE CONCAT('%',#{condText},'%')
+	   				      OR A.ADDR_EN LIKE CONCAT('%',#{condText},'%')
+	   				      OR A.ADDR_KH LIKE CONCAT('%',#{condText},'%')
+	   				)
+				</when>
+				<when test="condType != null and condType.equals('TITLE')">
+	   				AND ( A.JC_EN LIKE CONCAT('%',#{condText},'%')
+	   				      OR A.JC_KH LIKE CONCAT('%',#{condText},'%')
+	   				)
+				</when>
+				<when test="condType != null and condType.equals('ADDR')">
+	   				AND ( A.ADDR_EN LIKE CONCAT('%',#{condText},'%')
+	   				      OR A.ADDR_KH LIKE CONCAT('%',#{condText},'%')
+	   				)
+				</when>
+			</choose>
+		</if>
 		</where>
 	</sql>
 
 	<sql id="sortCond">
 		ORDER BY A.JC_KH DESC
 		<choose>
-			<when test="condSort != null and condSort.equals('LATEST')">
+			<when test="condSort != null and condSort.equals('VIEW')">
+				,A.REG_DT DESC
+			</when>
+			<when test="condSort != null and condSort.equals('POPULAR')">
 				,A.REG_DT DESC
 			</when>
 			<otherwise>
@@ -65,41 +57,41 @@
 	<select id="selectJobCenterList" resultType="ony.cpes.external.jobcenter.bean.JobCenterBean" parameterType="ony.cpes.external.jobcenter.bean.CondJobCenterBean">
 		/*jobcenter.selectJobCenterList*/
 		SELECT
-		  JC_CD,
-		  CASE WHEN UPPER('KO') = 'KH' THEN JC_KH
-				ELSE JC_EN
+		  A.JC_CD,
+		  CASE WHEN UPPER('KO') = 'KH' THEN A.JC_KH
+				ELSE A.JC_EN
 				END AS JC,
-		  JC_EN,
-		  JC_KH,
-		  CASE WHEN UPPER('KO') = 'KH' THEN ADDR_KH
-				ELSE ADDR_EN
+		  A.JC_EN,
+		  A.JC_KH,
+		  CASE WHEN UPPER('KO') = 'KH' THEN A.ADDR_KH
+				ELSE A.ADDR_EN
 				END AS ADDR,
-		  ADDR_EN,
-		  ADDR_KH,
-		  TEL1,
-		  TEL2,
-		  TEL3,
-		  TEL4,
-		  EMAIL,
-		  FACEBOOK,
-		  WEBSITE,
-		  FILE_GRP_SEQ,
-		  ADDR_CD,
-		  CASE WHEN UPPER('KO') = 'KH' THEN EXPLN_KH
-				ELSE EXPLN_EN
+		  A.ADDR_EN,
+		  A.ADDR_KH,
+		  A.TEL1,
+		  A.TEL2,
+		  A.TEL3,
+		  A.TEL4,
+		  A.EMAIL,
+		  A.FACEBOOK,
+		  A.WEBSITE,
+		  A.FILE_GRP_SEQ,
+		  A.ADDR_CD,
+		  CASE WHEN UPPER('KO') = 'KH' THEN A.EXPLN_KH
+				ELSE A.EXPLN_EN
 				END AS ADDR,
-		  EXPLN_EN,
-		  EXPLN_KH,
-		  LNGTD,
-		  LATTD,
-		  REG_USER_SEQ,
-		  FN_GET_BASE_DATE_CHAR(REG_DT,'KO') AS REG_DT,
-		  MOD_USER_SEQ,
-		  FN_GET_BASE_DATE_CHAR(MOD_DT,'KO') AS MOD_DT,
-		  USE_YN,
-		  MAP_LINK,
-		  ADDR_FULL_CD,
-		  ADDR_FULL_NM,
+		  A.EXPLN_EN,
+		  A.EXPLN_KH,
+		  A.LNGTD,
+		  A.LATTD,
+		  A.REG_USER_SEQ,
+		  FN_GET_BASE_DATE_CHAR(A.REG_DT,'KO') AS REG_DT,
+		  A.MOD_USER_SEQ,
+		  FN_GET_BASE_DATE_CHAR(A.MOD_DT,'KO') AS MOD_DT,
+		  A.USE_YN,
+		  A.MAP_LINK,
+		  A.ADDR_FULL_CD,
+		  A.ADDR_FULL_NM,
 		  FN_GET_NEW_YN(A.REG_DT) AS NEW_YN,
 		  FN_GET_FILE_PATH(A.FILE_GRP_SEQ) AS FILE_PATH
 		FROM CPES_JOB_CENTER A

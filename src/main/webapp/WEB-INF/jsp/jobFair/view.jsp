@@ -110,8 +110,8 @@
        		$('form#frm input[name=condText]').val($('input#condText'+tabNo).val());
 			var params = {
 					pageIndex : page,
-					pageUnit : pageUnit,
-					pageSize : (tabNo == 1 ? 12 : pageSize),
+					pageUnit : (tabNo == 1 ? 12 : pageUnit),
+					pageSize : pageSize,
 					condLvl : tabNo,
 					condSeq : $('form#frm input#condSeq').val(),
 					condText : $('form#frm input[name=condText]').val(),

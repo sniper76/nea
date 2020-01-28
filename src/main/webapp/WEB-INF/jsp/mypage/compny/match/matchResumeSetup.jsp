@@ -230,18 +230,18 @@
 	function fnSubmit() {
 		var param = $("[name=inputFrm]").serializeObject();
 		param.minWorkExp = nvl($("[name=minWorkExp]:checked").val());
-// 		if(param.iscoCd == null || $.trim(param.iscoCd) == "") {
-//			alertify.alert("<spring:message code="mypage.private.interest.msg4"/>", function (e){
-//				$("[name=iscoCd]")[0].focus();
-//			});
-//			return false;
-//		}
-//		if(param.locCd == null || $.trim(param.locCd) == "") {
-//			alertify.alert("<spring:message code="mypage.private.interest.msg5"/>", function (e){
-//				$("[name=locCd]")[0].focus();
-//			});
-//			return false;
-//		}
+		if(param.isco1Cd == null || $.trim(param.isco1Cd) == "") {
+			alertify.alert("<spring:message code="mypage.private.interest.msg4"/>", function (e){
+				$("[name=isco1Cd]")[0].focus();
+			});
+			return false;
+		}
+		if(param.loc1Cd == null || $.trim(param.loc1Cd) == "") {
+			alertify.alert("<spring:message code="mypage.private.interest.msg5"/>", function (e){
+				$("[name=loc1Cd]")[0].focus();
+			});
+			return false;
+		}
 		// Isco
 		var iscoArr = [];
 		if(param.isco1Cd != null && $.trim(param.isco1Cd) != "") iscoArr.push(param.isco1Cd);

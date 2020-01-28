@@ -60,24 +60,24 @@
 			<button type="button" class="search_open"><spring:message code="comm.search.lbl02" /></button><!-- Search Open -->
 			<div class="search">
 				<h2 class="skip"><spring:message code="button.search" /></h2>
-				<form name="IntegratedSearchFrm" method="post" action="${pageContext.request.contextPath}/searchResult.do">
+				<form name="integratedSearchFrm" method="post" action="${pageContext.request.contextPath}/searchResult.do">
 					<fieldset>
 						<legend><spring:message code="button.search" /></legend><!-- Search -->
-						<label for="condText" class="skip"><spring:message code="comm.search.msg02" /></label><!-- input the search -->
-						<input type="search" id="condText" name="condText" placeholder="<spring:message code="comm.search.msg01" />" /><!-- input the search keyword -->
+						<label for="integratedSearchText" class="skip"><spring:message code="comm.search.msg02" /></label><!-- input the search -->
+						<input type="search" id="integratedSearchText" name="integratedSearchText" placeholder="<spring:message code="comm.search.msg01" />" /><!-- input the search keyword -->
 						<input type="button" value="<spring:message code="button.search" />" onclick="fnIntegratedSearch()" /><!-- Search -->
 					</fieldset>
 				</form>
 				<script>
 					function fnIntegratedSearch() {
-						var condText = $("#condText").val();
-						if(condText == null || $.trim(condText) == '') {
+						var integratedSearchText = $("#integratedSearchText").val();
+						if(integratedSearchText == null || $.trim(integratedSearchText) == '') {
 							alertify.alert("<spring:message code="mypage.compny.vacancy.msg15"/>", function (e){
-								$("#condText").focus();
+								$("#integratedSearchText").focus();
 							});
 							return;
 						}
-						var f = $("[name=IntegratedSearchFrm]")[0];
+						var f = $("[name=integratedSearchFrm]")[0];
 						f.submit();
 					}
 				</script>
@@ -216,6 +216,10 @@
 						<li><a href="javascript:void(0);" onclick="fnGoBulletin('f011c695fedb11e9abf28cec4b8e345c');"><spring:message code="gnb.menu.bulletin.title5"/></a></li>
 						<li><a href="${pageContext.request.contextPath}/community/list.do">Community</a>
 						<li><a href="${pageContext.request.contextPath}/info/lmi.do"><spring:message code="info.lmi.tt01" /></a>
+						<li><a href="${pageContext.request.contextPath}/info/neaIntro.do"><spring:message code="info.nea.msg15" /></a>
+						<li><a href="${pageContext.request.contextPath}/info/neaVision.do"><spring:message code="info.nea.msg16" /></a>
+						<li><a href="${pageContext.request.contextPath}/info/neaGroup.do"><spring:message code="info.nea.msg17" /></a>
+						<li><a href="${pageContext.request.contextPath}/info/usefulSite.do"><spring:message code="info.nea.msg1" /></a>
 					</ul>
 				</div>
 			</li>

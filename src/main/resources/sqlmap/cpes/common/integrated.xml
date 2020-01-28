@@ -2,6 +2,18 @@
 <!DOCTYPE mapper    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="integrated">
 
+	<!-- 동의어 검색 -->
+	<select id="selectIntegratedSearchSynonymList" resultType="ony.cmm.common.bean.SynonymBean" parameterType="ony.cmm.common.bean.CondIntegratedSearchBean">
+		/*integrated.selectIntegratedSearchSynonymList*/
+		SELECT EN, KH
+		  FROM CPES_SYNONYM
+		 WHERE USE_YN = 'Y'
+		   AND (
+		        KH IN <foreach item="item" index="index" collection="condTextArr" open="(" separator="," close=")">#{item}</foreach>
+		    OR  EN IN <foreach item="item" index="index" collection="condTextArr" open="(" separator="," close=")">#{item}</foreach>
+		       )
+	</select>
+
 	<!-- ###################################################################################### -->
 	<!-- Vacancy -->
 
@@ -10,62 +22,73 @@
 		   AND A.JC_AGREE_STS_CD = 'JAS0000000001'
 		   AND A.USE_YN = 'Y'
 		   AND A.DEL_YN = 'N'
-		   AND (A.VACANCY_TITLE LIKE CONCAT('%',#{condText},'%')
-		    OR A.VACANCY_KEYWORD LIKE CONCAT('%',#{condText},'%')
-		    OR EXISTS (
-		        SELECT 1
-		          FROM CPES_ISCO_CD
-		         WHERE ISCO_CD = A.ISCO_CD
-		           AND (KH_NM LIKE CONCAT('%',#{condText},'%')
-		            OR  EN_NM LIKE CONCAT('%',#{condText},'%'))
+		   AND A.REG_DT <![CDATA[ >= ]]> DATE_ADD(CURDATE(), INTERVAL -3 MONTH)
+	</sql>
+
+	<sql id="whereIntegratedSearchVacancyList2">
+		 WHERE (
+				<foreach item="item" index="index" collection="condTextArr" separator=" OR ">
+		        Z.SRCH_TEXT LIKE CONCAT('%',#{item},'%')
+		        </foreach>
+				<foreach item="item" index="index" collection="synonymList">
+            OR  Z.SRCH_TEXT LIKE CONCAT('%',#{item.kh},'%')
+            OR  Z.SRCH_TEXT LIKE CONCAT('%',#{item.en},'%')
+				</foreach>
+		    OR  EXISTS (
+			        SELECT 1
+			          FROM CPES_ISCO_CD
+			         WHERE ISCO_CD = Z.ISCO_CD
+			           AND (
+							<foreach item="item" index="index" collection="condTextArr" separator=" OR ">
+			                KH_NM LIKE CONCAT('%',#{item},'%')
+			            OR  EN_NM LIKE CONCAT('%',#{item},'%')
+			            	</foreach>
+							<foreach item="item" index="index" collection="synonymList">
+			            OR  KH_NM LIKE CONCAT('%',#{item.kh},'%')
+			            OR  EN_NM LIKE CONCAT('%',#{item.en},'%')
+							</foreach>
+			               )
+		        )
+		    OR  EXISTS (
+			        SELECT 1
+			          FROM CPES_LOC_CD X1
+			               INNER JOIN
+			               CPES_VACANCY_LOC X2
+			                  ON X2.ADDR_CD = X1.LVL_CD
+			         WHERE X2.VACANCY_SEQ = Z.VACANCY_SEQ
+			           AND (
+							<foreach item="item" index="index" collection="condTextArr" separator=" OR ">
+			                X1.NM_KH LIKE CONCAT('%',#{item},'%')
+			            OR  X1.NM_EN LIKE CONCAT('%',#{item},'%')
+			            	</foreach>
+							<foreach item="item" index="index" collection="synonymList">
+			            OR  X1.NM_KH LIKE CONCAT('%',#{item.kh},'%')
+			            OR  X1.NM_EN LIKE CONCAT('%',#{item.en},'%')
+							</foreach>
+			               )
+		        )
 		       )
-		    OR EXISTS (
-		        SELECT 1
-		          FROM CPES_COMPNY
-		         WHERE COMPNY_SEQ = A.COMPNY_SEQ
-		           AND (COMPNY_NM_KH LIKE CONCAT('%',#{condText},'%')
-		            OR  COMPNY_NM_EN LIKE CONCAT('%',#{condText},'%'))
-		       )
-		    OR EXISTS (
-		        SELECT 1
-		          FROM CPES_LOC_CD X1
-		               INNER JOIN
-		               CPES_VACANCY_LOC X2
-		                  ON X2.ADDR_CD = X1.LVL_CD
-		         WHERE X2.VACANCY_SEQ = A.VACANCY_SEQ
-		           AND (X1.NM_KH LIKE CONCAT('%',#{condText},'%')
-		            OR  X1.NM_EN LIKE CONCAT('%',#{condText},'%'))
-		       ))
 	</sql>
 
 	<!-- 통합검색::Vacancy::총건수 -->
-	<select id="selectIntegratedSearchVacancyListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
+	<select id="selectIntegratedSearchVacancyListCnt" resultType="java.lang.Integer" parameterType="ony.cmm.common.bean.CondIntegratedSearchBean">
 		/*integrated.selectIntegratedSearchVacancyListCnt*/
 		SELECT COUNT(1) AS CNT
-		  FROM CPES_VACANCY A
-		       INNER JOIN
-		       CPES_COMPNY B
-		          ON B.COMPNY_SEQ = A.COMPNY_SEQ
-		<include refid="whereIntegratedSearchVacancyList" />
-	</select>
-
-	<!-- 통합검색::Vacancy::목록 -->
-	<select id="selectIntegratedSearchVacancyList" resultType="ony.cpes.external.vacancy.bean.VacancyBean" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
-		/*integrated.selectIntegratedSearchVacancyListCnt*/
+		  FROM (
 		SELECT A.VACANCY_SEQ
 		     , A.VACANCY_TITLE
 		     , A.RECRUMT_MEMB
 		     , A.MIN_SALARY_AMT
 		     , A.MAX_SALARY_AMT
 		     , A.VACANCY_STS_CD
-		     , FN_GET_BASE_DATE_CHAR(A.BGN_DT, #{langCd})                      AS BGN_DT
-		     , FN_GET_BASE_DATE_CHAR(A.END_DT, #{langCd})                      AS END_DT
+		     , DATE_FORMAT(A.BGN_DT, '%d/%m/%Y')                      AS BGN_DT
+		     , DATE_FORMAT(A.END_DT, '%d/%m/%Y')                      AS END_DT
 		     , FN_GET_COMMON_NM('EMPLOY_FORM_CD', A.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_NM
 		     , FN_GET_COMMON_NM('VACANCY_STS_CD', A.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM
 		     , FN_GET_REMAIN_CNT(A.END_DT)                                     AS REMAIN_DT
 		     , FN_GET_REMAIN_DIV(A.END_DT)                                     AS REMAIN_DIV
 		     , FN_GET_NEW_YN(A.REG_DT)                                         AS NEW_YN
-		     , FN_GET_BKMK_SEQ(#{condUserSeq}, 'BCT0000000003', A.VACANCY_SEQ) AS BKMK_SEQ
+		     , FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000003', A.VACANCY_SEQ) AS BKMK_SEQ
 		     , A.BKMK_CNT
 		     , (
 		        SELECT FN_GET_ADDR_NM(SUBSTR(ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM
@@ -77,6 +100,8 @@
 		            ELSE B.COMPNY_NM_EN
 		       END COMPNY_NM
 		     , FN_GET_FILE_PATH(B.LOGO_FILE_GRP_SEQ)                           AS FILE_PATH
+		     , A.ISCO_CD
+		     , CONCAT(IFNULL(A.VACANCY_TITLE,''),' ',IFNULL(A.VACANCY_KEYWORD,''),' ',IFNULL(B.COMPNY_NM_KH,''),' ',IFNULL(B.COMPNY_NM_EN,'')) AS SRCH_TEXT
 		  FROM CPES_VACANCY A
 		       INNER JOIN
 		       CPES_COMPNY B
@@ -84,6 +109,52 @@
 		         AND B.USE_YN = 'Y'
 		         AND B.DEL_YN = 'N'
 		<include refid="whereIntegratedSearchVacancyList" />
+		       ) Z
+		<include refid="whereIntegratedSearchVacancyList2" />
+	</select>
+
+	<!-- 통합검색::Vacancy::목록 -->
+	<select id="selectIntegratedSearchVacancyList" resultType="ony.cpes.external.vacancy.bean.VacancyBean" parameterType="ony.cmm.common.bean.CondIntegratedSearchBean">
+		/*integrated.selectIntegratedSearchVacancyListCnt*/
+		SELECT * FROM (
+		SELECT A.VACANCY_SEQ
+		     , A.VACANCY_TITLE
+		     , A.RECRUMT_MEMB
+		     , A.MIN_SALARY_AMT
+		     , A.MAX_SALARY_AMT
+		     , A.VACANCY_STS_CD
+		     , DATE_FORMAT(A.BGN_DT, '%d/%m/%Y')                      AS BGN_DT
+		     , DATE_FORMAT(A.END_DT, '%d/%m/%Y')                      AS END_DT
+		     , FN_GET_COMMON_NM('EMPLOY_FORM_CD', A.EMPLOY_FORM_CD, #{langCd}) AS EMPLOY_FORM_NM
+		     , FN_GET_COMMON_NM('VACANCY_STS_CD', A.VACANCY_STS_CD, #{langCd}) AS VACANCY_STS_NM
+		     , FN_GET_REMAIN_CNT(A.END_DT)                                     AS REMAIN_DT
+		     , FN_GET_REMAIN_DIV(A.END_DT)                                     AS REMAIN_DIV
+		     , FN_GET_NEW_YN(A.REG_DT)                                         AS NEW_YN
+		     , FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000003', A.VACANCY_SEQ) AS BKMK_SEQ
+		     , A.BKMK_CNT
+		     , (
+		        SELECT FN_GET_ADDR_NM(SUBSTR(ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM
+		          FROM CPES_VACANCY_LOC
+		         WHERE VACANCY_SEQ = A.VACANCY_SEQ
+		         LIMIT 1
+		       ) AS ADDR_NM
+		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN B.COMPNY_NM_KH
+		            ELSE B.COMPNY_NM_EN
+		       END COMPNY_NM
+		     , FN_GET_FILE_PATH(B.LOGO_FILE_GRP_SEQ)                           AS FILE_PATH
+		     , A.ISCO_CD
+		     , CONCAT(IFNULL(A.VACANCY_TITLE,''),' ',IFNULL(A.VACANCY_KEYWORD,''),' ',IFNULL(B.COMPNY_NM_KH,''),' ',IFNULL(B.COMPNY_NM_EN,'')) AS SRCH_TEXT
+		     , A.REG_DT
+		  FROM CPES_VACANCY A
+		       INNER JOIN
+		       CPES_COMPNY B
+		          ON B.COMPNY_SEQ = A.COMPNY_SEQ
+		         AND B.USE_YN = 'Y'
+		         AND B.DEL_YN = 'N'
+		<include refid="whereIntegratedSearchVacancyList" />
+		       ) Z
+		<include refid="whereIntegratedSearchVacancyList2" />
+		 ORDER BY REG_DT DESC
 		 LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
 	</select>
 
@@ -94,37 +165,44 @@
 		 WHERE A.RESUME_STS_CD = 'RSS0000000002'
 		   AND A.JC_AGREE_STS_CD = 'JAS0000000001'
 		   AND A.USE_YN = 'Y'
-		   AND (
-		        A.RESUME_TITLE LIKE CONCAT('%',#{condText},'%')
-		    OR  A.RESUME_KEYWORD LIKE CONCAT('%',#{condText},'%')
-		    OR  B.ADDR_FULL_NM LIKE CONCAT('%',#{condText},'%')
+		   AND A.REG_DT <![CDATA[ >= ]]> DATE_ADD(CURDATE(), INTERVAL -3 MONTH)
+	</sql>
+
+	<sql id="whereIntegratedSearchResumeList2">
+		 WHERE (
+				<foreach item="item" index="index" collection="condTextArr" separator=" OR ">
+		        Z.SRCH_TEXT LIKE CONCAT('%',#{item},'%')
+		        </foreach>
+				<foreach item="item" index="index" collection="synonymList">
+            OR  Z.SRCH_TEXT LIKE CONCAT('%',#{item.kh},'%')
+            OR  Z.SRCH_TEXT LIKE CONCAT('%',#{item.en},'%')
+				</foreach>
 		    OR  EXISTS (
 		          SELECT 1
 		            FROM CPES_ISCO_CD X1
 		                 INNER JOIN
 		                 CPES_RESUME_ISCO X2
 		                    ON X2.ISCO_CD = X1.ISCO_CD
-		           WHERE X2.RESUME_SEQ = A.RESUME_SEQ
-		             AND (X1.KH_NM LIKE CONCAT('%',#{condText},'%')
-		              OR  X1.EN_NM LIKE CONCAT('%',#{condText},'%'))
+		           WHERE X2.RESUME_SEQ = Z.RESUME_SEQ
+		             AND (
+						  <foreach item="item" index="index" collection="condTextArr" separator=" OR ">
+		                  X1.KH_NM LIKE CONCAT('%',#{item},'%')
+		              OR  X1.EN_NM LIKE CONCAT('%',#{item},'%')
+		                  </foreach>
+						  <foreach item="item" index="index" collection="synonymList">
+		              OR  X1.KH_NM LIKE CONCAT('%',#{item.kh},'%')
+		              OR  X1.EN_NM LIKE CONCAT('%',#{item.en},'%')
+						  </foreach>
+		                 )
 		        )
 		       )
 	</sql>
 
 	<!-- 통합검색::Resume::총건수 -->
-	<select id="selectIntegratedSearchResumeListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
-		/*integrated.selectIntegratedSearchVacancyListCnt*/
+	<select id="selectIntegratedSearchResumeListCnt" resultType="java.lang.Integer" parameterType="ony.cmm.common.bean.CondIntegratedSearchBean">
+		/*integrated.selectIntegratedSearchResumeListCnt*/
 		SELECT COUNT(1) AS CNT
-		  FROM CPES_RESUME A
-		       INNER JOIN
-				   CPES_USER B
-				      ON B.USER_SEQ = A.USER_SEQ
-		<include refid="whereIntegratedSearchResumeList" />
-	</select>
-
-	<!-- 통합검색::Resume::목록 -->
-	<select id="selectIntegratedSearchResumeList" resultType="ony.cpes.external.mypage.privt.bean.ResumeBean" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
-		/*integrated.selectIntegratedSearchVacancyListCnt*/
+		  FROM (
 		SELECT A.RESUME_SEQ
 		     , A.RESUME_TITLE
 		     , A.EXPCT_MIN_SALARY_AMT
@@ -141,7 +219,7 @@
 		     , DATE_FORMAT(A.MOD_DT, '%d/%m') AS MOD_DT
 		     , FN_GET_USER_NM_BY_USER_SEQ(B.USER_SEQ, #{langCd}) AS USER_NM
 		     , FN_GET_USER_AGE(B.BIRTH) AS AGE
-		     , FN_GET_BKMK_SEQ(#{condUserSeq}, 'BCT0000000006', A.RESUME_SEQ) AS BKMK_SEQ
+		     , FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000006', A.RESUME_SEQ) AS BKMK_SEQ
 		     , (
 		    		SELECT FN_GET_COMMON_NM('EDU_DEGREE_CD', EDU_DEGREE_CD, #{langCd})
 		    		  FROM CPES_RESUME_GENRL_EDU
@@ -157,6 +235,8 @@
 		     , B.GENDER_CD
 		     , FN_GET_COMMON_NM('GENDER_CD', B.GENDER_CD, #{langCd}) AS GENDER_NM
 		     , FN_GET_ADDR_NM(SUBSTR(B.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM
+		     , A.REG_DT
+		     , CONCAT(IFNULL(A.RESUME_TITLE,''),' ',IFNULL(A.RESUME_KEYWORD,''),' ',IFNULL(B.ADDR_FULL_NM,'')) AS SRCH_TEXT
 		  FROM CPES_RESUME A
 		       INNER JOIN
 		       CPES_USER B
@@ -164,7 +244,58 @@
 		         AND B.USE_YN = 'Y'
 		         AND B.DEL_YN = 'N'
 		<include refid="whereIntegratedSearchResumeList" />
-		 ORDER BY A.REG_DT DESC
+		       ) Z
+		<include refid="whereIntegratedSearchResumeList2" />
+	</select>
+
+	<!-- 통합검색::Resume::목록 -->
+	<select id="selectIntegratedSearchResumeList" resultType="ony.cpes.external.mypage.privt.bean.ResumeBean" parameterType="ony.cmm.common.bean.CondIntegratedSearchBean">
+		/*integrated.selectIntegratedSearchResumeList*/
+		SELECT * FROM (
+		SELECT A.RESUME_SEQ
+		     , A.RESUME_TITLE
+		     , A.EXPCT_MIN_SALARY_AMT
+		     , A.EXPCT_MAX_SALARY_AMT
+		     , A.PREFER_EMPLOY_TYPE_CD
+		     , A.PREFER_CRTCT_TYPE
+		     , A.TOT_CAREER_TERM_YEAR_CNT
+		     , A.TOT_CAREER_TERM_MONTH_CNT
+		     , A.DISABL_YN
+		     , A.RET_MIGRAT_YN
+		     , A.CAREER_YN
+		     , FN_GET_FILE_PATH(A.FILE_GRP_SEQ) AS FILE_PATH
+		     , FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+		     , DATE_FORMAT(A.MOD_DT, '%d/%m') AS MOD_DT
+		     , FN_GET_USER_NM_BY_USER_SEQ(B.USER_SEQ, #{langCd}) AS USER_NM
+		     , FN_GET_USER_AGE(B.BIRTH) AS AGE
+		     , FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000006', A.RESUME_SEQ) AS BKMK_SEQ
+		     , (
+		    		SELECT FN_GET_COMMON_NM('EDU_DEGREE_CD', EDU_DEGREE_CD, #{langCd})
+		    		  FROM CPES_RESUME_GENRL_EDU
+		    		 WHERE RESUME_SEQ = A.RESUME_SEQ
+		    		 LIMIT 1
+		       ) AS EDU_DEGREE_NM
+		     , (
+		    		SELECT FN_GET_ISCO_NM(ISCO_CD, #{langCd})
+		    		  FROM CPES_RESUME_ISCO
+		    		 WHERE RESUME_SEQ = A.RESUME_SEQ
+		    		 LIMIT 1
+		       ) AS ISCO_CD_LIST_STR
+		     , B.GENDER_CD
+		     , FN_GET_COMMON_NM('GENDER_CD', B.GENDER_CD, #{langCd}) AS GENDER_NM
+		     , FN_GET_ADDR_NM(SUBSTR(B.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM
+		     , A.REG_DT
+		     , CONCAT(IFNULL(A.RESUME_TITLE,''),' ',IFNULL(A.RESUME_KEYWORD,''),' ',IFNULL(B.ADDR_FULL_NM,'')) AS SRCH_TEXT
+		  FROM CPES_RESUME A
+		       INNER JOIN
+		       CPES_USER B
+		          ON B.USER_SEQ = A.USER_SEQ
+		         AND B.USE_YN = 'Y'
+		         AND B.DEL_YN = 'N'
+		<include refid="whereIntegratedSearchResumeList" />
+		       ) Z
+		<include refid="whereIntegratedSearchResumeList2" />
+		 ORDER BY REG_DT DESC
 		 LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
 	</select>
 
@@ -174,37 +305,47 @@
 	<sql id="whereIntegratedSearchJobFairList">
 		 WHERE A.USE_YN = 'Y'
 		   AND A.DEL_YN = 'N'
-		   AND (
-		        A.FAIR_NM_KH LIKE CONCAT('%',#{condText},'%')
-		    OR  A.FAIR_NM_EN LIKE CONCAT('%',#{condText},'%')
-		    OR  A.FAIR_KEYWORD LIKE CONCAT('%',#{condText},'%')
-		    OR EXISTS (
+		   AND A.REG_DT <![CDATA[ >= ]]> DATE_ADD(CURDATE(), INTERVAL -3 MONTH)
+	</sql>
+
+	<sql id="whereIntegratedSearchJobFairList2">
+		 WHERE (
+				<foreach item="item" index="index" collection="condTextArr" separator=" OR ">
+		        Z.SRCH_TEXT LIKE CONCAT('%',#{item},'%')
+		        </foreach>
+				<foreach item="item" index="index" collection="synonymList">
+            OR  Z.SRCH_TEXT LIKE CONCAT('%',#{item.kh},'%')
+            OR  Z.SRCH_TEXT LIKE CONCAT('%',#{item.en},'%')
+				</foreach>
+		    OR  EXISTS (
 		        SELECT 1
 		          FROM CPES_LOC_CD
-		         WHERE LVL_CD = A.ADDR_CD
-		           AND (NM_KH LIKE CONCAT('%',#{condText},'%')
-		            OR  NM_EN LIKE CONCAT('%',#{condText},'%'))
-		       )
+		         WHERE LVL_CD = Z.ADDR_CD
+		           AND (
+						<foreach item="item" index="index" collection="condTextArr" separator=" OR ">
+				        NM_KH LIKE CONCAT('%',#{item},'%')
+				    OR  NM_EN LIKE CONCAT('%',#{item},'%')
+		    	        </foreach>
+						<foreach item="item" index="index" collection="synonymList">
+				    OR  NM_KH LIKE CONCAT('%',#{item.kh},'%')
+				    OR  NM_EN LIKE CONCAT('%',#{item.en},'%')
+						</foreach>
+		               )
+		        )
 		       )
 	</sql>
 
 	<!-- 통합검색::JobFair::총건수 -->
-	<select id="selectIntegratedSearchJobFairListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
+	<select id="selectIntegratedSearchJobFairListCnt" resultType="java.lang.Integer" parameterType="ony.cmm.common.bean.CondIntegratedSearchBean">
 		/*integrated.selectIntegratedSearchJobFairListCnt*/
 		SELECT COUNT(1) AS CNT
-		  FROM CPES_FAIR_MST A
-		<include refid="whereIntegratedSearchJobFairList" />
-	</select>
-
-	<!-- 통합검색::JobFair::목록 -->
-	<select id="selectIntegratedSearchJobFairList" resultType="ony.cpes.external.jobfair.bean.JobFairCenterBean" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
-		/*integrated.selectIntegratedSearchJobFairList*/
+		  FROM (
 		SELECT A.FAIR_SEQ
 		     , FN_GET_FAIR_NM(A.FAIR_SEQ, #{langCd}) AS FAIR_NM
 		     , A.FAIR_DIV_CD
 		     , FN_GET_COMMON_NM('FAIR_DIV_CD', A.FAIR_DIV_CD, #{langCd}) AS FAIR_DIV_NM
-		     , CONCAT(FN_GET_BASE_DATE_CHAR(A.FAIR_BGN_DT,#{langCd}),' ',A.FAIR_BGN_HOUR,':',A.FAIR_BGN_MINUTE,' ',A.FAIR_BGN_AMPM) AS FAIR_BGN_DT
-		     , CONCAT(FN_GET_BASE_DATE_CHAR(A.FAIR_END_DT,#{langCd}),' ',A.FAIR_END_HOUR,':',A.FAIR_END_MINUTE,' ',A.FAIR_END_AMPM) AS FAIR_END_DT
+		     , CONCAT(DATE_FORMAT(A.FAIR_BGN_DT,'%d/%m/%Y'),' ',A.FAIR_BGN_HOUR,':',A.FAIR_BGN_MINUTE,' ',A.FAIR_BGN_AMPM) AS FAIR_BGN_DT
+		     , CONCAT(DATE_FORMAT(A.FAIR_END_DT,'%d/%m/%Y'),' ',A.FAIR_END_HOUR,':',A.FAIR_END_MINUTE,' ',A.FAIR_END_AMPM) AS FAIR_END_DT
 		     , A.TEL1
 		     , A.TEL2
 		     , A.EMAIL
@@ -212,11 +353,44 @@
 		     , A.FAIR_STS_CD
 		     , FN_GET_COMMON_NM('FAIR_STS_CD', A.FAIR_STS_CD, #{langCd}) AS FAIR_STS_NM
 		     , FN_GET_ADDR_NM(SUBSTR(A.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM
-		     , FN_GET_BKMK_SEQ(#{condUserSeq}, 'BCT0000000002', A.FAIR_SEQ) AS BKMK_SEQ
+		     , FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000002', A.FAIR_SEQ) AS BKMK_SEQ
 		     , A.BKMK_CNT
+		     , A.REG_DT
+		     , A.ADDR_CD
+		     , CONCAT(IFNULL(A.FAIR_NM_KH,''),' ',IFNULL(A.FAIR_NM_EN,''),' ',IFNULL(A.FAIR_KEYWORD,'')) AS SRCH_TEXT
 		  FROM CPES_FAIR_MST A
 		<include refid="whereIntegratedSearchJobFairList" />
-		 ORDER BY A.REG_DT DESC
+		       ) Z
+		<include refid="whereIntegratedSearchJobFairList2" />
+	</select>
+
+	<!-- 통합검색::JobFair::목록 -->
+	<select id="selectIntegratedSearchJobFairList" resultType="ony.cpes.external.jobfair.bean.JobFairCenterBean" parameterType="ony.cmm.common.bean.CondIntegratedSearchBean">
+		/*integrated.selectIntegratedSearchJobFairList*/
+		SELECT * FROM (
+		SELECT A.FAIR_SEQ
+		     , FN_GET_FAIR_NM(A.FAIR_SEQ, #{langCd}) AS FAIR_NM
+		     , A.FAIR_DIV_CD
+		     , FN_GET_COMMON_NM('FAIR_DIV_CD', A.FAIR_DIV_CD, #{langCd}) AS FAIR_DIV_NM
+		     , CONCAT(DATE_FORMAT(A.FAIR_BGN_DT,'%d/%m/%Y'),' ',A.FAIR_BGN_HOUR,':',A.FAIR_BGN_MINUTE,' ',A.FAIR_BGN_AMPM) AS FAIR_BGN_DT
+		     , CONCAT(DATE_FORMAT(A.FAIR_END_DT,'%d/%m/%Y'),' ',A.FAIR_END_HOUR,':',A.FAIR_END_MINUTE,' ',A.FAIR_END_AMPM) AS FAIR_END_DT
+		     , A.TEL1
+		     , A.TEL2
+		     , A.EMAIL
+		     , FN_GET_FILE_PATH(A.THUMB_FILE_GRP_SEQ) AS IMAGE_PATH
+		     , A.FAIR_STS_CD
+		     , FN_GET_COMMON_NM('FAIR_STS_CD', A.FAIR_STS_CD, #{langCd}) AS FAIR_STS_NM
+		     , FN_GET_ADDR_NM(SUBSTR(A.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM
+		     , FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000002', A.FAIR_SEQ) AS BKMK_SEQ
+		     , A.BKMK_CNT
+		     , A.REG_DT
+		     , A.ADDR_CD
+		     , CONCAT(IFNULL(A.FAIR_NM_KH,''),' ',IFNULL(A.FAIR_NM_EN,''),' ',IFNULL(A.FAIR_KEYWORD,'')) AS SRCH_TEXT
+		  FROM CPES_FAIR_MST A
+		<include refid="whereIntegratedSearchJobFairList" />
+		       ) Z
+		<include refid="whereIntegratedSearchJobFairList2" />
+		 ORDER BY REG_DT DESC
 		 LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
 	</select>
 
@@ -228,29 +402,26 @@
 		   AND A.JC_AGREE_STS_CD = 'JAS0000000001'
 		   AND A.USE_YN = 'Y'
 		   AND A.DEL_YN = 'N'
-		   AND (
-		        A.EDU_TRNNG_NM LIKE CONCAT('%',#{condText},'%')
-		    OR  A.EDU_TRNNG_KEYWORD LIKE CONCAT('%',#{condText},'%')
-		    OR  B.INSTT_NM_KH LIKE CONCAT('%',#{condText},'%')
-		    OR  B.INSTT_NM_EN LIKE CONCAT('%',#{condText},'%')
+		   AND A.REG_DT <![CDATA[ >= ]]> DATE_ADD(CURDATE(), INTERVAL -3 MONTH)
+	</sql>
+
+	<sql id="whereIntegratedSearchTrainingProgramList2">
+		 WHERE (
+				<foreach item="item" index="index" collection="condTextArr" separator=" OR ">
+		        Z.SRCH_TEXT LIKE CONCAT('%',#{item},'%')
+		        </foreach>
+				<foreach item="item" index="index" collection="synonymList">
+            OR  Z.SRCH_TEXT LIKE CONCAT('%',#{item.kh},'%')
+            OR  Z.SRCH_TEXT LIKE CONCAT('%',#{item.en},'%')
+				</foreach>
 		       )
 	</sql>
 
 	<!-- 통합검색::JobFair::총건수 -->
-	<select id="selectIntegratedSearchTrainingProgramListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
+	<select id="selectIntegratedSearchTrainingProgramListCnt" resultType="java.lang.Integer" parameterType="ony.cmm.common.bean.CondIntegratedSearchBean">
 		/*integrated.selectIntegratedSearchTrainingProgramListCnt*/
 		SELECT COUNT(1) AS CNT
-		  FROM CPES_EDU_TRNNG A
-		       INNER JOIN
-		       CPES_INSTT B
-		          ON B.INSTT_SEQ = A.INSTT_SEQ
-		         AND B.DEL_YN = 'N'
-		<include refid="whereIntegratedSearchTrainingProgramList" />
-	</select>
-
-	<!-- 통합검색::JobFair::목록 -->
-	<select id="selectIntegratedSearchTrainingProgramList" resultType="ony.cpes.external.mypage.privt.bean.EduTrnngBean" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
-		/*integrated.selectIntegratedSearchTrainingProgramList*/
+		  FROM (
 		SELECT A.EDU_TRNNG_SEQ
 		     , A.EDU_TRNNG_NM
 		     , A.INSTT_SEQ
@@ -261,17 +432,19 @@
 		     , A.FREE_PAID_YN
 		     , A.RECRUMT_STS_CD
 		     , FN_GET_COMMON_NM('RECRUMT_STS_CD', A.RECRUMT_STS_CD, #{langCd}) AS RECRUMT_STS_NM
-		     , FN_GET_BASE_DATE_CHAR(A.EDU_BGN_DT, #{langCd}) AS EDU_BGN_DT
-		     , FN_GET_BASE_DATE_CHAR(A.EDU_END_DT, #{langCd}) AS EDU_END_DT
-		  	 , FN_GET_BASE_DATE_CHAR(A.RECURMT_BGN_DT, #{langCd}) AS RECURMT_BGN_DT
-		  	 , FN_GET_BASE_DATE_CHAR(A.RECURMT_END_DT, #{langCd}) AS RECURMT_END_DT
+		     , DATE_FORMAT(A.EDU_BGN_DT, '%d/%m/%Y') AS EDU_BGN_DT
+		     , DATE_FORMAT(A.EDU_END_DT, '%d/%m/%Y') AS EDU_END_DT
+		  	 , DATE_FORMAT(A.RECURMT_BGN_DT, '%d/%m/%Y') AS RECURMT_BGN_DT
+		  	 , DATE_FORMAT(A.RECURMT_END_DT, '%d/%m/%Y') AS RECURMT_END_DT
 		     , FN_GET_ADDR_NM(SUBSTR(A.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM
 		     , FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
 		     , A.BKMK_CNT
-		     , FN_GET_BKMK_SEQ(#{condUserSeq}, 'BCT0000000004', A.EDU_TRNNG_SEQ) AS BKMK_SEQ
+		     , FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000004', A.EDU_TRNNG_SEQ) AS BKMK_SEQ
 		     , FN_GET_FILE_PATH(B.INSTT_LOGO_FILE_GRP_SEQ) AS FILE_PATH
 		     , C.SKILL_JOB_PROGRAM_CORS_CD
 		     , FN_GET_COMMON_NM('SKILL_JOB_PROGRAM_CORS_CD', C.SKILL_JOB_PROGRAM_CORS_CD, #{langCd}) AS SKILL_JOB_PROGRAM_CORS_NM
+		     , A.REG_DT
+		     , CONCAT(IFNULL(A.EDU_TRNNG_NM,''),' ',IFNULL(A.EDU_TRNNG_KEYWORD,''),' ',IFNULL(B.INSTT_NM_KH,''),' ',IFNULL(B.INSTT_NM_EN,'')) AS SRCH_TEXT
 		  FROM CPES_EDU_TRNNG A
 		       INNER JOIN
 		       CPES_INSTT B
@@ -281,7 +454,49 @@
 		       CPES_EDU_TRNNG_SUB C
 		          ON C.EDU_TRNNG_SEQ = A.EDU_TRNNG_SEQ
 		<include refid="whereIntegratedSearchTrainingProgramList" />
-		 ORDER BY A.REG_DT DESC
+		       ) Z
+		<include refid="whereIntegratedSearchTrainingProgramList2" />
+	</select>
+
+	<!-- 통합검색::JobFair::목록 -->
+	<select id="selectIntegratedSearchTrainingProgramList" resultType="ony.cpes.external.mypage.privt.bean.EduTrnngBean" parameterType="ony.cmm.common.bean.CondIntegratedSearchBean">
+		/*integrated.selectIntegratedSearchTrainingProgramList*/
+		SELECT * FROM (
+		SELECT A.EDU_TRNNG_SEQ
+		     , A.EDU_TRNNG_NM
+		     , A.INSTT_SEQ
+		     , A.TUITION
+		     , A.PROGRAM_CERT_NUM
+		     , A.TRNNG_NATNEXP_DIV_CD
+		     , FN_GET_COMMON_NM('TRNNG_NATNEXP_DIV_CD', A.TRNNG_NATNEXP_DIV_CD, #{langCd}) AS TRNNG_NATNEXP_DIV_NM
+		     , A.FREE_PAID_YN
+		     , A.RECRUMT_STS_CD
+		     , FN_GET_COMMON_NM('RECRUMT_STS_CD', A.RECRUMT_STS_CD, #{langCd}) AS RECRUMT_STS_NM
+		     , DATE_FORMAT(A.EDU_BGN_DT, '%d/%m/%Y') AS EDU_BGN_DT
+		     , DATE_FORMAT(A.EDU_END_DT, '%d/%m/%Y') AS EDU_END_DT
+		  	 , DATE_FORMAT(A.RECURMT_BGN_DT, '%d/%m/%Y') AS RECURMT_BGN_DT
+		  	 , DATE_FORMAT(A.RECURMT_END_DT, '%d/%m/%Y') AS RECURMT_END_DT
+		     , FN_GET_ADDR_NM(SUBSTR(A.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM
+		     , FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+		     , A.BKMK_CNT
+		     , FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000004', A.EDU_TRNNG_SEQ) AS BKMK_SEQ
+		     , FN_GET_FILE_PATH(B.INSTT_LOGO_FILE_GRP_SEQ) AS FILE_PATH
+		     , C.SKILL_JOB_PROGRAM_CORS_CD
+		     , FN_GET_COMMON_NM('SKILL_JOB_PROGRAM_CORS_CD', C.SKILL_JOB_PROGRAM_CORS_CD, #{langCd}) AS SKILL_JOB_PROGRAM_CORS_NM
+		     , A.REG_DT
+		     , CONCAT(IFNULL(A.EDU_TRNNG_NM,''),' ',IFNULL(A.EDU_TRNNG_KEYWORD,''),' ',IFNULL(B.INSTT_NM_KH,''),' ',IFNULL(B.INSTT_NM_EN,'')) AS SRCH_TEXT
+		  FROM CPES_EDU_TRNNG A
+		       INNER JOIN
+		       CPES_INSTT B
+		          ON B.INSTT_SEQ = A.INSTT_SEQ
+		         AND B.DEL_YN = 'N'
+		       INNER JOIN
+		       CPES_EDU_TRNNG_SUB C
+		          ON C.EDU_TRNNG_SEQ = A.EDU_TRNNG_SEQ
+		<include refid="whereIntegratedSearchTrainingProgramList" />
+		       ) Z
+		<include refid="whereIntegratedSearchTrainingProgramList2" />
+		 ORDER BY REG_DT DESC
 		 LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
 	</select>
 
@@ -293,52 +508,53 @@
 		   AND A.JC_AGREE_STS_CD = 'JAS0000000001'
 		   AND A.USE_YN = 'Y'
 		   AND A.DEL_YN = 'N'
-		   AND (
-		        A.EDU_TRNNG_NM LIKE CONCAT('%',#{condText},'%')
-		    OR  A.EDU_TRNNG_KEYWORD LIKE CONCAT('%',#{condText},'%')
+		   AND A.REG_DT <![CDATA[ >= ]]> DATE_ADD(CURDATE(), INTERVAL -3 MONTH)
+	</sql>
+
+	<sql id="whereIntegratedSearchNEATrainingList2">
+		 WHERE (
+				<foreach item="item" index="index" collection="condTextArr" separator=" OR ">
+		        Z.SRCH_TEXT LIKE CONCAT('%',#{item},'%')
+		        </foreach>
+				<foreach item="item" index="index" collection="synonymList">
+            OR  Z.SRCH_TEXT LIKE CONCAT('%',#{item.kh},'%')
+            OR  Z.SRCH_TEXT LIKE CONCAT('%',#{item.en},'%')
+				</foreach>
 		       )
 	</sql>
 
 	<!-- 통합검색::JobFair::총건수 -->
-	<select id="selectIntegratedSearchNEATrainingListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
+	<select id="selectIntegratedSearchNEATrainingListCnt" resultType="java.lang.Integer" parameterType="ony.cmm.common.bean.CondIntegratedSearchBean">
 		/*integrated.selectIntegratedSearchNEATrainingListCnt*/
 		SELECT COUNT(1) AS CNT
-		  FROM CPES_EDU_TRNNG A
-		       INNER JOIN
-		       CPES_INSTT B
-		          ON B.INSTT_SEQ = A.INSTT_SEQ
-		         AND B.DEL_YN = 'N'
-		<include refid="whereIntegratedSearchNEATrainingList" />
-	</select>
-
-	<!-- 통합검색::JobFair::목록 -->
-	<select id="selectIntegratedSearchNEATrainingList" resultType="ony.cpes.external.mypage.privt.bean.EduTrnngBean" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
-		/*integrated.selectIntegratedSearchNEATrainingList*/
+		  FROM (
 		SELECT A.EDU_TRNNG_SEQ
 		     , A.EDU_TRNNG_NM
 		     , A.INSTT_SEQ
-			   , A.TUITION
+		     , A.TUITION
 		     , A.NEA_EDU_DIV_CD
 		     , FN_GET_COMMON_NM('NEA_EDU_DIV_CD', A.NEA_EDU_DIV_CD, #{langCd}) AS NEA_EDU_DIV_NM
 		     , A.FREE_PAID_YN
 		     , A.RECRUMT_STS_CD
 		     , FN_GET_COMMON_NM('RECRUMT_STS_CD', A.RECRUMT_STS_CD, #{langCd}) AS RECRUMT_STS_NM
-		     , FN_GET_BASE_DATE_CHAR(A.EDU_BGN_DT, #{langCd}) AS EDU_BGN_DT
-		     , FN_GET_BASE_DATE_CHAR(A.EDU_END_DT, #{langCd}) AS EDU_END_DT
-		  	 , FN_GET_BASE_DATE_CHAR(A.RECURMT_BGN_DT, #{langCd}) AS RECURMT_BGN_DT
-		  	 , FN_GET_BASE_DATE_CHAR(A.RECURMT_END_DT, #{langCd}) AS RECURMT_END_DT
+		     , DATE_FORMAT(A.EDU_BGN_DT, '%d/%m/%Y') AS EDU_BGN_DT
+		     , DATE_FORMAT(A.EDU_END_DT, '%d/%m/%Y') AS EDU_END_DT
+		  	 , DATE_FORMAT(A.RECURMT_BGN_DT, '%d/%m/%Y') AS RECURMT_BGN_DT
+		  	 , DATE_FORMAT(A.RECURMT_END_DT, '%d/%m/%Y') AS RECURMT_END_DT
 		     , FN_GET_ADDR_NM(SUBSTR(A.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM
 		     , FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
 		     , A.BKMK_CNT
-		     , FN_GET_BKMK_SEQ(#{condUserSeq}, 'BCT0000000011', A.EDU_TRNNG_SEQ) AS BKMK_SEQ
+		     , FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000011', A.EDU_TRNNG_SEQ) AS BKMK_SEQ
 		     , FN_GET_FILE_PATH(B.INSTT_LOGO_FILE_GRP_SEQ) AS FILE_PATH
 		     , C.SKILL_JOB_PROGRAM_CORS_CD
 		     , FN_GET_COMMON_NM('SKILL_JOB_PROGRAM_CORS_CD', C.SKILL_JOB_PROGRAM_CORS_CD, #{langCd}) AS SKILL_JOB_PROGRAM_CORS_NM
 		     , C.TEACHER_NM_1
 		     , C.RECRUMT_MEMB
-		     , FN_GET_BASE_DATE_CHAR(C.TEACH_DT, #{langCd}) AS TEACH_DT
+		     , DATE_FORMAT(C.TEACH_DT, '%d/%m/%Y') AS TEACH_DT
 		     , CONCAT(C.TEACH_BGN_HOUR,':',C.TEACH_BGN_MINUTE,' ',C.TEACH_BGN_AMPM) AS TEACH_BGN_TIME
 		     , CONCAT(C.TEACH_END_HOUR,':',C.TEACH_END_MINUTE,' ',C.TEACH_END_AMPM) AS TEACH_END_TIME
+		     , A.REG_DT
+		     , CONCAT(IFNULL(A.EDU_TRNNG_NM,''),' ',IFNULL(A.EDU_TRNNG_KEYWORD,'')) AS SRCH_TEXT
 		  FROM CPES_EDU_TRNNG A
 		       INNER JOIN
 		       CPES_INSTT B
@@ -348,7 +564,53 @@
 		       CPES_EDU_TRNNG_SUB C
 		          ON C.EDU_TRNNG_SEQ = A.EDU_TRNNG_SEQ
 		<include refid="whereIntegratedSearchNEATrainingList" />
-		 ORDER BY A.REG_DT DESC
+		       ) Z
+		<include refid="whereIntegratedSearchNEATrainingList2" />
+	</select>
+
+	<!-- 통합검색::JobFair::목록 -->
+	<select id="selectIntegratedSearchNEATrainingList" resultType="ony.cpes.external.mypage.privt.bean.EduTrnngBean" parameterType="ony.cmm.common.bean.CondIntegratedSearchBean">
+		/*integrated.selectIntegratedSearchNEATrainingList*/
+		SELECT * FROM (
+		SELECT A.EDU_TRNNG_SEQ
+		     , A.EDU_TRNNG_NM
+		     , A.INSTT_SEQ
+		     , A.TUITION
+		     , A.NEA_EDU_DIV_CD
+		     , FN_GET_COMMON_NM('NEA_EDU_DIV_CD', A.NEA_EDU_DIV_CD, #{langCd}) AS NEA_EDU_DIV_NM
+		     , A.FREE_PAID_YN
+		     , A.RECRUMT_STS_CD
+		     , FN_GET_COMMON_NM('RECRUMT_STS_CD', A.RECRUMT_STS_CD, #{langCd}) AS RECRUMT_STS_NM
+		     , DATE_FORMAT(A.EDU_BGN_DT, '%d/%m/%Y') AS EDU_BGN_DT
+		     , DATE_FORMAT(A.EDU_END_DT, '%d/%m/%Y') AS EDU_END_DT
+		  	 , DATE_FORMAT(A.RECURMT_BGN_DT, '%d/%m/%Y') AS RECURMT_BGN_DT
+		  	 , DATE_FORMAT(A.RECURMT_END_DT, '%d/%m/%Y') AS RECURMT_END_DT
+		     , FN_GET_ADDR_NM(SUBSTR(A.ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM
+		     , FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+		     , A.BKMK_CNT
+		     , FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000011', A.EDU_TRNNG_SEQ) AS BKMK_SEQ
+		     , FN_GET_FILE_PATH(B.INSTT_LOGO_FILE_GRP_SEQ) AS FILE_PATH
+		     , C.SKILL_JOB_PROGRAM_CORS_CD
+		     , FN_GET_COMMON_NM('SKILL_JOB_PROGRAM_CORS_CD', C.SKILL_JOB_PROGRAM_CORS_CD, #{langCd}) AS SKILL_JOB_PROGRAM_CORS_NM
+		     , C.TEACHER_NM_1
+		     , C.RECRUMT_MEMB
+		     , DATE_FORMAT(C.TEACH_DT, '%d/%m/%Y') AS TEACH_DT
+		     , CONCAT(C.TEACH_BGN_HOUR,':',C.TEACH_BGN_MINUTE,' ',C.TEACH_BGN_AMPM) AS TEACH_BGN_TIME
+		     , CONCAT(C.TEACH_END_HOUR,':',C.TEACH_END_MINUTE,' ',C.TEACH_END_AMPM) AS TEACH_END_TIME
+		     , A.REG_DT
+		     , CONCAT(IFNULL(A.EDU_TRNNG_NM,''),' ',IFNULL(A.EDU_TRNNG_KEYWORD,'')) AS SRCH_TEXT
+		  FROM CPES_EDU_TRNNG A
+		       INNER JOIN
+		       CPES_INSTT B
+		          ON B.INSTT_SEQ = A.INSTT_SEQ
+		         AND B.DEL_YN = 'N'
+		       INNER JOIN
+		       CPES_EDU_TRNNG_SUB C
+		          ON C.EDU_TRNNG_SEQ = A.EDU_TRNNG_SEQ
+		<include refid="whereIntegratedSearchNEATrainingList" />
+		       ) Z
+		<include refid="whereIntegratedSearchNEATrainingList2" />
+		 ORDER BY REG_DT DESC
 		 LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
 	</select>
 
@@ -358,23 +620,26 @@
 	<sql id="whereIntegratedSearchRelatedInstitutionList">
 		 WHERE A.INSTT_STS_CD = 'ITS0000000002'
 		   AND A.DEL_YN = 'N'
-		   AND (
-		        A.INSTT_NM_KH LIKE CONCAT('%',#{condText},'%')
-		    OR  A.INSTT_NM_EN LIKE CONCAT('%',#{condText},'%')
+		   AND A.REG_DT <![CDATA[ >= ]]> DATE_ADD(CURDATE(), INTERVAL -3 MONTH)
+	</sql>
+
+	<sql id="whereIntegratedSearchRelatedInstitutionList2">
+		 WHERE (
+				<foreach item="item" index="index" collection="condTextArr" separator=" OR ">
+		        Z.SRCH_TEXT LIKE CONCAT('%',#{item},'%')
+		        </foreach>
+				<foreach item="item" index="index" collection="synonymList">
+            OR  Z.SRCH_TEXT LIKE CONCAT('%',#{item.kh},'%')
+            OR  Z.SRCH_TEXT LIKE CONCAT('%',#{item.en},'%')
+				</foreach>
 		       )
 	</sql>
 
 	<!-- 통합검색::JobFair::총건수 -->
-	<select id="selectIntegratedSearchRelatedInstitutionListCnt" resultType="java.lang.Integer" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
+	<select id="selectIntegratedSearchRelatedInstitutionListCnt" resultType="java.lang.Integer" parameterType="ony.cmm.common.bean.CondIntegratedSearchBean">
 		/*integrated.selectIntegratedSearchRelatedInstitutionListCnt*/
 		SELECT COUNT(1) AS CNT
-		  FROM CPES_INSTT A
-		<include refid="whereIntegratedSearchRelatedInstitutionList" />
-	</select>
-
-	<!-- 통합검색::JobFair::목록 -->
-	<select id="selectIntegratedSearchRelatedInstitutionList" resultType="ony.cpes.external.mypage.instt.bean.InsttMemBean" parameterType="ony.cpes.external.mypage.compny.bean.CondVacancyBean">
-		/*integrated.selectIntegratedSearchRelatedInstitutionList*/
+		  FROM (
 		SELECT A.INSTT_SEQ
 		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN A.INSTT_NM_KH ELSE A.INSTT_NM_EN END AS INSTT_NM
 		     , A.INSTT_CONTENT
@@ -387,10 +652,39 @@
 		     , FN_GET_ADDR_NM(SUBSTR(A.INSTT_ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM
 		     , FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
 		     , A.BKMK_CNT
-		     , FN_GET_BKMK_SEQ(#{condUserSeq}, 'BCT0000000010', A.INSTT_SEQ) AS BKMK_SEQ
+		     , FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000010', A.INSTT_SEQ) AS BKMK_SEQ
+		     , A.REG_DT
+		     , CONCAT(IFNULL(A.INSTT_NM_KH,''),' ',IFNULL(A.INSTT_NM_EN,'')) AS SRCH_TEXT
 		  FROM CPES_INSTT A
 		<include refid="whereIntegratedSearchRelatedInstitutionList" />
-		 ORDER BY A.REG_DT DESC
+		       ) Z
+		<include refid="whereIntegratedSearchRelatedInstitutionList2" />
+	</select>
+
+	<!-- 통합검색::JobFair::목록 -->
+	<select id="selectIntegratedSearchRelatedInstitutionList" resultType="ony.cpes.external.mypage.instt.bean.InsttMemBean" parameterType="ony.cmm.common.bean.CondIntegratedSearchBean">
+		/*integrated.selectIntegratedSearchRelatedInstitutionList*/
+		SELECT * FROM (
+		SELECT A.INSTT_SEQ
+		     , CASE WHEN UPPER(#{langCd}) = 'KH' THEN A.INSTT_NM_KH ELSE A.INSTT_NM_EN END AS INSTT_NM
+		     , A.INSTT_CONTENT
+		     , A.INSTT_PROFILE
+		     , A.INSTT_TYPE_CD
+		     , FN_GET_COMMON_NM('INSTT_TYPE_CD', A.INSTT_TYPE_CD, #{langCd}) AS INSTT_TYPE_NM
+		     , A.INSTT_WEBSITE
+		     , A.INSTT_OFFICE_TEL
+		     , A.INSTT_EMAIL
+		     , FN_GET_ADDR_NM(SUBSTR(A.INSTT_ADDR_FULL_CD,1,3), '2', #{langCd}) AS ADDR_NM
+		     , FN_GET_NEW_YN(A.REG_DT) AS NEW_YN
+		     , A.BKMK_CNT
+		     , FN_GET_BKMK_SEQ(#{regUserSeq}, 'BCT0000000010', A.INSTT_SEQ) AS BKMK_SEQ
+		     , A.REG_DT
+		     , CONCAT(IFNULL(A.INSTT_NM_KH,''),' ',IFNULL(A.INSTT_NM_EN,'')) AS SRCH_TEXT
+		  FROM CPES_INSTT A
+		<include refid="whereIntegratedSearchRelatedInstitutionList" />
+		       ) Z
+		<include refid="whereIntegratedSearchRelatedInstitutionList2" />
+		 ORDER BY REG_DT DESC
 		 LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
 	</select>
 

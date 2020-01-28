@@ -98,6 +98,7 @@ public class ResumeBean extends CommonBean {
 	private String addrFullCd;
 	private String addrFullNm;
 	private String addrNm;
+	private String priResumeReqYn;
 
 	private String hopeWorkLocListStr;
 	private String specialStudyListStr;
@@ -133,6 +134,12 @@ public class ResumeBean extends CommonBean {
 	private String eduDegreeNm;
 	private String displayYn;
 
+	public String getPriResumeReqYn() {
+		return priResumeReqYn;
+	}
+	public void setPriResumeReqYn(String priResumeReqYn) {
+		this.priResumeReqYn = priResumeReqYn;
+	}
 	public String getVacancySeq() {
 		return vacancySeq;
 	}

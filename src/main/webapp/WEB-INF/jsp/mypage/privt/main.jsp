@@ -181,26 +181,14 @@
 				</div>
 				<!-- //bbs_basic list -->
 
-				<div class="bbs_empty noMatchSet">
+				<div class="bbs_empty">
 					<p>
-						<spring:message code="private.member.main.msg05" /><br/>
-						<spring:message code="private.member.main.msg06" />
+						<spring:message code="private.member.main.msg01" /><br />
+						<spring:message code="private.member.main.msg02" />
 					</p>
 					<div class="bbs_btn_wrap">
 						<div class="bbs_center">
-							<a href="javascript:fnGoMoveUrl('frm','${pageContext.request.contextPath}/cpes/private/matching/regist.do')" class="bbs_btn type01"><spring:message code="private.member.main.msg07" /></a>
-						</div>
-					</div>
-				</div>
-
-				<div class="bbs_empty data">
-					<p>
-						<spring:message code="private.member.main.msg08" /><br/>
-						<spring:message code="private.member.main.msg09" />
-					</p>
-					<div class="bbs_btn_wrap">
-						<div class="bbs_center">
-							<a href="javascript:fnGoMoveUrl('frm','${pageContext.request.contextPath}/cpes/private/matching/regist.do')" class="bbs_btn type01"><spring:message code="private.member.main.msg07" /></a>
+							<a href="" class="bbs_btn type01"><spring:message code="resume.text.resumeInsert" /></a>
 						</div>
 					</div>
 				</div>
@@ -234,14 +222,26 @@
 				</div>
 				<!-- //bbs_basic list -->
 
-				<div class="bbs_empty">
+				<div class="bbs_empty noMatchSet">
 					<p>
-						<spring:message code="private.member.main.msg01" /><br />
-						<spring:message code="private.member.main.msg02" />
+						<spring:message code="private.member.main.msg05" /><br/>
+						<spring:message code="private.member.main.msg06" />
 					</p>
 					<div class="bbs_btn_wrap">
 						<div class="bbs_center">
-							<a href="" class="bbs_btn type01"><spring:message code="resume.text.resumeInsert" /></a>
+							<a href="javascript:fnGoMoveUrl('frm','${pageContext.request.contextPath}/cpes/private/matching/regist.do')" class="bbs_btn type01"><spring:message code="private.member.main.msg07" /></a>
+						</div>
+					</div>
+				</div>
+
+				<div class="bbs_empty data">
+					<p>
+						<spring:message code="private.member.main.msg08" /><br/>
+						<spring:message code="private.member.main.msg09" />
+					</p>
+					<div class="bbs_btn_wrap">
+						<div class="bbs_center">
+							<a href="javascript:fnGoMoveUrl('frm','${pageContext.request.contextPath}/cpes/private/matching/regist.do')" class="bbs_btn type01"><spring:message code="private.member.main.msg07" /></a>
 						</div>
 					</div>
 				</div>
@@ -408,19 +408,12 @@
 
 				// Data List
 				$("#"+divArea+" .bbs_basic >ul").empty();
-
-				if(!data.matchSetCnt || parseInt(data.matchSetCnt) < 1) {
-					$("#"+divArea+" .bbs_empty.noMatchSet").show();
-				} else {
-					$("#"+divArea+" .bbs_empty.noMatchSet").hide();
-				}
-
 				if(!data.resultList || data.resultList.length == 0) {
 					$("#"+divArea+" .bbs_basic").hide();
-					$("#"+divArea+" .bbs_empty.data").show();
+					$("#"+divArea+" .bbs_empty").show();
 				} else {
 					$("#"+divArea+" .bbs_basic").show();
-					$("#"+divArea+" .bbs_empty.data").hide();
+					$("#"+divArea+" .bbs_empty").hide();
 
 					var cnt = 0;
 					var dataList = "", classNew = "", classBkmk = "", classRemain="", remainDays= "";
@@ -511,11 +504,13 @@
 					$("#"+divArea+" .bbs_empty.noMatchSet").show();
 				} else {
 					$("#"+divArea+" .bbs_empty.noMatchSet").hide();
+					if(!data.resultList || data.resultList.length == 0) {
+						$("#"+divArea+" .bbs_basic").hide();
+						$("#"+divArea+" .bbs_empty.data").show();
+					}
 				}
 
 				if(!data.resultList || data.resultList.length == 0) {
-					$("#"+divArea+" .bbs_basic").hide();
-					$("#"+divArea+" .bbs_empty.data").show();
 				} else {
 					$("#"+divArea+" .bbs_basic").show();
 					$("#"+divArea+" .bbs_empty.data").hide();

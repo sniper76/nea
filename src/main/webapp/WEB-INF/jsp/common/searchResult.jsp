@@ -7,9 +7,10 @@
 	<header class="sub_head">
 		<div class="sub_title">
 			<h2>
-				<span><spring:message code="comm.search.ttl01" /> <strong
-					class="keywords">"<c:out value="${param.condText}" />"
-				</strong></span>
+				<span>
+					<spring:message code="comm.search.ttl01" />
+					<strong class="keywords">"<c:out value="${fn:trim(param.integratedSearchText)}" />"</strong>
+				</span>
 			</h2>
 		</div>
 	</header>
@@ -17,25 +18,17 @@
 
 		<div class="tab_menu count6 action">
 			<ul class="clearfix">
-				<li class="on"><a href="#tab_contents1"
-					onclick="fnSearch('Vacancy')"><spring:message
-							code="comm.search.lbl03" /> <strong class="nums" id="vacancyCnt"></strong></a></li>
+				<li class="on"><a href="#tab_contents1" onclick="fnSearch('Vacancy')"><spring:message code="comm.search.lbl03" /> <strong class="nums" id="vacancyCnt"></strong></a></li>
 				<!-- Job Vacancy -->
-				<li><a href="#tab_contents2" onclick="fnSearch('Resume')"><spring:message
-							code="jobfair.type.detail.title29" /> <strong class="nums"
-						id="resumeCnt"></strong></a></li>
+				<li><a href="#tab_contents2" onclick="fnSearch('Resume')"><spring:message code="jobfair.type.detail.title29" /> <strong class="nums" id="resumeCnt"></strong></a></li>
 				<!-- Employer -->
-				<li><a href="#tab_contents3" onclick="fnSearch('JobFair')"><spring:message
-							code="comm.search.lbl04" /> <strong class="nums" id="jobfairCnt"></strong></a></li>
+				<li><a href="#tab_contents3" onclick="fnSearch('JobFair')"><spring:message code="comm.search.lbl04" /> <strong class="nums" id="jobfairCnt"></strong></a></li>
 				<!-- Job Fair -->
-				<li><a href="#tab_contents4" onclick="fnSearch('Edu')"><spring:message
-							code="comm.search.lbl05" /> <strong class="nums" id="eduCnt"></strong></a></li>
+				<li><a href="#tab_contents4" onclick="fnSearch('Edu')"><spring:message code="comm.search.lbl05" /> <strong class="nums" id="eduCnt"></strong></a></li>
 				<!-- Training Program -->
-				<li><a href="#tab_contents5" onclick="fnSearch('NEA')"><spring:message
-							code="comm.search.lbl06" /> <strong class="nums" id="neaCnt"></strong></a></li>
+				<li><a href="#tab_contents5" onclick="fnSearch('NEA')"><spring:message code="comm.search.lbl06" /> <strong class="nums" id="neaCnt"></strong></a></li>
 				<!-- NEA Training -->
-				<li><a href="#tab_contents6" onclick="fnSearch('Instt')"><spring:message
-							code="comm.search.lbl07" /> <strong class="nums" id="insttCnt"></strong></a></li>
+				<li><a href="#tab_contents6" onclick="fnSearch('Instt')"><spring:message code="comm.search.lbl07" /> <strong class="nums" id="insttCnt"></strong></a></li>
 				<!-- Related Institution -->
 			</ul>
 		</div>
@@ -122,43 +115,7 @@
 
 		<div id="tab_contents6" class="tab_contents">
 			<div class="bbs_basic">
-				<ul class="recruitment_list type2 none_border clearfix">
-					<!-- 인기채용공고 목록일 경우 클래스 popularity 추가, 교육기관,교육프로그램일 경우 클래스 adu 추가, 직업훈련일 경우 클래스 type2 추가 -->
-					<li>
-						<div class="contents_wrap">
-							<div class="contents_box">
-								<div class="title_box">
-									<!-- 새글일 경우 클래스 new 추가 -->
-									<a href="" class="title">Construction Project Planning
-										Manager</a>
-								</div>
-								<div class="cont_box type2">
-									<span class="cont"> <span class="con">#Phnom Penh</span>
-										<span class="con">#Recruiting</span> <strong class="con">#Recruiting</strong>
-										<!-- 검색 조건일 때 태그 strong -->
-									</span>
-								</div>
-							</div>
-						</div>
-					</li>
-					<li>
-						<div class="contents_wrap">
-							<div class="contents_box">
-								<div class="title_box">
-									<!-- 새글일 경우 클래스 new 추가 -->
-									<a href="" class="title">Construction Project Planning
-										Manager</a>
-								</div>
-								<div class="cont_box type2">
-									<span class="cont"> <span class="con">#Phnom Penh</span>
-										<span class="con">#Recruiting</span> <strong class="con">#Recruiting</strong>
-										<!-- 검색 조건일 때 태그 strong -->
-									</span>
-								</div>
-							</div>
-						</div>
-					</li>
-				</ul>
+				<ul class="recruitment_list type2 none_border clearfix"></ul>
 			</div>
 			<!-- //bbs_basic list -->
 			<div class="bbs_empty">
@@ -188,7 +145,7 @@
 	var currentPageNo = "1";
 	var condSort = "LATEST";
 	var condTab = "vacancy";
-	var condText = "<c:out value="${param.condText}" />";
+	var condText = "<c:out value="${fn:trim(param.integratedSearchText)}" />";
 
 	$(document).ready(function() {
 		$(".bbs_empty").hide();
@@ -225,6 +182,7 @@
 
 	function fnSearchVacancy(currentPageNo) {
 		var divArea = "tab_contents1";
+		if(!condText || $.trim(condText) == '') { $("#"+divArea+" .bbs_empty").show(); return; }
 		if(currentPageNo == null || $.trim(currentPageNo) == "") currentPageNo = 1;
 		$.ajax({
 			type: METHOD_POST, dataType: AJAX_DATA_TYPE_JSON,
@@ -232,7 +190,7 @@
 			data: {
 		   		"condSort": condSort,
 		   		"currentPageNo": currentPageNo,
-		   		"condText": condText
+		   		"condText": $.trim(condText)
 			},
 			success: function(data) {
 	   			if (data.result.successYn != "Y") {
@@ -314,6 +272,7 @@
 
 	function fnSearchResume(currentPageNo) {
 		var divArea = "tab_contents2";
+		if(!condText || $.trim(condText) == '') { $("#"+divArea+" .bbs_empty").show(); return; }
 		if(currentPageNo == null || $.trim(currentPageNo) == "") currentPageNo = 1;
 		$.ajax({
 			type: METHOD_POST, dataType: AJAX_DATA_TYPE_JSON,
@@ -321,7 +280,7 @@
 			data: {
 		   		"condSort": condSort,
 		   		"currentPageNo": currentPageNo,
-		   		"condText": condText
+		   		"condText": $.trim(condText)
 			},
 			success: function(data) {
 	   			if (data.result.successYn != "Y") {
@@ -394,6 +353,7 @@
 
 	function fnSearchJobFair(currentPageNo) {
 		var divArea = "tab_contents3";
+		if(!condText || $.trim(condText) == '') { $("#"+divArea+" .bbs_empty").show(); return; }
 		if(currentPageNo == null || $.trim(currentPageNo) == "") currentPageNo = 1;
 		$.ajax({
 			type: METHOD_POST, dataType: AJAX_DATA_TYPE_JSON,
@@ -401,7 +361,7 @@
 			data: {
 		   		"condSort": condSort,
 		   		"currentPageNo": currentPageNo,
-		   		"condText": condText
+		   		"condText": $.trim(condText)
 			},
 			success: function(data) {
 	   			if (data.result.successYn != "Y") {
@@ -480,6 +440,7 @@
 
 	function fnSearchTrainingProgram(currentPageNo) {
 		var divArea = "tab_contents4";
+		if(!condText || $.trim(condText) == '') { $("#"+divArea+" .bbs_empty").show(); return; }
 		if(currentPageNo == null || $.trim(currentPageNo) == "") currentPageNo = 1;
 		$.ajax({
 			type: METHOD_POST, dataType: AJAX_DATA_TYPE_JSON,
@@ -487,7 +448,7 @@
 			data: {
 		   		"condSort": condSort,
 		   		"currentPageNo": currentPageNo,
-		   		"condText": condText
+		   		"condText": $.trim(condText)
 			},
 			success: function(data) {
 	   			if (data.result.successYn != "Y") {
@@ -577,6 +538,7 @@
 
 	function fnSearchNEATraining(currentPageNo) {
 		var divArea = "tab_contents5";
+		if(!condText || $.trim(condText) == '') { $("#"+divArea+" .bbs_empty").show(); return; }
 		if(currentPageNo == null || $.trim(currentPageNo) == "") currentPageNo = 1;
 		$.ajax({
 			type: METHOD_POST, dataType: AJAX_DATA_TYPE_JSON,
@@ -584,7 +546,7 @@
 			data: {
 		   		"condSort": condSort,
 		   		"currentPageNo": currentPageNo,
-		   		"condText": condText
+		   		"condText": $.trim(condText)
 			},
 			success: function(data) {
 	   			if (data.result.successYn != "Y") {
@@ -672,6 +634,7 @@
 
 	function fnSearchRelatedInstitution(currentPageNo) {
 		var divArea = "tab_contents6";
+		if(!condText || $.trim(condText) == '') { $("#"+divArea+" .bbs_empty").show(); return; }
 		if(currentPageNo == null || $.trim(currentPageNo) == "") currentPageNo = 1;
 		$.ajax({
 			type: METHOD_POST, dataType: AJAX_DATA_TYPE_JSON,
@@ -679,7 +642,7 @@
 			data: {
 		   		"condSort": condSort,
 		   		"currentPageNo": currentPageNo,
-		   		"condText": condText
+		   		"condText": $.trim(condText)
 			},
 			success: function(data) {
 	   			if (data.result.successYn != "Y") {
@@ -712,7 +675,7 @@
 						dataList += '	<div class="contents_wrap">';
 						dataList += '		<div class="contents_box">';
 						dataList += '			<div class="title_box">';
-						dataList += '				<a href="" class="title">'+nvl(item.insttNm)+'</a>';
+						dataList += '				<a href="javascript:fnInsttView(\''+item.insttSeq+'\')" class="title">'+nvl(item.insttNm)+'</a>';
 						dataList += '			</div>';
 						dataList += '			<div class="cont_box type2">';
 						dataList += '				<span class="cont">';

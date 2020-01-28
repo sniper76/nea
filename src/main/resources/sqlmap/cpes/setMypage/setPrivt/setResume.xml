@@ -677,6 +677,7 @@
 		<if test="preferPosition != null and preferPosition != ''">, PREFER_POSITION = #{preferPosition}</if>
 		<if test="addrFullCd != null and addrFullCd != ''">, ADDR_FULL_CD = #{addrFullCd}</if>
 		<if test="addrFullNm != null and addrFullNm != ''">, ADDR_FULL_NM = #{addrFullNm}</if>
+		<if test="priResumeReqYn != null and priResumeReqYn != ''">, PRI_RESUME_REQ_YN = #{priResumeReqYn}</if>
 
 		WHERE RESUME_SEQ = #{resumeSeq}
 	</update>

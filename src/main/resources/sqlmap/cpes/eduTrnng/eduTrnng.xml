@@ -199,20 +199,8 @@
 				AND A.EDU_TRNNG_NM LIKE CONCAT('%',#{condText2},'%')
 			</if>
 
-			<if test='condKeyword != null and "11".equals(condKeyword)'>
-				AND A.EDU_TRNNG_NM LIKE CONCAT('%',#{condText2},'%')
-			</if>
-
-			<if test='condKeyword != null and "22".equals(condKeyword)'>
-				AND C.TEACHER_NM_1 LIKE CONCAT('%',#{condText2},'%')
-			</if>
-
 			<if test='condKeyword != null and "0".equals(condKeyword)'>
-				AND ( B.INSTT_NM_EN LIKE CONCAT('%',#{condText2},'%') OR B.INSTT_NM_KH LIKE CONCAT('%',#{condText2},'%') OR A.EDU_TRNNG_NM LIKE CONCAT('%',#{condText2},'%') )
-			</if>
-
-			<if test='condKeyword != null and "00".equals(condKeyword)'>
-				AND ( A.EDU_TRNNG_KEYWORD LIKE CONCAT('%',#{condText2},'%') OR A.EDU_TRNNG_NM LIKE CONCAT('%',#{condText2},'%') OR C.TEACHER_NM_1 LIKE CONCAT('%',#{condText2},'%') )
+				AND ( A.EDU_TRNNG_KEYWORD LIKE CONCAT('%',#{condText2},'%') OR B.INSTT_NM_EN LIKE CONCAT('%',#{condText2},'%') OR B.INSTT_NM_KH LIKE CONCAT('%',#{condText2},'%') OR A.EDU_TRNNG_NM LIKE CONCAT('%',#{condText2},'%') )
 			</if>
 		</if>
 
@@ -382,14 +370,6 @@
 		</if>
 
 		<if test="condText2 != null and !condText2.equals('')">
-			<if test='condKeyword != null and "1".equals(condKeyword)'>
-				AND ( B.INSTT_NM_EN LIKE CONCAT('%',#{condText2},'%') OR B.INSTT_NM_KH LIKE CONCAT('%',#{condText2},'%') )
-			</if>
-
-			<if test='condKeyword != null and "2".equals(condKeyword)'>
-				AND A.EDU_TRNNG_NM LIKE CONCAT('%',#{condText2},'%')
-			</if>
-
 			<if test='condKeyword != null and "11".equals(condKeyword)'>
 				AND A.EDU_TRNNG_NM LIKE CONCAT('%',#{condText2},'%')
 			</if>
@@ -398,8 +378,8 @@
 				AND C.TEACHER_NM_1 LIKE CONCAT('%',#{condText2},'%')
 			</if>
 
-			<if test='condKeyword != null and "0".equals(condKeyword)'>
-				AND ( A.EDU_TRNNG_KEYWORD LIKE CONCAT('%',#{condText2},'%') OR B.INSTT_NM_EN LIKE CONCAT('%',#{condText2},'%') OR B.INSTT_NM_KH LIKE CONCAT('%',#{condText2},'%') OR A.EDU_TRNNG_NM LIKE CONCAT('%',#{condText2},'%') )
+			<if test='condKeyword != null and "00".equals(condKeyword)'>
+				AND ( A.EDU_TRNNG_KEYWORD LIKE CONCAT('%',#{condText2},'%') OR A.EDU_TRNNG_NM LIKE CONCAT('%',#{condText2},'%') OR C.TEACHER_NM_1 LIKE CONCAT('%',#{condText2},'%') )
 			</if>
 		</if>
 

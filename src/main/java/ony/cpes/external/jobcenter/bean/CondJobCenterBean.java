@@ -22,10 +22,17 @@ import ony.cmm.common.bean.CommonBean;
 public class CondJobCenterBean extends CommonBean {
 
 	private String condSeq;
+	private String condUserSeq;
 	private String condType;
 	private String condText;
 	private String condSort;
 
+	public String getCondUserSeq() {
+		return condUserSeq;
+	}
+	public void setCondUserSeq(String condUserSeq) {
+		this.condUserSeq = condUserSeq;
+	}
 	public String getCondSeq() {
 		return condSeq;
 	}

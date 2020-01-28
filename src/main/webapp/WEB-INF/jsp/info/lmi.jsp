@@ -18,7 +18,7 @@
 				<h2><span><spring:message code="info.lmi.tt01" /></span></h2>
 			</div>
 		</header>
-		<div id="contents">
+		<div id="contents" class="lmi">
 
 			<div class="box_calendar">
 				 <div class="calendar_top clearfix">

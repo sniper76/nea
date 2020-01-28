@@ -24,6 +24,8 @@ import egovframework.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import ony.cmm.common.ConstVal;
 import ony.cmm.common.bean.ConditionBean;
 import ony.cmm.common.service.CommonService;
+import ony.cmm.common.tag.CpesPaginationTag;
+import ony.cmm.common.util.SessionUtil;
 import ony.cpes.external.jobcenter.bean.CondJobCenterBean;
 import ony.cpes.external.jobcenter.bean.JobCenterBean;
 import ony.cpes.external.jobcenter.service.JobCenterService;
@@ -62,43 +64,59 @@ public class JobCenterController  extends BaseController {
 	 */
 	  @RequestMapping("/list")
 	public ModelAndView list(Locale locale,
-			@RequestParam(required = false, defaultValue = "1") int currentPageNo,
-			@RequestParam(required = false, defaultValue = "15") int pageUnit,
-			@RequestParam(required = false, defaultValue = "10") int pageSize,
 			@ModelAttribute("ConditionBean") ConditionBean conditionBean,
 			@ModelAttribute("CondJobCenterBean") CondJobCenterBean condJobCenterBean,
 			Principal principal,
 			HttpServletRequest req,
 			HttpServletResponse res) throws Exception {
 
-
 	  	ModelAndView mv = new ModelAndView();
-	  	mv.setViewName("jobcenter/list.one");//게시판 기본유형,BASIC TYPE
-	  	mv.addObject(ConstVal.LOGIN_YN_KEY, ConstVal.NO_VAL);
-
-      	PaginationInfo paginationInfo = PageUtil.getPageInfo(currentPageNo, pageUnit, pageSize);//page info
-  		condJobCenterBean.setFirstIndex(paginationInfo.getFirstRecordIndex());
-  		condJobCenterBean.setLastIndex(paginationInfo.getLastRecordIndex());
-  		condJobCenterBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
-  		mv.addObject(ConstVal.PAGINATION_INFO_KEY, paginationInfo);
-
-
-      	condJobCenterBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,language code
-
-	  	int totCnt = jobCenterService.selectJobCenterListCnt(condJobCenterBean);
-	  	paginationInfo.setTotalRecordCount(totCnt);
-    	mv.addObject(ConstVal.PAGINATION_INFO_KEY, paginationInfo);
-
-    	if(totCnt > 0) {//데이터가 존재할경우
-    		List<JobCenterBean> list = jobCenterService.selectJobCenterList(condJobCenterBean);
-    		mv.addObject(ConstVal.RESULT_LIST_KEY, list);
-    	}
+	  	mv.setViewName("jobcenter/list.one");
 
 	  	mv.addObject(ConstVal.CONN_YN_KEY,ConstVal.YES_VAL);
-	  	mv.addObject("condJobCenterBean", condJobCenterBean);
+
 	  	return mv;
 
 	}
+
+	  @RequestMapping("/listAjax")
+	  public ModelAndView listAjax(Locale locale,
+			  @ModelAttribute("CondJobCenterBean") CondJobCenterBean conditionBean,
+			  Principal principal,
+			  HttpServletRequest req,
+			  HttpServletResponse res) throws Exception {
+
+		  ModelAndView mv = new ModelAndView();
+
+			if (principal != null) {
+				conditionBean.setCondUserSeq(SessionUtil.getUserSeq(req));
+			}
+			conditionBean.setLangCd(locale.getLanguage().toUpperCase());
+
+			PaginationInfo paginationInfo = PageUtil.getPageInfo(conditionBean.getPageIndex(), conditionBean.getPageUnit(),
+					conditionBean.getPageSize());
+			conditionBean.setFirstIndex(paginationInfo.getFirstRecordIndex());
+			conditionBean.setLastIndex(paginationInfo.getLastRecordIndex());
+			conditionBean.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+			int totCnt = jobCenterService.selectJobCenterListCnt(conditionBean);
+			paginationInfo.setTotalRecordCount(totCnt);
+			conditionBean.setRecordsTotal(totCnt);
+
+			if(totCnt > 0) {
+				mv.addObject(ConstVal.RESULT_KEY, jobCenterService.selectJobCenterList(conditionBean));
+			}
+
+			CpesPaginationTag pTag = new CpesPaginationTag();
+
+			mv.addObject("totalPageCount", paginationInfo.getTotalRecordCount());
+			mv.addObject("currentPageNo", paginationInfo.getCurrentPageNo());
+			mv.addObject(ConstVal.PAGINATION_INFO_KEY, pTag.getPagination(req, paginationInfo, "fnGoSrch"));
+
+			mv.setViewName(ConstVal.JSON_VIEW_KEY);
+
+		  return mv;
+	  }
 
 
 

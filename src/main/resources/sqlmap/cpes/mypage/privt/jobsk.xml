@@ -26,6 +26,8 @@
         AND A.USE_YN = 'Y'
         AND B.DEL_YN = 'N'
         AND (B.JOBSK_STS_CD = 'JSC0000000001' OR B.JOBSK_STS_CD = 'JSC0000000002')
+        ORDER BY B.REG_DT DESC
+        LIMIT 1
 	</select>
 
 

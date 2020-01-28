@@ -201,7 +201,7 @@ public class ResumeController extends BaseController{
 		resumeBean.setLangCd(locale.getLanguage().toUpperCase());//언어코드,lanuage code
 		resumeBean.setUserSeq(userSeq);
 		resumeBean.setModUserSeq(userSeq);
-		resumeBean.setPriResumeYn(ConstVal.YES_VAL);
+		resumeBean.setPriResumeReqYn(ConstVal.YES_VAL);
 
 		String priResumeSeq = resumeService.selectPriResumeSeq(userSeq); //기존 대표이력서 seq
 		if(resumeService.selectPriResumeYnValidation(priResumeSeq) == 0) {
@@ -212,10 +212,10 @@ public class ResumeController extends BaseController{
 			//resumeService.deleteApplic(priResumeSeq);
 			//resumeService.deleteOffer(priResumeSeq);
 
-			int resetResult = resumeService.resetPriResumeYn(resumeBean);
+			//int resetResult = resumeService.resetPriResumeYn(resumeBean);
 			int updateResult = resumeService.updateResume(resumeBean);
 
-			if(resetResult > 0 && updateResult > 0) {
+			if(updateResult > 0) {
 				mv.addObject(ConstVal.RESULT_KEY, ConstVal.YES_VAL);
 			}else {
 				mv.addObject(ConstVal.RESULT_KEY, ConstVal.NO_VAL);
